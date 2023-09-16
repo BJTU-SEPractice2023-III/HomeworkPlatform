@@ -21,7 +21,8 @@ func init() {
 
 	DB = db
 	DB.AutoMigrate(&User{})
-
+	DB.AutoMigrate(&CourseSelection{})
+	DB.AutoMigrate(&Course{})
 	// 创建初始管理员账户
 	addDefaultUser()
 }
