@@ -17,7 +17,7 @@ func AdminCheck() gin.HandlerFunc {
 		log.Println(claims)
 
 		if user, err := models.GetUserByUUID(claims.UUID); err == nil && user.IsAdmin {
-			c.Set("isAdmin", true)
+			// c.Set("isAdmin", true)
 			c.Next()
 			return
 		}

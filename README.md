@@ -20,10 +20,15 @@ pnpm i
 pnpm build
 ```
 
+### 3. 打包前端到 go 模块
+
+```shell
+statik -src=assets/build -f
+```
+
 ### 3. 构建可执行文件
 
 ```shell
-statik -src=assets/dist -f
 set GOARCH=amd64
 set GOOS=linux
 go build -o Builds/v1.0/HomeworkPlatform-1.0.0 homework_platform
