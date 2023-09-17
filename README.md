@@ -35,3 +35,7 @@ go build -o Builds/v1.0/HomeworkPlatform-1.0.0 homework_platform
 set GOOS=windows
 go build -o Builds/v1.0/ACH-1.0.0.exe homework_platform
 ```
+
+## 设计
+
+![DB Design](image.png)

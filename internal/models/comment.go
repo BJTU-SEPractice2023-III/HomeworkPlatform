@@ -4,8 +4,18 @@ import "gorm.io/gorm"
 
 type Comment struct {
 	gorm.Model
-	HomeworkSubmissionID int    `json:"homework_submission_id" gorm:"type:int(20)"`
-	Comment              string `json:"comment"`
-	ReviewerID           int    `json:"reviewer_id" gorm:"type:int(20)"`
-	Grade                int    `json:"grade"`
+
+	// A homework submission has many comments
+	// Also check homework_submission.go
+	// Check: https://gorm.io/docs/has_many.html
+	HomeworkSubmissionID uint `json:"homework_submission_id"`
+
+	// A user has many comments
+	// Also check user.go
+	// Check: https://gorm.io/docs/has_many.html
+	UserID uint `json:"user_id"`
+
+	// Regular fields
+	Comment string `json:"comment"`
+	Grade   int    `json:"grade"`
 }

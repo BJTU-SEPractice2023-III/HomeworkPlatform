@@ -4,8 +4,18 @@ import "gorm.io/gorm"
 
 type HomeworkSubmission struct {
 	gorm.Model
-	HomeworkID int    `json:"homework_id" gorm:"type:int(20)"`
-	UserID     int    `json:"user_id" gorm:"type:int(20)"`
+
+	// A homework has many homework submission
+	// Also check homework.go
+	// Check: https://gorm.io/docs/has_many.html
+	HomeworkID uint `json:"homework_id"`
+
+	// A User has many homework submission
+	// Also check user.go
+	// Check: https://gorm.io/docs/has_many.html
+	UserID uint `json:"user_id"`
+
+	// Regular fields
 	Content    string `json:"content"`
 	Attachment string `json:"attachment"`
 }

@@ -13,4 +13,9 @@ type Homework struct {
 	Description string    `json:"description" gorm:"type:varchar(255)"`
 	BeginDate   time.Time `json:"begin_date"`
 	EndDate     time.Time `json:"end_date"`
+
+	// A homework has many submissions
+	// Also check homeworkSubmission.go
+	// Check: https://gorm.io/docs/has_many.html
+	HomeworkSubmissions []HomeworkSubmission
 }

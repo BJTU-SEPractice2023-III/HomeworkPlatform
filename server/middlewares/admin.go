@@ -16,7 +16,7 @@ func AdminCheck() gin.HandlerFunc {
 		claims := jwt.MustGetClaims(c)
 		log.Println(claims)
 
-		if user, err := models.GetUserByUUID(claims.UUID); err == nil && user.IsAdmin {
+		if user, err := models.GetUserByID(claims.ID); err == nil && user.IsAdmin {
 			// c.Set("isAdmin", true)
 			c.Next()
 			return

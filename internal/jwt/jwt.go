@@ -13,13 +13,13 @@ import (
 )
 
 type MyCustomClaims struct {
-	UUID string `json:"UUID"`
+	ID uint `json:"UUID"`
 	jwt.RegisteredClaims
 }
 
-func CreateToken(uuid string) (string, error) {
+func CreateToken(id uint) (string, error) {
 	return jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), MyCustomClaims{
-		uuid,
+		id,
 		jwt.RegisteredClaims{
 			// ExpiresAt: time.Now().Add(time.Minute * 1).Unix(),
 		},

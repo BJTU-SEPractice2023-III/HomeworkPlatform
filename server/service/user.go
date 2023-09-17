@@ -43,13 +43,7 @@ func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 	}
 
 	var jwtToken string
-	if user.Username == "Admin" {
-		jwtToken, err = jwt.CreateToken("Admin")
-		// fmt.Println(err)
-	} else {
-		jwtToken, err = jwt.CreateToken(user.PlayerUUID)
-		// fmt.Println(err)
-	}
+	jwtToken, err = jwt.CreateToken(user.ID)
 
 	res := make(map[string]any)
 	res["token"] = jwtToken
@@ -81,11 +75,11 @@ func (service *UserUpdateService) Handle(c *gin.Context) (any, error) {
 }
 
 type GetUserService struct {
-	UUID string `form:"uuid"`
+	ID uint `form:"id"`
 }
 
 func (service *GetUserService) Handle(c *gin.Context) (any, error) {
-	if user, err := models.GetUserByUUID(service.UUID); err != nil {
+	if user, err := models.GetUserByID(service.ID); err != nil {
 		return user, nil
 	} else {
 		return nil, err

@@ -4,16 +4,40 @@ import (
 	"homework_platform/internal/utils"
 	"log"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID         uint   `json:"id" gorm:"primaryKey"`
-	PlayerUUID string `json:"uuid" gorm:"unique"`     // 玩家 UUID
-	PlayerName string `json:"player_name"`            // 玩家名(用户名)
-	Username   string `json:"username" gorm:"unique"` // 用户名
-	Password   string `json:"-"`                      // 密码
-	IsAdmin    bool   `json:"is_admin"`               // 是否是管理员
+	gorm.Model
+
+	Username string `json:"username" gorm:"unique"` // 用户名
+	Password string `json:"-"`                      // 密码
+	IsAdmin  bool   `json:"is_admin"`               // 是否是管理员
+
+	////// Associations //////
+	// A user has many courses
+	// Also check course.go
+	// Check: https://gorm.io/docs/has_many.html
+	TeachingCourses []Course `gorm:"foreignKey:TeacherID"`
+
+	// A student has many courses, a course has many students
+	// Also check course.go
+	// Check: https://gorm.io/docs/many_to_many.html
+	LearningCourses []*Course `gorm:"many2many:user_courses;"`
+
+	// A user has many homework submissions
+	// Also check homework_submissions.go
+	// Check: https://gorm.io/docs/has_many.html
+	HomeworkSubmissions []HomeworkSubmission
+
+	// A user has many comments
+	// Also check comment.go
+	// Check: https://gorm.io/docs/has_many.html
+	Comments []Comment
 }
+
+// TODO: implement methods
 
 func (user *User) CheckPassword(password string) bool {
 	salt := strings.Split(user.Password, ":")[0]
@@ -23,29 +47,17 @@ func (user *User) CheckPassword(password string) bool {
 	return user.Password == utils.EncodePassword(password, salt)
 }
 
-func CreateUser(uuid string, name string) (uint, error) {
-	log.Printf("正在创建<User>(PlayerUUID = %s, PlayerName = %s)...", uuid, name)
-	user := User{PlayerUUID: uuid, PlayerName: name}
+func CreateUser(username string, password string) (uint, error) {
+	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
+	user := User{Username: username, Password: password}
 
 	res := DB.Create(&user)
 	if res.Error == nil {
-		log.Printf("查找完成: <User>(Username = %s, PlayerUUID = %s, PlayerName = %s)", user.Username, user.PlayerUUID, user.PlayerName)
+		log.Printf("创建完成<User>(ID = %v, Username = %s, Password = %s)...", user.ID, user.Username, user.Password)
 	}
 	return user.ID, res.Error
 }
 
-func GetUserByUUID(uuid string) (User, error) {
-	log.Printf("正在查找<User>(PlayerUUID = %s)...", uuid)
-	var user User
-
-	res := DB.Where("player_uuid = ?", uuid).First(&user)
-	if res.Error != nil {
-		log.Printf("查找失败: %s", res.Error)
-		return user, res.Error
-	}
-	log.Printf("查找完成: <User>(Username = %s, PlayerUUID = %s, PlayerName = %s)", user.Username, user.PlayerUUID, user.PlayerName)
-	return user, nil
-}
 
 func GetUserByID(id uint) (User, error) {
 	log.Printf("正在查找<User>(ID = %d)...", id)
@@ -56,7 +68,7 @@ func GetUserByID(id uint) (User, error) {
 		log.Printf("查找失败: %s", res.Error)
 		return user, res.Error
 	}
-	log.Printf("查找完成: <User>(Username = %s, PlayerUUID = %s, PlayerName = %s)", user.Username, user.PlayerUUID, user.PlayerName)
+	log.Printf("查找完成: <User>(Username = %s)", user.Username)
 	return user, nil
 }
 
@@ -69,7 +81,7 @@ func GetUserByUsername(username string) (User, error) {
 		log.Printf("查找失败: %s", res.Error)
 		return user, res.Error
 	}
-	log.Printf("查找完成: <User>(Username = %s, PlayerUUID = %s, PlayerName = %s)", user.Username, user.PlayerUUID, user.PlayerName)
+	log.Printf("查找完成: <User>(Username = %s)", user.Username)
 	return user, nil
 }
 

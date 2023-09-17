@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateToken(t *testing.T) {
-	token, err := CreateToken("Admin")
+	token, err := CreateToken(0)
 	fmt.Println(token, err)
 }
 

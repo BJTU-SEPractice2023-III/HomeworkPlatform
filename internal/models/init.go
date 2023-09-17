@@ -21,13 +21,10 @@ func init() {
 
 	DB = db
 	DB.AutoMigrate(&User{})
-	DB.AutoMigrate(&CourseSelection{})
 	DB.AutoMigrate(&Course{})
 	DB.AutoMigrate(&Homework{})
-	DB.AutoMigrate(&Grade{})
 	DB.AutoMigrate(&HomeworkSubmission{})
 	DB.AutoMigrate(&Comment{})
-	DB.AutoMigrate(&CommentBack{})
 	// 创建初始管理员账户
 	addDefaultUser()
 }
@@ -41,8 +38,6 @@ func addDefaultUser() {
 
 		defaultUser.Username = "Admin"
 		defaultUser.Password = utils.EncodePassword(password, utils.RandStringRunes(16))
-		defaultUser.PlayerUUID = "Admin"
-		defaultUser.PlayerName = "Admin"
 		defaultUser.IsAdmin = true
 
 		if err := DB.Create(&defaultUser).Error; err != nil {
