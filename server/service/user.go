@@ -71,3 +71,16 @@ func (service *GetUserService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 }
+
+type UserRegisterService struct {
+	Username string `form:"username"` // 用户名
+	Password string `form:"password"` // 密码
+}
+
+func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
+	res, err := models.CreateUser(service.Username, service.Password)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

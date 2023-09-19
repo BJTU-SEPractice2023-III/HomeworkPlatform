@@ -49,6 +49,7 @@ func (user *User) CheckPassword(password string) bool {
 
 func CreateUser(username string, password string) (uint, error) {
 	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
+	password = utils.EncodePassword(password, utils.RandStringRunes(16))
 	user := User{Username: username, Password: password, IsAdmin: false} //默认创建的用户权限为普通用户
 
 	res := DB.Create(&user)
