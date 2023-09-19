@@ -19,7 +19,7 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []Course `gorm:"foreignKey:TeacherID"`
+	TeachingCourses []Course `gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
@@ -49,7 +49,7 @@ func (user *User) CheckPassword(password string) bool {
 
 func CreateUser(username string, password string) (uint, error) {
 	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
-	user := User{Username: username, Password: password}
+	user := User{Username: username, Password: password, IsAdmin: false} //默认创建的用户权限为普通用户
 
 	res := DB.Create(&user)
 	if res.Error == nil {
@@ -57,7 +57,6 @@ func CreateUser(username string, password string) (uint, error) {
 	}
 	return user.ID, res.Error
 }
-
 
 func GetUserByID(id uint) (User, error) {
 	log.Printf("正在查找<User>(ID = %d)...", id)

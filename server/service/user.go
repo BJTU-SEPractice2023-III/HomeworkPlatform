@@ -3,6 +3,7 @@ package service
 import (
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
+
 	// "homework_platform/internal/utils"
 	"errors"
 
@@ -11,7 +12,6 @@ import (
 )
 
 type UserLoginService struct {
-	Code     string `form:"code"`
 	Username string `form:"username"`
 	Password string `form:"password"`
 }
@@ -19,34 +19,20 @@ type UserLoginService struct {
 func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 	var user models.User
 	var err error
-	// 提供了 Code，使用微软登录
-	if service.Code != "" {
-		// 获取游戏账号信息
-		// playerInfo, err := utils.GetPlayerInfoByCode(service.Code)
-		// if err != nil {
-		// 	return nil, errors.New("invalid code")
-		// }
-		// log.Println(playerInfo)
 
-		// 数据库中无此用户(未授权)
-		// if user, err = models.GetUserByUUID(playerInfo.UUID); err == gorm.ErrRecordNotFound {
-		// 	return nil, errors.New("not Authenticated")
-		// }
-	} else {
-		if user, err = models.GetUserByUsername(service.Username); err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not exist")
-		}
+	if user, err = models.GetUserByUsername(service.Username); err == gorm.ErrRecordNotFound {
+		return nil, errors.New("not exist")
+	}
 
-		if !user.CheckPassword(service.Password) {
-			return nil, errors.New("incorrect password")
-		}
+	if !user.CheckPassword(service.Password) {
+		return nil, errors.New("incorrect password")
 	}
 
 	var jwtToken string
-	jwtToken, err = jwt.CreateToken(user.ID)
+	jwtToken, err = jwt.CreateToken(user.ID) //根据用id创建jwt
 
 	res := make(map[string]any)
-	res["token"] = jwtToken
+	res["token"] = jwtToken //之后解码token验证和user是否一致
 	res["user"] = user
 	// res["user_name"] = user.Username
 

@@ -14,13 +14,13 @@ import (
 )
 
 // GetTimeStamp ...
-func GetTimeStamp() string {
+func GetTimeStamp() string { //获得时间戳
 	return time.Now().Format("2006-01-02 15-04-05")
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func RandStr(n int) string {
+func RandStr(n int) string { //得到随机字符串
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
@@ -99,7 +99,6 @@ func ForwardStd(f io.ReadCloser, c chan string) {
 }
 
 func RandStringRunes(n int) string {
-	rand.Seed(time.Now().Unix())
 	var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	b := make([]rune, n)
@@ -109,7 +108,7 @@ func RandStringRunes(n int) string {
 	return string(b)
 }
 
-func EncodePassword(password string, salt string) string {
+func EncodePassword(password string, salt string) string { //一种单向加密算法
 	//计算 Salt 和密码组合的SHA1摘要
 	hash := sha1.New()
 	hash.Write([]byte(password + salt))
