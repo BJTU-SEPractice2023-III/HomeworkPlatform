@@ -65,7 +65,7 @@ type GetUserService struct {
 }
 
 func (service *GetUserService) Handle(c *gin.Context) (any, error) {
-	if user, err := models.GetUserByID(service.ID); err != nil {
+	if user, err := models.GetUserByID(service.ID); err == nil {
 		return user, nil
 	} else {
 		return nil, err
