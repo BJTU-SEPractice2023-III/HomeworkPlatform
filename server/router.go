@@ -37,6 +37,7 @@ func InitRouter() *gin.Engine {
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
 			user.GET("", service.Handler(&service.GetUserService{}))               //GET api/user
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
+			user.POST("update", service.Handler(&service.UserselfUpdateService{})) //POST api/user/update
 		}
 
 		// Login required
@@ -49,7 +50,6 @@ func InitRouter() *gin.Engine {
 				// TODO: server.GET(":name", controllers.GetServer) // GET api/servers/:name
 				// TODO: server.POST(":id/start", middlewares.AdminCheck(), controllers.StartServer) // POST api/server/:name/start
 				// TODO: server.POST(":id/stop", middlewares.AdminCheck(), controllers.StopServer) // POST api/server/:name/stop
-
 				server.GET("console", service.ServerConsoleHandler()) // GET api/server/console
 				// server.POST("console", service.Handler(&service.ServerConsolePostService{})) // POST api/server/console
 				// TODO: server.GET("log", middlewares.AdminCheck(), controllers.Log)         // GET api/server/log

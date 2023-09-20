@@ -47,6 +47,14 @@ func (user *User) CheckPassword(password string) bool {
 	return user.Password == utils.EncodePassword(password, salt)
 }
 
+func (user *User) ChangePassword(password string) bool {
+	result := DB.Model(&user).Updates(User{Password: utils.EncodePassword(password, utils.RandStringRunes(16))})
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
 func CreateUser(username string, password string) (uint, error) {
 	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
 	password = utils.EncodePassword(password, utils.RandStringRunes(16))
