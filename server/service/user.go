@@ -108,3 +108,21 @@ func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
 	}
 	return res, nil
 }
+
+type DelteUserService struct {
+	Username string `form:"username"`
+}
+
+func (service *DelteUserService) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByUsername(service.Username)
+	if err != nil {
+		return nil, errors.New("用户不存在!")
+	}
+	result := user.DeleteSelf()
+	if !result {
+		return nil, errors.New("删除失败!")
+	}
+	res := make(map[string]any)
+	res["msg"] = "删除成功"
+	return res, nil
+}

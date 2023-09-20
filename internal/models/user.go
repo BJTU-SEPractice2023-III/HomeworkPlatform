@@ -55,6 +55,14 @@ func (user *User) ChangePassword(password string) bool {
 	return true
 }
 
+func (user *User) DeleteSelf() bool {
+	res := DB.Delete(&user)
+	if res.Error != nil {
+		return false
+	}
+	return true
+}
+
 func CreateUser(username string, password string) (uint, error) {
 	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
 	password = utils.EncodePassword(password, utils.RandStringRunes(16))

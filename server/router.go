@@ -44,17 +44,6 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middlewares.JWTAuth())
 		{
-			server := auth.Group("servers")
-			{
-				server.GET("", service.Handler(&service.GetServersService{})) // GET api/servers 获取服务器列表
-				// TODO: server.GET(":name", controllers.GetServer) // GET api/servers/:name
-				// TODO: server.POST(":id/start", middlewares.AdminCheck(), controllers.StartServer) // POST api/server/:name/start
-				// TODO: server.POST(":id/stop", middlewares.AdminCheck(), controllers.StopServer) // POST api/server/:name/stop
-				server.GET("console", service.ServerConsoleHandler()) // GET api/server/console
-				// server.POST("console", service.Handler(&service.ServerConsolePostService{})) // POST api/server/console
-				// TODO: server.GET("log", middlewares.AdminCheck(), controllers.Log)         // GET api/server/log
-			}
-
 			admin := api.Group("admin")
 			admin.Use(middlewares.AdminCheck())
 			{
@@ -63,7 +52,7 @@ func InitRouter() *gin.Engine {
 					user.GET("", service.Handler(&service.GetUsersService{}))              // GET  api/admin/user
 					user.POST("", service.Handler(&service.UserUpdateService{}))           // POST api/admin/user
 					user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/admin/user/register
-					// TODO: user.POST("delete", controllers.UserRegister)
+					user.POST("delete", service.Handler(&service.DelteUserService{}))      //POST api/admin/user/delete
 				}
 			}
 		}
