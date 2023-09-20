@@ -3,6 +3,7 @@ package service
 import (
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
+	"homework_platform/internal/utils"
 
 	// "homework_platform/internal/utils"
 	"errors"
@@ -39,25 +40,23 @@ func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 	return res, nil
 }
 
-type UserUpdateService struct {
+type UserUpdateService struct { //管理员修改密码
 	Username string `form:"username"` // 用户名
-	Password string `form:"password"` // 密码
+	Password string `form:"password"` //新密码
 }
 
 func (service *UserUpdateService) Handle(c *gin.Context) (any, error) {
-	// playerInfo, err := utils.GetPlayerInfoByCode(service.Code)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if _, err := models.GetUserByUUID(playerInfo.UUID); err != nil {
-	// 	_, err := models.CreateUser(playerInfo.UUID, playerInfo.Name)
-	// 	return nil, err
-	// } else {
-	// 	// TODO: 更新用户信息
-	// 	return nil, nil
-	// }
-	return nil, nil
+	user, err := models.GetUserByUsername(service.Username)
+	if err != nil {
+		return nil, errors.New("该用户不存在")
+	}
+	result := models.DB.Model(&user).Updates(models.User{Password: utils.EncodePassword(service.Password, utils.RandStringRunes(16))})
+	if result.Error != nil {
+		return nil, errors.New("修改失败!")
+	}
+	res := make(map[string]any)
+	res["msg"] = "修改成功"
+	return res, nil
 }
 
 type GetUserService struct {

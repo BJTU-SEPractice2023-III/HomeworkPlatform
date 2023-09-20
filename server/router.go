@@ -35,8 +35,8 @@ func InitRouter() *gin.Engine {
 		user := api.Group("user")
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
-			user.GET("", service.Handler(&service.GetUserService{}))               //GET /api/user
-			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/register
+			user.GET("", service.Handler(&service.GetUserService{}))               //GET api/user
+			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
 		}
 
 		// Login required
