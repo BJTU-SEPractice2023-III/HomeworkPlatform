@@ -19,7 +19,7 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []Course `gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
+	TeachingCourses []*Course `gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
@@ -53,6 +53,22 @@ func (user *User) ChangePassword(password string) bool {
 		return false
 	}
 	return true
+}
+
+func (user *User) GetTeachingCourse() ([]*Course, error) {
+	res := DB.Preload("TeachingCourses").First(&user)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return user.TeachingCourses, nil
+}
+
+func (user *User) GetLearningCourse() ([]*Course, error) {
+	res := DB.Preload("LearningCourses").First(&user)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return user.LearningCourses, nil
 }
 
 func (user *User) DeleteSelf() bool {

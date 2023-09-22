@@ -111,3 +111,34 @@ func (service SelectCourseService) Handle(c *gin.Context) (any, error) {
 	}
 	return nil, nil
 }
+
+type GetTeachingCourse struct {
+}
+
+func (service GetTeachingCourse) Handle(c *gin.Context) (any, error) {
+	id, _ := c.Get("ID")
+	user, err := models.GetUserByID(id.(uint))
+	if err != nil {
+		return nil, err
+	}
+	courses, res := user.GetTeachingCourse()
+	if res != nil {
+		return nil, res
+	}
+	return courses, nil
+}
+
+type GetLearningCourse struct{}
+
+func (service GetLearningCourse) Handle(c *gin.Context) (any, error) {
+	id, _ := c.Get("ID")
+	user, err := models.GetUserByID(id.(uint))
+	if err != nil {
+		return nil, err
+	}
+	courses, res := user.GetLearningCourse()
+	if res != nil {
+		return nil, res
+	}
+	return courses, nil
+}
