@@ -22,12 +22,12 @@ type Course struct {
 	// A student has many Course, a course has many students
 	// Also check user.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	Students []*User `gorm:"many2many:user_courses;"`
+	Students []*User `json:"-" gorm:"many2many:user_courses;"`
 
 	// A course has many homework
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
-	Homeworks []Homework
+	Homeworks []Homework `json:"-"`
 }
 
 func GetAllStudents(db *gorm.DB) ([]User, error) {

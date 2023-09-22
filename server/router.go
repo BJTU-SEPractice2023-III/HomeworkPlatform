@@ -36,26 +36,24 @@ func InitRouter() *gin.Engine {
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
-			user.POST("update", service.Handler(&service.UserselfUpdateService{})) //POST api/user/update
-
-		}
-
-		homewrok := api.Group("homework")
-		homewrok.Use(middlewares.JWTAuth())
-		{
-			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
-		}
-
-		course := api.Group("course")
-		course.Use(middlewares.JWTAuth())
-		{
-			course.POST("create", service.Handler(&service.CreateCourse{})) //POST api/course/create
+			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
 		}
 
 		// Login required
 		auth := api.Group("")
 		auth.Use(middlewares.JWTAuth())
 		{
+
+			course := auth.Group("course")
+			{
+				course.POST("create", service.Handler(&service.CreateCourse{})) //POST api/course/create
+			}
+
+			homewrok := auth.Group("homework")
+			{
+				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+			}
+		
 			admin := api.Group("admin")
 			admin.Use(middlewares.AdminCheck())
 			{

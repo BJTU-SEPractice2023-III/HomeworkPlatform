@@ -19,22 +19,22 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []Course `gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
+	TeachingCourses []Course `json:"-" gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	LearningCourses []*Course `gorm:"many2many:user_courses;"`
+	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;"`
 
 	// A user has many homework submissions
 	// Also check homework_submissions.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission
+	HomeworkSubmissions []HomeworkSubmission `json:"-"`
 
 	// A user has many comments
 	// Also check comment.go
 	// Check: https://gorm.io/docs/has_many.html
-	Comments []Comment
+	Comments []Comment `json:"-"`
 }
 
 // TODO: implement methods
