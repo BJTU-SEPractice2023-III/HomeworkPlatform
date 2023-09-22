@@ -31,10 +31,12 @@ type Course struct {
 	Homeworks []Homework
 }
 
-func GetAllStudents(db *gorm.DB) ([]User, error) {
-	var users []User
-	err := db.Model(&User{}).Preload("Course").Find(&users).Error
-	return users, err
+func (course Course) GetStudents() ([]*User, error) {
+	res := DB.Preload("Students").First(&course)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return course.Students, nil
 }
 
 func (course Course) UpdateCourseDescription(description string) bool {
@@ -43,6 +45,25 @@ func (course Course) UpdateCourseDescription(description string) bool {
 		return false
 	}
 	return true
+}
+
+func (course Course) GetStudentsByID(id uint) bool {
+	userlists, err := course.GetStudents()
+	if err != nil {
+		return false
+	}
+	for _, user := range userlists {
+		if user.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+func GetAllStudents(db *gorm.DB) ([]User, error) {
+	var users []User
+	err := db.Model(&User{}).Preload("Course").Find(&users).Error
+	return users, err
 }
 
 func CreateCourse(name string, begindate time.Time,

@@ -64,3 +64,50 @@ func (service *DeleteCourse) Handle(c *gin.Context) (any, error) {
 	}
 	return nil, nil
 }
+
+type GetCourseStudentLists struct {
+	CourseID int `form:"courseid"`
+}
+
+func (service GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	if course.TeacherID != id {
+		return nil, errors.New("不能修改不是您的课程")
+	}
+	users, res := course.GetStudents()
+	if res != nil {
+		return nil, res
+	}
+	return users, nil
+}
+
+type SelectCourseService struct {
+	CourseID int `form:"courseid"`
+}
+
+func (service SelectCourseService) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	res := course.GetStudentsByID(id.(uint))
+	if res {
+		return nil, errors.New("无法重复选课")
+	}
+	//查看该用户是否已经选择了course
+	user, err := models.GetUserByID(id.(uint))
+	if err != nil {
+		return nil, err
+	}
+	user.LearningCourses = append(user.LearningCourses, &course)
+	result := models.DB.Save(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return nil, nil
+}

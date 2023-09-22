@@ -36,22 +36,7 @@ func InitRouter() *gin.Engine {
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
-			user.POST("update", service.Handler(&service.UserselfUpdateService{})) //POST api/user/update
-
-		}
-
-		homewrok := api.Group("homework")
-		homewrok.Use(middlewares.JWTAuth())
-		{
-			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
-		}
-
-		course := api.Group("course")
-		course.Use(middlewares.JWTAuth())
-		{
-			course.POST("create", service.Handler(&service.CreateCourse{}))            //POST api/course/create
-			course.POST("update", service.Handler(&service.UpdateCourseDescription{})) //POST api/course/update
-			course.POST("delete", service.Handler(&service.DeleteCourse{}))            //POST api/course/delete
+			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
 		}
 
 		// Login required
@@ -68,6 +53,26 @@ func InitRouter() *gin.Engine {
 					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
+
+		}
+
+		//homework
+		homewrok := api.Group("homework")
+		homewrok.Use(middlewares.JWTAuth())
+		{
+			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+		}
+
+		//course
+		course := api.Group("course")
+		course.Use(middlewares.JWTAuth())
+		{
+			course.POST("create", service.Handler(&service.CreateCourse{}))            // POST api/course/create
+			course.POST("update", service.Handler(&service.UpdateCourseDescription{})) // POST api/course/update
+			course.POST("delete", service.Handler(&service.DeleteCourse{}))            // POST api/course/delete
+			//TODO:待测验的接口
+			course.GET("userlists", service.Handler(&service.GetCourseStudentLists{})) // Get api/course/userlists
+			course.POST("select", service.Handler(&service.SelectCourseService{}))     // POST api/course/select
 		}
 	}
 
