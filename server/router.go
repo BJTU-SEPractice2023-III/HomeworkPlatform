@@ -71,7 +71,6 @@ func InitRouter() *gin.Engine {
 			course.POST("create", service.Handler(&service.CreateCourse{}))            // POST api/course/create
 			course.POST("update", service.Handler(&service.UpdateCourseDescription{})) // POST api/course/update
 			course.POST("delete", service.Handler(&service.DeleteCourse{}))            // POST api/course/delete
-			//TODO:待测验的接口
 			course.GET("userlists", service.Handler(&service.GetCourseStudentLists{})) // Get api/course/userlists
 			course.POST("select", service.Handler(&service.SelectCourseService{}))     // POST api/course/select
 		}
