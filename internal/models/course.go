@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -36,8 +37,16 @@ func GetAllStudents(db *gorm.DB) ([]User, error) {
 	return users, err
 }
 
+func (course Course) UpdateCourseDescription(description string) bool {
+	result := DB.Model(&course).Updates(Course{Description: description})
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
 func CreateCourse(name string, begindate time.Time,
-	enddate time.Time, description string, teachderID int) error {
+	enddate time.Time, description string, teachderID uint) error {
 	c := Course{
 		Name:        name,
 		BeginDate:   begindate,
@@ -51,4 +60,17 @@ func CreateCourse(name string, begindate time.Time,
 	}
 
 	return nil
+}
+
+func GetCourseByID(id int) (Course, error) {
+	log.Printf("正在查找<Course>(ID = %d)...", id)
+	var course Course
+
+	res := DB.First(&course, id)
+	if res.Error != nil {
+		log.Printf("查找失败: %s", res.Error)
+		return course, res.Error
+	}
+	log.Printf("查找完成: <Course>(CourseName = %s)", course.Name)
+	return course, nil
 }

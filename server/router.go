@@ -49,7 +49,8 @@ func InitRouter() *gin.Engine {
 		course := api.Group("course")
 		course.Use(middlewares.JWTAuth())
 		{
-			course.POST("create", service.Handler(&service.CreateCourse{})) //POST api/course/create
+			course.POST("create", service.Handler(&service.CreateCourse{}))            //POST api/course/create
+			course.POST("update", service.Handler(&service.UpdateCourseDescription{})) //POST api/course/update
 		}
 
 		// Login required
