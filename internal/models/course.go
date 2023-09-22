@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -20,17 +21,34 @@ type Course struct {
 
 	// A student has many Course, a course has many students
 	// Also check user.go
-	// Check: https://gorm.io/docs/many_to_many.html 
+	// Check: https://gorm.io/docs/many_to_many.html
 	Students []*User `gorm:"many2many:user_courses;"`
 
 	// A course has many homework
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
-	Homeworks  []Homework
+	Homeworks []Homework
 }
 
 func GetAllStudents(db *gorm.DB) ([]User, error) {
 	var users []User
 	err := db.Model(&User{}).Preload("Course").Find(&users).Error
 	return users, err
+}
+
+func CreateCourse(name string, begindate time.Time,
+	enddate time.Time, description string, teachderID int) error {
+	c := Course{
+		Name:        name,
+		BeginDate:   begindate,
+		EndDate:     enddate,
+		Description: description,
+		TeacherID:   uint(teachderID),
+	}
+	res := DB.Create(&c)
+	if res.Error != nil {
+		return errors.New("创建失败")
+	}
+
+	return nil
 }

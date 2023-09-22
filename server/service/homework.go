@@ -24,19 +24,18 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		service.BeginDate,
 		service.EndDate,
 	)
-	print("123")
 	if err != nil {
 		return nil, errors.New("创建失败")
 	}
-	file, err := c.FormFile("file") // 根据前端的字段名获取文件
-	if err != nil {
-		return nil, errors.New("文件上传失败")
+	// file, err := c.FormFile("file") // 根据前端的字段名获取文件
+	// if err != nil {
+	// 	return nil, errors.New("文件上传失败")
 
-	} else {
-		filePath := "uploads/" + file.Filename
-		if err := c.SaveUploadedFile(file, filePath); err != nil {
-			return nil, errors.New("文件保存失败")
-		}
-	}
+	// } else {
+	// 	filePath := "uploads/" + file.Filename
+	// 	if err := c.SaveUploadedFile(file, filePath); err != nil {
+	// 		return nil, errors.New("文件保存失败")
+	// 	}
+	// }
 	return nil, nil
 }

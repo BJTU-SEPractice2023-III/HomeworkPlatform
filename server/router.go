@@ -35,9 +35,21 @@ func InitRouter() *gin.Engine {
 		user := api.Group("user")
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
-			user.GET("", service.Handler(&service.GetUserService{}))               //GET api/user
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
 			user.POST("update", service.Handler(&service.UserselfUpdateService{})) //POST api/user/update
+
+		}
+
+		homewrok := api.Group("homework")
+		homewrok.Use(middlewares.JWTAuth())
+		{
+			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+		}
+
+		course := api.Group("course")
+		course.Use(middlewares.JWTAuth())
+		{
+			course.POST("create", service.Handler(&service.CreateCourse{})) //POST api/course/create
 		}
 
 		// Login required
@@ -49,10 +61,9 @@ func InitRouter() *gin.Engine {
 			{
 				user := admin.Group("user")
 				{
-					user.GET("", service.Handler(&service.GetUsersService{}))              // GET  api/admin/user
-					user.POST("", service.Handler(&service.UserUpdateService{}))           // POST api/admin/user
-					user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/admin/user/register
-					user.POST("delete", service.Handler(&service.DelteUserService{}))      //POST api/admin/user/delete
+					user.GET("", service.Handler(&service.GetUsersService{}))         // GET  api/admin/user
+					user.POST("", service.Handler(&service.UserUpdateService{}))      // POST api/admin/user
+					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
 		}
