@@ -30,7 +30,6 @@ type UpdateCourseDescription struct {
 }
 
 func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
-	println(service.Description)
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
@@ -42,6 +41,26 @@ func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
 	res := course.UpdateCourseDescription(service.Description)
 	if res == false {
 		return nil, errors.New("创建失败")
+	}
+	return nil, nil
+}
+
+type DeleteCourse struct {
+	CourseID int `form:"courseid"`
+}
+
+func (service *DeleteCourse) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	if course.TeacherID != id {
+		return nil, errors.New("不能修改不是您的课程")
+	}
+	res := course.Deleteself()
+	if res != nil {
+		return nil, res
 	}
 	return nil, nil
 }

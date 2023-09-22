@@ -74,3 +74,11 @@ func GetCourseByID(id int) (Course, error) {
 	log.Printf("查找完成: <Course>(CourseName = %s)", course.Name)
 	return course, nil
 }
+
+func (course Course) Deleteself() error {
+	res := DB.Delete(&course)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
