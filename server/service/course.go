@@ -76,7 +76,7 @@ func (service GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
-		return nil, errors.New("不能修改不是您的课程")
+		return nil, errors.New("不能查看不是您的课程的学生列表!")
 	}
 	users, res := course.GetStudents()
 	if res != nil {

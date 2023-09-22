@@ -60,6 +60,7 @@ func InitRouter() *gin.Engine {
 		homewrok := api.Group("homework")
 		homewrok.Use(middlewares.JWTAuth())
 		{
+			//TODO:待开发
 			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
 		}
 
