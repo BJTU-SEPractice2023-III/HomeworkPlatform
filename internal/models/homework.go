@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -36,4 +37,17 @@ func CreateHomework(id int, name string, description string,
 	}
 
 	return nil, nil
+}
+
+func GetHomeworkByID(id uint) (Homework, error) {
+	log.Printf("正在查找<Homework>(ID = %d)...", id)
+	var work Homework
+
+	res := DB.First(&work, id)
+	if res.Error != nil {
+		log.Printf("查找失败: %s", res.Error)
+		return work, res.Error
+	}
+	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
+	return work, nil
 }

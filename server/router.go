@@ -64,6 +64,28 @@ func InitRouter() *gin.Engine {
 					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
+
+		}
+
+		//homework
+		homewrok := api.Group("homework")
+		homewrok.Use(middlewares.JWTAuth())
+		{
+			//TODO:待开发
+			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+		}
+
+		//course
+		course := api.Group("course")
+		course.Use(middlewares.JWTAuth())
+		{
+			course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
+			course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
+			course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
+			course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
+			course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
+			course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
+			course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
 		}
 	}
 

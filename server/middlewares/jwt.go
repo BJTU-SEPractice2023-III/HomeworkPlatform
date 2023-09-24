@@ -17,10 +17,13 @@ func JWTAuth() gin.HandlerFunc {
 
 		if err != nil || !token.Valid {
 			log.Println("[middlewares/JWTAuth]: Token not valid", err)
+
 			c.Abort()
 			return
 		}
 
+		id := token.Claims.(*jwt.MyCustomClaims).ID
+		c.Set("ID", id)
 		c.Next()
 	}
 }
