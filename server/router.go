@@ -31,6 +31,10 @@ func InitRouter() *gin.Engine {
 	*/
 	api := r.Group("api")
 	{
+		file := api.Group("file")
+		{
+			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
+		}
 		// No login required
 		user := api.Group("user")
 		{
@@ -60,8 +64,11 @@ func InitRouter() *gin.Engine {
 		homewrok := api.Group("homework")
 		homewrok.Use(middlewares.JWTAuth())
 		{
-			//TODO:待开发
 			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+			homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
+			homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
+			homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
+			homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))    // GET api/homework/information
 		}
 
 		//course

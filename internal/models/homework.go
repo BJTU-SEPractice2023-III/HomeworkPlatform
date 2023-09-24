@@ -20,6 +20,25 @@ type Homework struct {
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
 	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	FilePaths           []string             `json:"file_paths" gorm:"-"`
+}
+
+func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time) bool {
+	result := DB.Model(&homework).Updates(Homework{
+		Name: name, Description: desciption, BeginDate: beginDate, EndDate: endDate,
+	})
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
+func (homeworkd Homework) Deleteself() error {
+	res := DB.Delete(&homeworkd)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
 
 func CreateHomework(id int, name string, description string,
@@ -36,7 +55,7 @@ func CreateHomework(id int, name string, description string,
 		return nil, errors.New("创建失败")
 	}
 
-	return nil, nil
+	return newhomework, nil
 }
 
 func GetHomeworkByID(id uint) (Homework, error) {

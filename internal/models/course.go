@@ -28,7 +28,16 @@ type Course struct {
 	// A course has many homework
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
-	Homeworks []Homework `json:"-"`
+	Homeworks []Homework `json:"-" gorm:"foreignKey:CourseID"`
+}
+
+func (course Course) GetHomeworkLists() ([]Homework, error) {
+	res := DB.Preload("Homeworks").First(&course, course.ID)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	homeworks := course.Homeworks
+	return homeworks, nil
 }
 
 func (course Course) GetStudents() ([]*User, error) {
