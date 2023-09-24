@@ -36,7 +36,7 @@ func CreateHomework(id int, name string, description string,
 		return nil, errors.New("创建失败")
 	}
 
-	return nil, nil
+	return newhomework, nil
 }
 
 func GetHomeworkByID(id uint) (Homework, error) {
