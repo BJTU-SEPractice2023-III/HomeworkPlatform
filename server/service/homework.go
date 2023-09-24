@@ -41,7 +41,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	for _, f := range service.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./%d//%s", homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./homeworkassign/%d//%s", homework.(models.Homework).ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
