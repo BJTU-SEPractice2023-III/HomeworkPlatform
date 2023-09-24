@@ -64,6 +64,7 @@ func InitRouter() *gin.Engine {
 			homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
 			homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
 			homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
+			homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))    // GET api/homework/information
 		}
 
 		//course

@@ -69,7 +69,7 @@ type GetCourseStudentLists struct {
 	CourseID int `form:"courseid"`
 }
 
-func (service GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
+func (service *GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ type SelectCourseService struct {
 	CourseID int `form:"courseid"`
 }
 
-func (service SelectCourseService) Handle(c *gin.Context) (any, error) {
+func (service *SelectCourseService) Handle(c *gin.Context) (any, error) {
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (service SelectCourseService) Handle(c *gin.Context) (any, error) {
 type GetTeachingCourse struct {
 }
 
-func (service GetTeachingCourse) Handle(c *gin.Context) (any, error) {
+func (service *GetTeachingCourse) Handle(c *gin.Context) (any, error) {
 	id, _ := c.Get("ID")
 	user, err := models.GetUserByID(id.(uint))
 	if err != nil {
@@ -130,7 +130,7 @@ func (service GetTeachingCourse) Handle(c *gin.Context) (any, error) {
 
 type GetLearningCourse struct{}
 
-func (service GetLearningCourse) Handle(c *gin.Context) (any, error) {
+func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
 	id, _ := c.Get("ID")
 	user, err := models.GetUserByID(id.(uint))
 	if err != nil {

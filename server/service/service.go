@@ -15,7 +15,12 @@ type Service interface {
 
 func Handler(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		err := c.ShouldBind(s) //检查json和s的结构是否一致
+		var err error
+		if c.Request.Method == http.MethodGet {
+			err = c.ShouldBindJSON(s)
+		} else {
+			err = c.ShouldBind(s) //检查json和s的结构是否一致
+		}
 		if err != nil && err != io.EOF {
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			return

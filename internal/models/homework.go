@@ -20,6 +20,7 @@ type Homework struct {
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
 	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	FilePaths           []string             `json:"file_paths" gorm:"-"`
 }
 
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time) bool {
