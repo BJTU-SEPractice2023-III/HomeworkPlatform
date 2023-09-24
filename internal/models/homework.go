@@ -22,6 +22,16 @@ type Homework struct {
 	HomeworkSubmissions []HomeworkSubmission `json:"-"`
 }
 
+func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time) bool {
+	result := DB.Model(&homework).Updates(Homework{
+		Name: name, Description: desciption, BeginDate: beginDate, EndDate: endDate,
+	})
+	if result.Error != nil {
+		return false
+	}
+	return true
+}
+
 func (homeworkd Homework) Deleteself() error {
 	res := DB.Delete(&homeworkd)
 	if res.Error != nil {
