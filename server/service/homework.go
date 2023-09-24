@@ -6,6 +6,7 @@ import (
 	"homework_platform/internal/models"
 	"log"
 	"mime/multipart"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	for _, f := range service.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./homeworkassign/%d//%s", homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./homeworkassign/%d/%d/%s", service.CourseID, homework.(models.Homework).ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
@@ -68,4 +69,34 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 		return nil, err2
 	}
 	return homeworks, nil
+}
+
+type DeleteHomework struct {
+	CourseID   int `form:"courseid"`
+	HomeworkID int `form:"homeworkid"`
+}
+
+func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	if course.TeacherID != id {
+		return nil, errors.New("不能删除不是您的课程的作业")
+	}
+	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
+	if err2 != nil {
+		return nil, err2
+	}
+	if homework.CourseID != service.CourseID {
+		return nil, errors.New("该作业并非属于该课程")
+	}
+	if err := homework.Deleteself(); err != nil {
+		return nil, err
+	}
+	dirPath := fmt.Sprintf("./homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
+	os.RemoveAll(dirPath)
+
+	return nil, nil
 }
