@@ -31,6 +31,10 @@ func InitRouter() *gin.Engine {
 	*/
 	api := r.Group("api")
 	{
+		file := api.Group("file")
+		{
+			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
+		}
 		// No login required
 		user := api.Group("user")
 		{

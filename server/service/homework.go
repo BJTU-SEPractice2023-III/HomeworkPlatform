@@ -4,39 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/models"
-	"io"
 	"log"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
-
-func serveFiles(c *gin.Context, filePath string) {
-	// 获取文件夹下的所有文件
-
-	// 设置HTTP头部信息
-	c.Header("Content-Disposition", "attachment")
-
-	log.Printf("path:%s", filePath)
-	f, err := os.OpenFile(filePath, os.O_RDONLY, 0666)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "打开文件失败")
-		return
-	}
-	defer f.Close()
-
-	// 将文件内容写入HTTP响应
-	_, err = io.Copy(c.Writer, f)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "写入文件失败")
-		return
-	}
-
-}
 
 type HomeworkDetail struct {
 	CourseID   int `form:"courseid"`
@@ -48,7 +23,7 @@ func (service *HomeworkDetail) Handle(c *gin.Context) (any, error) {
 	if err2 != nil {
 		return nil, errors.New("没有找到该作业!")
 	}
-	path := fmt.Sprintf("./homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
+	path := fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
 	files, err := os.ReadDir(path)
 	homework.FilePaths = make([]string, 0)
 	if err == nil {
@@ -91,7 +66,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	for _, f := range service.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./homeworkassign/%d/%d/%s", service.CourseID, homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./data/homeworkassign/%d/%d/%s", service.CourseID, homework.(models.Homework).ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
@@ -143,7 +118,7 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 	if err := homework.Deleteself(); err != nil {
 		return nil, err
 	}
-	dirPath := fmt.Sprintf("./homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
+	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
 	os.RemoveAll(dirPath)
 
 	return nil, nil
@@ -177,11 +152,11 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("不能更改不是对应课程的作业")
 	}
 	homework.UpdateInformation(service.Name, service.Description, service.BeginDate, service.EndDate)
-	os.RemoveAll(fmt.Sprintf("./homeworkassign/%d/%d", service.CourseID, homework.ID))
+	os.RemoveAll(fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, homework.ID))
 
 	for _, f := range service.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./homeworkassign/%d/%d/%s", service.CourseID, homework.ID, f.Filename)
+		dst := fmt.Sprintf("./data/homeworkassign/%d/%d/%s", service.CourseID, homework.ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
