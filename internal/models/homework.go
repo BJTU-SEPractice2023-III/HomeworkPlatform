@@ -19,7 +19,7 @@ type Homework struct {
 	// A homework has many submissions
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission
+	HomeworkSubmissions []HomeworkSubmission `json:"-"`
 }
 
 func CreateHomework(id int, name string, description string,

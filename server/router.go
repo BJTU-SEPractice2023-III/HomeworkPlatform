@@ -43,6 +43,17 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middlewares.JWTAuth())
 		{
+
+			course := auth.Group("course")
+			{
+				course.POST("create", service.Handler(&service.CreateCourse{})) //POST api/course/create
+			}
+
+			homewrok := auth.Group("homework")
+			{
+				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+			}
+		
 			admin := api.Group("admin")
 			admin.Use(middlewares.AdminCheck())
 			{
