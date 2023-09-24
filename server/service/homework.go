@@ -3,11 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"homework_platform/internal/models"
 	"log"
 	"mime/multipart"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AssignHomeworkService struct {
@@ -26,7 +27,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
-		return nil, errors.New("不能修改不是您的课程")
+		return nil, errors.New("不能发布不是您的课程的作业")
 	}
 	//CourseID
 	homework, err2 := models.CreateHomework(
@@ -47,4 +48,24 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	println(service.CourseID)
 	return nil, nil
+}
+
+type HomeworkLists struct {
+	CourseID int `form:"courseid"`
+}
+
+func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	if course.TeacherID != id {
+		return nil, errors.New("不能查看不是您的课程的作业")
+	}
+	homeworks, err2 := course.GetHomeworkLists()
+	if err2 != nil {
+		return nil, err2
+	}
+	return homeworks, nil
 }
