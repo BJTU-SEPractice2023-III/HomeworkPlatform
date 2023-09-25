@@ -17,7 +17,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.21"
+          go-version-file: 'go.mod'
+        
+      - name: Debug
+        run: |
+          pwd
+          echo ${GOPATH}
+          echo ${GOROOT}
         
       - name: Checkout
         uses: actions/checkout@v4
