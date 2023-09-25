@@ -16,12 +16,32 @@ jobs:
     steps:
       - name: Set up Go
         uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
         
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: "recursive"
+      - run: |
+          git fetch --force --tags
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.4.0
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.8.1
+        with:
+          node-version: 16
+          cache: pnpm
+          cache-dependency-path: 'assets/pnpm-lock.yaml'
+
+      - run: cd assets && pnpm i && pnpm build
+      - run: go get github.com/rakyll/statik
+      - run: statik -src=assets/build -f
           
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
