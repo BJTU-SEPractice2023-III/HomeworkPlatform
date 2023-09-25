@@ -41,8 +41,3 @@ goreleaser build --clean --single-target --snapshot
 ## 数据库设计
 
 ![DB Design](image.png)
-
-test feat(test): feat commit
-test fix(test): fix commit
-test chore(test): chore commit
-test test(test): test commit
