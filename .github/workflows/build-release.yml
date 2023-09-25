@@ -39,10 +39,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: 'assets/pnpm-lock.yaml'
 
-      - run: ls ~/go/bin
       - run: cd assets && pnpm i && pnpm build
       - run: go get github.com/rakyll/statik
-      - run: ~/go/bin/statik -src=assets/build -f
+      - run: ${GOPATH}/bin/statik -f -src=assets/build
           
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
