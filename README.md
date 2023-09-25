@@ -2,40 +2,42 @@
 
 ## 构建
 
-### 1. 安装 statik
+本项目使用 [goreleaser/goreleaser: Deliver Go binaries as fast and easily as possible](https://github.com/goreleaser/goreleaser) 来辅助构建。
 
-本项目使用 [rakyll/statik: Embed files into a Go executable](https://github.com/rakyll/statik) 将静态文件打包入可执行文件中
+### 1. 安装 goreleaser
 
-```shell
-go get github.com/rakyll/statik
-go install github.com/rakyll/statik
-```
-
-### 2. 构建前端
+MacOS - Homebrew：
 
 ```shell
-git submodule update --init
-cd assets
-pnpm i
-pnpm build
+brew install goreleaser/tap/goreleaser
+brew install goreleaser
 ```
 
-### 3. 打包前端到 go 模块
+Windows - Scoop：
 
 ```shell
-statik -src=assets/build -f
+scoop bucket add goreleaser https://github.com/goreleaser/scoop-bucket.git
+scoop install goreleaser
 ```
 
-### 3. 构建可执行文件
+Universal - Go Install：
 
 ```shell
-set GOARCH=amd64
-set GOOS=linux
-go build -o Builds/v1.0/HomeworkPlatform-1.0.0 homework_platform
-set GOOS=windows
-go build -o Builds/v1.0/ACH-1.0.0.exe homework_platform
+go install github.com/goreleaser/goreleaser@latest
 ```
 
-## 设计
+### 2. 克隆代码
+
+```shell
+git clone --recurse-submodules https://github.com/cloudreve/Cloudreve.git
+```
+
+### 3. 编译项目
+
+```shell
+goreleaser build --clean --single-target --snapshot
+```
+
+## 数据库设计
 
 ![DB Design](image.png)

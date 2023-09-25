@@ -3,3 +3,4 @@ config.yml
 **/.idea
 **/.sql
 **/data/homeworkassign
+dist/
