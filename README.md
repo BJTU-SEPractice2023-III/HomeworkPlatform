@@ -43,3 +43,4 @@ goreleaser build --clean --single-target --snapshot
 ![DB Design](image.png)
 
 test feat(test): feat commit
+test fix(test): fix commit
