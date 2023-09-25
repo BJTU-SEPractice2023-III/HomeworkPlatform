@@ -26,12 +26,9 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
-        
-      - name: Debug
-        run: |
-          pwd
-          echo ${GOPATH}
-          echo ${GOROOT}
+          
+      - name: Set GOPATH environment variable
+        run: echo "export PATH=$GOPATH/bin:$PATH" >> $GITHUB_ENV
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.4.0
