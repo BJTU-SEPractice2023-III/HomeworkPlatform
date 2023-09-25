@@ -1,21 +1,22 @@
 package bootstrap
 
 import (
+	"embed"
 	"log"
 	"net/http"
 
-	_ "homework_platform/statik"
-
-	"github.com/rakyll/statik/fs"
+	"io/fs"
 )
 
 var StaticFS http.FileSystem
 
-func init() {
+func InitStatic(statics embed.FS) {
 	log.Println("[bootStrap/InitStaticFS]: Initializing...")
 	var err error
-	StaticFS, err = fs.New()
+	embedFS, err := fs.Sub(statics, "assets/build")
 	if err != nil {
-		log.Panicln(err)
+		log.Panicf("Failed to initialize static resources: %s", err)
 	}
+
+	StaticFS = http.FS(embedFS)
 }
