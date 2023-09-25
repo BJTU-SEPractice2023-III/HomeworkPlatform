@@ -26,6 +26,16 @@ jobs:
           submodules: "recursive"
       - run: |
           git fetch --force --tags
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.8.1
+
+      - run: cd assets && pnpm i && pnpm build && cd ..
+      - run: go get github.com/rakyll/statik
+      - run: statik -src=assets/build -f
           
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
