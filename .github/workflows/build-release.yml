@@ -37,6 +37,7 @@ jobs:
         with:
           node-version: 16
           cache: pnpm
+          cache-dependency-path: 'assets/pnpm-lock.yaml'
 
       - run: cd assets && pnpm i && pnpm build
       - run: go get github.com/rakyll/statik
