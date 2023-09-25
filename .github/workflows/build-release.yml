@@ -14,6 +14,14 @@ jobs:
   build-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: "recursive"
+      - run: |
+          git fetch --force --tags
+      
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -24,14 +32,6 @@ jobs:
           pwd
           echo ${GOPATH}
           echo ${GOROOT}
-        
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: "recursive"
-      - run: |
-          git fetch --force --tags
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.4.0
