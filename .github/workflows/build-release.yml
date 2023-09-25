@@ -27,9 +27,6 @@ jobs:
         with:
           go-version-file: 'go.mod'
           
-      - name: Set GOPATH environment variable
-        run: echo "export PATH=$HOME/go/bin:$PATH" >> $GITHUB_ENV
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.4.0
         with:
@@ -42,9 +39,10 @@ jobs:
           cache: pnpm
           cache-dependency-path: 'assets/pnpm-lock.yaml'
 
+      - run: ls ~/go/bin
       - run: cd assets && pnpm i && pnpm build
       - run: go get github.com/rakyll/statik
-      - run: statik -src=assets/build -f
+      - run: ~/go/bin/statik -src=assets/build -f
           
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
