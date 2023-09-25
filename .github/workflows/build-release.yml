@@ -26,12 +26,9 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
-
-      - run: ls ~
-      - run: ls ~/go-packages/bin
           
       - name: Set GOPATH environment variable
-        run: echo "export PATH=$GOPATH/bin:$PATH" >> $GITHUB_ENV
+        run: echo "export PATH=$HOME/go/bin:$PATH" >> $GITHUB_ENV
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.4.0
