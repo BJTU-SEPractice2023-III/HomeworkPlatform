@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
           submodules: "recursive"
       - run: |
-          git fetch --prune --unshallow --tags
+          git fetch --force --tags
           
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
