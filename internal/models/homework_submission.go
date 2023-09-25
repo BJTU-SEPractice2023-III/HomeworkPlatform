@@ -16,6 +16,11 @@ type HomeworkSubmission struct {
 	UserID uint `json:"user_id"`
 
 	// Regular fields
-	Content    string `json:"content"`
-	Attachment string `json:"attachment"`
+	Content string `json:"content"`
+}
+
+func AddHomeworkSubmission(work *HomeworkSubmission) bool {
+	println(work.UserID)
+	res := DB.Create(&work)
+	return res.Error == nil
 }

@@ -49,10 +49,7 @@ func (user *User) CheckPassword(password string) bool {
 
 func (user *User) ChangePassword(password string) bool {
 	result := DB.Model(&user).Updates(User{Password: utils.EncodePassword(password, utils.RandStringRunes(16))})
-	if result.Error != nil {
-		return false
-	}
-	return true
+	return result.Error == nil
 }
 
 func (user *User) GetTeachingCourse() ([]*Course, error) {
@@ -73,10 +70,7 @@ func (user *User) GetLearningCourse() ([]*Course, error) {
 
 func (user *User) DeleteSelf() bool {
 	res := DB.Delete(&user)
-	if res.Error != nil {
-		return false
-	}
-	return true
+	return res.Error == nil
 }
 
 func CreateUser(username string, password string) (uint, error) {

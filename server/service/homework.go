@@ -21,7 +21,7 @@ type HomeworkDetail struct {
 func (service *HomeworkDetail) Handle(c *gin.Context) (any, error) {
 	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
 	if err2 != nil {
-		return nil, errors.New("没有找到该作业!")
+		return nil, errors.New("没有找到该作业")
 	}
 	path := fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
 	files, err := os.ReadDir(path)
@@ -70,7 +70,6 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
-	println(service.CourseID)
 	return nil, nil
 }
 
@@ -146,7 +145,7 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 	//CourseID
 	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
 	if err2 != nil {
-		return nil, errors.New("没有找到该作业!")
+		return nil, errors.New("没有找到该作业")
 	}
 	if homework.CourseID != service.CourseID {
 		return nil, errors.New("不能更改不是对应课程的作业")

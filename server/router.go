@@ -59,6 +59,11 @@ func InitRouter() *gin.Engine {
 			}
 
 		}
+		homework_submission := api.Group("homeworksubmission")
+		homework_submission.Use(middlewares.JWTAuth())
+		{
+			homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
+		}
 
 		//homework
 		homewrok := api.Group("homework")

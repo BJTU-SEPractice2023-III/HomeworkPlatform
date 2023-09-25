@@ -1,5 +1,6 @@
 statik
 config.yml
+**/.vscode
 **/.idea
 **/.sql
 **/data/homeworkassign

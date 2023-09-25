@@ -27,10 +27,7 @@ func (homework *Homework) UpdateInformation(name string, desciption string, begi
 	result := DB.Model(&homework).Updates(Homework{
 		Name: name, Description: desciption, BeginDate: beginDate, EndDate: endDate,
 	})
-	if result.Error != nil {
-		return false
-	}
-	return true
+	return result.Error == nil
 }
 
 func (homeworkd Homework) Deleteself() error {

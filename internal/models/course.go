@@ -48,12 +48,15 @@ func (course Course) GetStudents() ([]*User, error) {
 	return course.Students, nil
 }
 
+func (course Course) FindStudents(id uint) bool {
+	var student User
+	err := DB.Model(&course).Association("Students").Find(&student, "id = ?", id)
+	return err == nil
+}
+
 func (course Course) UpdateCourseDescription(description string) bool {
 	result := DB.Model(&course).Updates(Course{Description: description})
-	if result.Error != nil {
-		return false
-	}
-	return true
+	return result.Error == nil
 }
 
 func (course Course) GetStudentsByID(id uint) bool {
