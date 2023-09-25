@@ -27,14 +27,17 @@ jobs:
       - run: |
           git fetch --force --tags
 
-      - run: cd assets
       - name: Setup pnpm
         uses: pnpm/action-setup@v2.4.0
+        with:
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v3.8.1
+        with:
+          cache: 'pnpm'
 
-      - run: pnpm i && pnpm build && cd ..
+      - run: cd assets && pnpm i && pnpm build
       - run: go get github.com/rakyll/statik
       - run: statik -src=assets/build -f
           
