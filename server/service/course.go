@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -141,4 +142,12 @@ func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
 		return nil, res
 	}
 	return courses, nil
+}
+
+type GetCourses struct {}
+
+func (service *GetCourses) Handle(c *gin.Context) (any, error) {
+	courses, err := models.GetCourses()
+	log.Println(courses)
+	return courses, err
 }

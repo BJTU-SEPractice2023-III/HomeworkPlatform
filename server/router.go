@@ -75,6 +75,7 @@ func InitRouter() *gin.Engine {
 		course := api.Group("course")
 		course.Use(middlewares.JWTAuth())
 		{
+			course.GET("", service.Handler(&service.GetCourses{}))
 			course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
 			course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
 			course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
