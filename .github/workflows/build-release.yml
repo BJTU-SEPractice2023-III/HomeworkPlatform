@@ -35,7 +35,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3.8.1
         with:
-          cache: 'pnpm'
+          node-version: 16
+          cache: pnpm
 
       - run: cd assets && pnpm i && pnpm build
       - run: go get github.com/rakyll/statik
