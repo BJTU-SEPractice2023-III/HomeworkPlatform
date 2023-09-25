@@ -44,3 +44,4 @@ goreleaser build --clean --single-target --snapshot
 
 test feat(test): feat commit
 test fix(test): fix commit
+test chore(test): chore commit
