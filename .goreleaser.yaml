@@ -53,10 +53,10 @@ changelog:
       - "^docs:"
       - "^test:"
   groups:
-    - title: Features
+    - title: 🎁 Features
       regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
       order: 0
-    - title: "Bug fixes"
+    - title: "🐛 Bug fixes"
       regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
       order: 1
     - title: Others
