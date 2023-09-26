@@ -57,11 +57,13 @@ func InitRouter() *gin.Engine {
 					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
-
 		}
+
+		//homework_submission
 		homework_submission := api.Group("homeworksubmission")
 		homework_submission.Use(middlewares.JWTAuth())
 		{
+			//把提交和更新封装一起
 			homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
 		}
 
