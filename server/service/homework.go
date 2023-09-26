@@ -162,3 +162,25 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 	println(service.CourseID)
 	return nil, nil
 }
+
+type SubmitListsService struct {
+	CourseID   int `form:"courseid"`
+	HomeworkID int `form:"homeworkid"`
+}
+
+func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
+	course, err := models.GetCourseByID(service.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	if course.TeacherID != id {
+		return nil, errors.New("不能查看不是您的课程的作业")
+	}
+	//CourseID
+	homework, err2 := models.GetHomeworkByIDWithSubmissionLists(uint(service.HomeworkID))
+	if err2 != nil {
+		return nil, errors.New("没有找到该作业")
+	}
+	return homework.HomeworkSubmissions, nil
+}
