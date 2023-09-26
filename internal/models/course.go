@@ -72,6 +72,12 @@ func (course Course) GetStudentsByID(id uint) bool {
 	return false
 }
 
+func GetCourses() ([]Course, error) {
+	var courses []Course
+	err := DB.Find(&courses).Error
+	return courses, err
+}
+
 func GetAllStudents(db *gorm.DB) ([]User, error) {
 	var users []User
 	err := db.Model(&User{}).Preload("Course").Find(&users).Error
