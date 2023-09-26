@@ -57,18 +57,26 @@ func InitRouter() *gin.Engine {
 					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
+		}
 
+		//homework_submission
+		homework_submission := api.Group("homeworksubmission")
+		homework_submission.Use(middlewares.JWTAuth())
+		{
+			//把提交和更新封装一起
+			homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
 		}
 
 		//homework
 		homewrok := api.Group("homework")
 		homewrok.Use(middlewares.JWTAuth())
 		{
-			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
-			homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
-			homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
-			homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
-			homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))    // GET api/homework/information
+			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
+			homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
+			homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
+			homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
+			homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
+			homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 		}
 
 		//course

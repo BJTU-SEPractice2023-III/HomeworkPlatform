@@ -40,7 +40,7 @@ func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("不能修改不是您的课程")
 	}
 	res := course.UpdateCourseDescription(service.Description)
-	if res == false {
+	if !res {
 		return nil, errors.New("创建失败")
 	}
 	return nil, nil
@@ -77,7 +77,7 @@ func (service *GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
-		return nil, errors.New("不能查看不是您的课程的学生列表!")
+		return nil, errors.New("不能查看不是您的课程的学生列表")
 	}
 	users, res := course.GetStudents()
 	if res != nil {

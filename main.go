@@ -7,7 +7,8 @@ import (
 	"log"
 )
 
-//go:embed assets/build/*
+// TODO:这里会报错
+// //go:embed assets/build/*
 var f embed.FS
 
 func init() {
