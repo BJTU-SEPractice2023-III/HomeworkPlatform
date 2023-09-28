@@ -43,3 +43,13 @@ func FindHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *
 		return nil
 	}
 }
+
+func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
+	var homewroksubmission HomeworkSubmission
+
+	res := DB.First(&homewroksubmission, homewroksubmissionid)
+	if res.Error != nil {
+		return nil
+	}
+	return &homewroksubmission
+}

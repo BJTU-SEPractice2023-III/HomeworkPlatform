@@ -1,6 +1,8 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Comment struct {
 	gorm.Model
@@ -18,4 +20,29 @@ type Comment struct {
 	// Regular fields
 	Comment string `json:"comment"`
 	Grade   int    `json:"grade"`
+}
+
+func (comment Comment) UpdateSelf(comm string, grade int) error {
+	res := DB.Model(&comment).Updates(Comment{Comment: comm, Grade: grade})
+	return res.Error
+}
+
+func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (any, error) {
+	var comment Comment
+	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return comment, nil
+}
+
+func CreateComment(HomeworkSubmissionID uint, UserID uint, Commen string, Grade int) bool {
+	comment := Comment{
+		HomeworkSubmissionID: HomeworkSubmissionID,
+		UserID:               UserID,
+		Comment:              Commen,
+		Grade:                Grade,
+	}
+	res := DB.Create(&comment)
+	return res.Error == nil
 }

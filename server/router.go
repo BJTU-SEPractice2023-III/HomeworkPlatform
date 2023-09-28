@@ -31,10 +31,18 @@ func InitRouter() *gin.Engine {
 	*/
 	api := r.Group("api")
 	{
+		//TODO:后期可以做一下权限验证不能随意获取作业
 		file := api.Group("file")
 		{
 			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
 		}
+
+		comment := api.Group("comment")
+		comment.Use(middlewares.JWTAuth())
+		{
+			comment.POST("", service.Handler(&service.CommentService{})) // POST api/comment
+		}
+
 		// No login required
 		user := api.Group("user")
 		{
