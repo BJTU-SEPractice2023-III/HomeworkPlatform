@@ -9,7 +9,7 @@ import (
 )
 
 type GetGradeBySubmissionIDService struct {
-	HomeworkSubmissionID uint `form:"id"`
+	HomeworkSubmissionID uint `form:"homeworksubmissionid"`
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
@@ -38,7 +38,7 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 }
 
 type UpdateGradeService struct {
-	HomeworkSubmissionID uint `form:"id"`
+	HomeworkSubmissionID uint `form:"homeworksubmissionid"`
 	Grade                int  `form:"grade"`
 }
 
@@ -66,7 +66,13 @@ func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
 }
 
 type GetGradeListsByHomeworkIDService struct {
-	HomeworkID uint `form:"id"`
+	HomeworkID uint `form:"homeworkid"`
+}
+
+type MyMap struct {
+	UserID   uint   `form:"userid"`
+	UserName string `form:"username"`
+	Grade    int    `form:"grade"`
 }
 
 func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) {
@@ -86,6 +92,7 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	if err2 != nil {
 		return nil, err2
 	}
+	var maps []MyMap
 	for _, submission := range submissions {
 		if submission.Final == -1 {
 			//分数没有被计算过或者未截止
@@ -102,6 +109,11 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 				return nil, err
 			}
 		}
+		user, err := models.GetUserByID(submission.UserID)
+		if err != nil {
+			return nil, err
+		}
+		maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Grade: submission.Grade})
 	}
-	return submissions, nil
+	return maps, nil
 }
