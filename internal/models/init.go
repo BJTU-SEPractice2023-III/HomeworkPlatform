@@ -25,7 +25,6 @@ func init() {
 	DB.AutoMigrate(&Homework{})
 	DB.AutoMigrate(&HomeworkSubmission{})
 	DB.AutoMigrate(&Comment{})
-	DB.AutoMigrate(&Grade{})
 	// 创建初始管理员账户
 	addDefaultUser()
 }

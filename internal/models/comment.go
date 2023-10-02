@@ -27,6 +27,15 @@ func (comment Comment) UpdateSelf(comm string, grade int) error {
 	return res.Error
 }
 
+func GetCommentBySubmissionID(submissionid uint) ([]Comment, error) {
+	var comments []Comment
+	res := DB.Where("homework_submission_id = ?", submissionid).Find(&comments)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return comments, nil
+}
+
 func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (any, error) {
 	var comment Comment
 	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)

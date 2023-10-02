@@ -42,6 +42,7 @@ func InitRouter() *gin.Engine {
 		{
 			grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
 			grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
+			grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
 		}
 
 		comment := api.Group("comment")

@@ -1,7 +1,9 @@
 package service
 
 import (
+	"errors"
 	"homework_platform/internal/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,12 +13,56 @@ type GetGradeBySubmissionIDService struct {
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
-	//TODO:可以设置自己和老师才能查看
-	grade, err := models.GetGradeByID(service.HomeworkSubmissionID)
+	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	if submission == nil {
+		return nil, errors.New("作业没找到")
+	}
+	if submission.Final == -1 {
+		//分数没有被计算过或者未截止
+		grade, res := submission.CalculateGrade()
+		if res != nil {
+			return nil, res
+		}
+		homework, res := models.GetHomeworkByID(submission.HomeworkID)
+		if res != nil {
+			return nil, res
+		}
+		if homework.EndDate.After(time.Now()) {
+			submission.Final = 1
+		}
+		submission.Grade = grade
+		err := submission.UpdateSelf()
+		return grade, err
+	}
+	return submission.Grade, nil
+}
+
+type UpdateGradeService struct {
+	HomeworkSubmissionID uint `form:"id"`
+	Grade                int  `form:"grade"`
+}
+
+func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
+	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	if submission == nil {
+		return nil, errors.New("作业没找到")
+	}
+	homework, res := models.GetHomeworkByID(submission.HomeworkID)
+	if res != nil {
+		return nil, res
+	}
+	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
 	}
-	return grade, nil
+	id, _ := c.Get("ID")
+	if id.(uint) != course.TeacherID {
+		return nil, errors.New("您无权限修改")
+	}
+	submission.Final = 1
+	submission.Grade = service.Grade
+	err2 := submission.UpdateSelf()
+	return nil, err2
 }
 
 type GetGradeListsByHomeworkIDService struct {
@@ -24,18 +70,38 @@ type GetGradeListsByHomeworkIDService struct {
 }
 
 func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) {
-	//TODO:可以检查该课程是不是自己创建的
-	// course, err := models.GetCourseByID(int(service.HomeworkID))
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// id, _ := c.Get("ID")
-	// if course.TeacherID != id {
-	// 	return nil, errors.New("不能发布不是您的课程的作业")
-	// }
-	grades, err := models.GetGradeListsByHomeworkID(service.HomeworkID)
+	homework, res := models.GetHomeworkByID(service.HomeworkID)
+	if res != nil {
+		return nil, res
+	}
+	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
 	}
-	return grades, nil
+	id, _ := c.Get("ID")
+	if id.(uint) != course.TeacherID {
+		return nil, errors.New("您无权限查询")
+	}
+	submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+	if err2 != nil {
+		return nil, err2
+	}
+	for _, submission := range submissions {
+		if submission.Final == -1 {
+			//分数没有被计算过或者未截止
+			grade, res := submission.CalculateGrade()
+			if res != nil {
+				return nil, res
+			}
+			if homework.EndDate.After(time.Now()) {
+				submission.Final = 1
+			}
+			submission.Grade = grade
+			err := submission.UpdateSelf()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return submissions, nil
 }
