@@ -37,6 +37,14 @@ func InitRouter() *gin.Engine {
 			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
 		}
 
+		grade := api.Group("grade")
+		grade.Use(middlewares.JWTAuth())
+		{
+			grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
+			grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
+			grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
+		}
+
 		comment := api.Group("comment")
 		comment.Use(middlewares.JWTAuth())
 		{
