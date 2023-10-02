@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +19,13 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("无效分数")
 	}
 	homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	homework, res1 := models.GetHomeworkByID(homewroksubmission.HomeworkID)
+	if res1 != nil {
+		return nil, res1
+	}
+	if homework.CommentEndDate.Before(time.Now()) {
+		return nil, errors.New("超时批阅")
+	}
 	if homewroksubmission == nil {
 		return nil, errors.New("没有找到该作业号")
 	}

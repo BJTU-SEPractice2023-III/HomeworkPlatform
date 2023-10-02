@@ -36,12 +36,13 @@ func (service *HomeworkDetail) Handle(c *gin.Context) (any, error) {
 }
 
 type AssignHomeworkService struct {
-	CourseID    int                     `form:"courseid"`
-	Name        string                  `form:"name"`
-	Description string                  `form:"description"`
-	BeginDate   time.Time               `form:"begindate"`
-	EndDate     time.Time               `form:"enddate"`
-	Files       []*multipart.FileHeader `form:"files"`
+	CourseID       int                     `form:"courseid"`
+	Name           string                  `form:"name"`
+	Description    string                  `form:"description"`
+	BeginDate      time.Time               `form:"begindate"`
+	EndDate        time.Time               `form:"enddate"`
+	CommentEndDate time.Time               `form:"commentenddate"`
+	Files          []*multipart.FileHeader `form:"files"`
 }
 
 func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
@@ -60,6 +61,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		service.Description,
 		service.BeginDate,
 		service.EndDate,
+		service.CommentEndDate,
 	)
 	if err2 != nil {
 		return nil, errors.New("创建失败")
@@ -124,13 +126,14 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 }
 
 type UpdateHomeworkService struct {
-	CourseID    int                     `form:"courseid"`
-	HomeworkID  int                     `form:"homeworkid"`
-	Name        string                  `form:"name"`
-	Description string                  `form:"description"`
-	BeginDate   time.Time               `form:"begindate"`
-	EndDate     time.Time               `form:"enddate"`
-	Files       []*multipart.FileHeader `form:"files"`
+	CourseID       int                     `form:"courseid"`
+	HomeworkID     int                     `form:"homeworkid"`
+	Name           string                  `form:"name"`
+	Description    string                  `form:"description"`
+	BeginDate      time.Time               `form:"begindate"`
+	EndDate        time.Time               `form:"enddate"`
+	CommentEndDate time.Time               `form:"commentenddate"`
+	Files          []*multipart.FileHeader `form:"files"`
 }
 
 func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
@@ -150,7 +153,7 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 	if homework.CourseID != service.CourseID {
 		return nil, errors.New("不能更改不是对应课程的作业")
 	}
-	homework.UpdateInformation(service.Name, service.Description, service.BeginDate, service.EndDate)
+	homework.UpdateInformation(service.Name, service.Description, service.BeginDate, service.EndDate, service.CommentEndDate)
 	os.RemoveAll(fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, homework.ID))
 
 	for _, f := range service.Files {

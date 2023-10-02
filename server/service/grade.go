@@ -18,16 +18,16 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 		return nil, errors.New("作业没找到")
 	}
 	if submission.Final == -1 {
-		//分数没有被计算过或者未截止
-		grade, res := submission.CalculateGrade()
-		if res != nil {
-			return nil, res
-		}
 		homework, res := models.GetHomeworkByID(submission.HomeworkID)
 		if res != nil {
 			return nil, res
 		}
-		if homework.EndDate.After(time.Now()) {
+		//分数没有被计算过或者未截止
+		grade, res := submission.CalculateGrade(homework)
+		if res != nil {
+			return nil, res
+		}
+		if homework.CommentEndDate.After(time.Now()) {
 			submission.Final = 1
 		}
 		submission.Grade = grade
@@ -96,11 +96,11 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	for _, submission := range submissions {
 		if submission.Final == -1 {
 			//分数没有被计算过或者未截止
-			grade, res := submission.CalculateGrade()
+			grade, res := submission.CalculateGrade(homework)
 			if res != nil {
 				return nil, res
 			}
-			if homework.EndDate.After(time.Now()) {
+			if homework.CommentEndDate.After(time.Now()) {
 				submission.Final = 1
 			}
 			submission.Grade = grade

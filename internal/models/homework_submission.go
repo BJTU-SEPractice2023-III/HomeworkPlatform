@@ -2,6 +2,7 @@ package models
 
 import (
 	"math"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ type HomeworkSubmission struct {
 	Final   int    `json:"-" gorm:"default:-1"` //-1表示不是最终结果
 }
 
-func (submission *HomeworkSubmission) CalculateGrade() (int, error) {
+func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, error) {
 	//查询到所有的comment
 	comments, res := GetCommentBySubmissionID(submission.ID)
 	if res != nil {
@@ -34,6 +35,9 @@ func (submission *HomeworkSubmission) CalculateGrade() (int, error) {
 	grade := 0
 	for _, comment := range comments {
 		grade += comment.Grade
+	}
+	if len(comments) == 0 && homewrork.CommentEndDate.Before(time.Now()) {
+		return -1, nil //TODO:这里是没有被批改的学生
 	}
 	average := float64(grade) / float64(len(comments))
 	average = math.Round(average)
