@@ -25,7 +25,7 @@ func Frontend(fs http.FileSystem) gin.HandlerFunc {
 }
 
 func FrontendReverseProxy() gin.HandlerFunc {
-    target, _ := url.Parse("http://localhost:5173")
+    target, _ := url.Parse("http://localhost:3000")
     proxy := httputil.NewSingleHostReverseProxy(target)
 
 	return func(c *gin.Context) {
