@@ -5,6 +5,8 @@ import (
 	"homework_platform/internal/bootstrap"
 	"homework_platform/server"
 	"log"
+	"os"
+	"os/exec"
 )
 
 // go1.16后新加入的功能，将文件或目录作为一个文件系统嵌入到二进制文件中
@@ -19,7 +21,36 @@ func init() {
 	bootstrap.InitStatic(staticZip)
 }
 
+func runPnpmDev() {
+	projectPath := "assets"
+	err := os.Chdir(projectPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 执行 PNPM dev 命令
+	cmd := exec.Command("pnpm", "dev")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 在这里执行其他 Golang 操作，例如启动 Golang 服务器
+
+	// 等待 PNPM dev 进程结束
+	err = cmd.Wait()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
+	if bootstrap.Dev {
+		go runPnpmDev()
+	}
 	api := server.InitRouter()
 
 	err := api.Run(":8888")

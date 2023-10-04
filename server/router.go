@@ -13,7 +13,7 @@ import (
 )
 
 func InitRouter() *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
 
 	// TODO: Figure these things out
 	config := cors.DefaultConfig()
@@ -35,6 +35,8 @@ func InitRouter() *gin.Engine {
 		路由
 	*/
 	api := r.Group("api")
+	api.Use(gin.Logger())
+	api.Use(gin.Recovery())
 	{
 		//TODO:后期可以做一下权限验证不能随意获取作业
 		file := api.Group("file")

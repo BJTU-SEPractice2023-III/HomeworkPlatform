@@ -1,7 +1,9 @@
 package middlewares
 
 import (
+	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +31,7 @@ func FrontendReverseProxy() gin.HandlerFunc {
     proxy := httputil.NewSingleHostReverseProxy(target)
 
 	return func(c *gin.Context) {
+		gin.DefaultWriter = io.Discard
 		// 修改请求头等信息
 		c.Request.Host = target.Host
 		c.Request.URL.Host = target.Host
@@ -38,5 +41,6 @@ func FrontendReverseProxy() gin.HandlerFunc {
 
 		// 执行反向代理
 		proxy.ServeHTTP(c.Writer, c.Request)
+		gin.DefaultWriter = os.Stdout
 	}
 }
