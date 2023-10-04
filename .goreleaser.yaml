@@ -12,7 +12,7 @@ before:
     # You may remove this if you don't use go modules.
     - go mod tidy
     # you may remove this if you don't need go generate
-    - sh -c "cd assets/ && pnpm i && pnpm build && cd ../"
+    - sh -c "cd assets/ && pnpm i && pnpm build && cd ../ && zip -r - assets/dist > assets.zip"
 
 builds:
   - env:
