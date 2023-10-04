@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"fmt"
+	"embed"
 	"log"
 	"net/http"
 
@@ -10,24 +10,13 @@ import (
 
 var StaticFS http.FileSystem
 
-func InitStatic(staticZip string) {
+func InitStatic(statics embed.FS) {
 	log.Println("[bootStrap/InitStaticFS]: Initializing...")
-
-	statics := NewFS(staticZip)
-
 	var err error
-	embedFS, err := fs.Sub(statics, "assets/dist/public")
+	embedFS, err := fs.Sub(statics, "assets/dist")
 	if err != nil {
 		log.Panicf("Failed to initialize static resources: %s", err)
 	}
 
 	StaticFS = http.FS(embedFS)
-
-    _ = fs.WalkDir(embedFS, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		fmt.Println(path)
-		return nil
-	})
 }
