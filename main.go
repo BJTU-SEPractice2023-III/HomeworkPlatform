@@ -5,14 +5,22 @@ import (
 	"homework_platform/internal/bootstrap"
 	"homework_platform/server"
 	"log"
+    "io/fs"
+    "fmt"
 )
 
-// TODO:这里会报错
-// //go:embed assets/build/*
+//go:embed all:assets/dist/public/*
 var f embed.FS
 
 func init() {
 	bootstrap.InitStatic(f)
+    _ = fs.WalkDir(f, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		fmt.Println(path)
+		return nil
+	})
 }
 
 func main() {
