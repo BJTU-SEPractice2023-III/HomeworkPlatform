@@ -4,11 +4,8 @@
 
 `assets/` 目录下是前端仓库的子模块。
 
-如果要用前端的开发服务器的话，就先到 `assets/` 里 `pnpm dev`，再出来 `go run . --dev`，
-
-`--dev` 会让前端的中间件把所有前端的请求通过反向代理转到 `localhost:3000`（也就是 pnpm dev 的监听地址）
-
-或者先进行 `pnpm build`，再 `go run .`，不过这样前端就是使用的固定的构建结果的文件。
+直接 `go run . --dev`，
+程序会用子进程在 `assets/` 里跑一个 `pnpm dev`，并让前端的中间件把所有前端的请求通过反向代理转到 `localhost:3000`（也就是 pnpm dev 的监听地址）
 
 ## 构建
 
