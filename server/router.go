@@ -28,7 +28,7 @@ func InitRouter() *gin.Engine {
         log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
         r.Use(middlewares.FrontendReverseProxy())
     } else {
-	    r.Use(middlewares.Frontend(bootstrap.StaticFS))
+	    r.Use(middlewares.Frontend())
     }
 
 	/*

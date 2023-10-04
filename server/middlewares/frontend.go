@@ -1,7 +1,9 @@
 package middlewares
 
 import (
+	"homework_platform/internal/bootstrap"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -12,17 +14,49 @@ import (
 	"net/url"
 )
 
-func Frontend(fs http.FileSystem) gin.HandlerFunc {
-	fileServer := http.FileServer(fs)
+func Frontend() gin.HandlerFunc {
+	ignoreFunc := func(c *gin.Context) {
+		c.Next()
+	}
+
+	if bootstrap.StaticFS == nil {
+		return ignoreFunc
+	}
+
+	// 读取index.html
+	file, err := bootstrap.StaticFS.Open("/index.html")
+	if err != nil {
+		log.Println("Static file \"index.html\" does not exist, it might affect the display of the homepage.")
+		return ignoreFunc
+	}
+
+	fileContentBytes, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Cannot read static file \"index.html\", it might affect the display of the homepage.")
+		return ignoreFunc
+	}
+	fileContent := string(fileContentBytes)
+
+	fileServer := http.FileServer(bootstrap.StaticFS)
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 
 		// API 跳过
 		if strings.HasPrefix(path, "/api") {
 			c.Next()
-		} else {
-			fileServer.ServeHTTP(c.Writer, c.Request)
+			return
 		}
+
+		if path == "/index.html" || path == "/" || !bootstrap.StaticFS.Exists("/", path) {
+		
+			c.Header("Content-Type", "text/html")
+			c.String(200, fileContent)
+			c.Abort()	
+			return
+		}
+
+		fileServer.ServeHTTP(c.Writer, c.Request)
+		c.Abort()
 	}
 }
 
