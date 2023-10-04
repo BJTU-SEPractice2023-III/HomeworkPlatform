@@ -6,7 +6,7 @@ import (
 	"homework_platform/server/service"
 
 	// "flag"
-	// "log"
+	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,12 @@ func InitRouter() *gin.Engine {
 	r.Use(cors.New(config))
 
 	// FrontendFS
-	r.Use(middlewares.Frontend(bootstrap.StaticFS))
+    if bootstrap.Dev {
+        log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
+        r.Use(middlewares.FrontendReverseProxy())
+    } else {
+	    r.Use(middlewares.Frontend(bootstrap.StaticFS))
+    }
 
 	/*
 		路由
