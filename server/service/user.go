@@ -4,8 +4,8 @@ import (
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
 
-	// "homework_platform/internal/utils"
 	"errors"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -17,6 +17,7 @@ type UserLoginService struct {
 }
 
 func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
+	log.Printf("[UserLoginService]: %v, %v\n", service.Username, service.Password)
 	var user models.User
 	var err error
 

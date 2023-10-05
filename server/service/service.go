@@ -21,6 +21,7 @@ func Handler(s Service) gin.HandlerFunc {
 		} else {
 			err = c.ShouldBind(s) //检查json和s的结构是否一致
 		}
+		log.Println(err)
 		if err != nil && err != io.EOF {
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			return
