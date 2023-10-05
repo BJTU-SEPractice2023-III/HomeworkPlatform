@@ -24,12 +24,12 @@ func InitRouter() *gin.Engine {
 	r.Use(cors.New(config))
 
 	// FrontendFS
-    if bootstrap.Dev {
-        log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
-        r.Use(middlewares.FrontendReverseProxy())
-    } else {
-	    r.Use(middlewares.Frontend())
-    }
+	if bootstrap.Dev {
+		log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
+		r.Use(middlewares.FrontendReverseProxy())
+	} else {
+		r.Use(middlewares.Frontend())
+	}
 
 	/*
 		路由
@@ -38,32 +38,18 @@ func InitRouter() *gin.Engine {
 	api.Use(gin.Logger())
 	api.Use(gin.Recovery())
 	{
-		//TODO:后期可以做一下权限验证不能随意获取作业
-		file := api.Group("file")
-		{
-			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
-		}
-
-		grade := api.Group("grade")
-		grade.Use(middlewares.JWTAuth())
-		{
-			grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
-			grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
-			grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
-		}
-
-		comment := api.Group("comment")
-		comment.Use(middlewares.JWTAuth())
-		{
-			comment.POST("", service.Handler(&service.CommentService{})) // POST api/comment
-		}
-
 		// No login required
 		user := api.Group("user")
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
 			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
+		}
+
+		//TODO:后期可以做一下权限验证不能随意获取作业
+		file := api.Group("file")
+		{
+			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
 		}
 
 		// Login required
@@ -80,41 +66,49 @@ func InitRouter() *gin.Engine {
 					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
 				}
 			}
+
+			//homework_submission
+			homework_submission := auth.Group("homeworksubmission")
+			{
+				//把提交和更新封装一起
+				homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
+			}
+			//homework
+			homewrok := auth.Group("homework")
+			{
+				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
+				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
+				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
+				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
+				homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
+				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
+			}
+			//course
+			course := auth.Group("course")
+			{
+				course.GET("", service.Handler(&service.GetCourses{}))
+				course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
+				course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
+				course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
+				course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
+				course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
+				course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
+				course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
+			}
+
+			comment := auth.Group("comment")
+			{
+				comment.POST("", service.Handler(&service.CommentService{})) // POST api/comment
+			}
+
+			grade := auth.Group("grade")
+			{
+				grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
+				grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
+				grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
+			}
 		}
 
-		//homework_submission
-		homework_submission := api.Group("homeworksubmission")
-		homework_submission.Use(middlewares.JWTAuth())
-		{
-			//把提交和更新封装一起
-			homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
-		}
-
-		//homework
-		homewrok := api.Group("homework")
-		homewrok.Use(middlewares.JWTAuth())
-		{
-			homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
-			homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
-			homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
-			homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
-			homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
-			homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
-		}
-
-		//course
-		course := api.Group("course")
-		course.Use(middlewares.JWTAuth())
-		{
-			course.GET("", service.Handler(&service.GetCourses{}))
-			course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
-			course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
-			course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
-			course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
-			course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
-			course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
-			course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
-		}
 	}
 
 	return r
