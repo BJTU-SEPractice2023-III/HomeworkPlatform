@@ -13,7 +13,7 @@ type User struct {
 
 	Username string `json:"username" gorm:"unique"` // 用户名
 	Password string `json:"-"`                      // 密码
-	IsAdmin  bool   `json:"is_admin"`               // 是否是管理员
+	IsAdmin  bool   `json:"isAdmin"`               // 是否是管理员
 
 	////// Associations //////
 	// A user has many courses

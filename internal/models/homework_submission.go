@@ -13,12 +13,12 @@ type HomeworkSubmission struct {
 	// A homework has many homework submission
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkID uint `json:"homework_id"`
+	HomeworkID uint `json:"homeworkId"`
 
 	// A User has many homework submission
 	// Also check user.go
 	// Check: https://gorm.io/docs/has_many.html
-	UserID uint `json:"user_id"`
+	UserID uint `json:"userId"`
 
 	// Regular fields
 	Content string `json:"content"`

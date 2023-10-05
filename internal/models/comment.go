@@ -10,12 +10,12 @@ type Comment struct {
 	// A homework submission has many comments
 	// Also check homework_submission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissionID uint `json:"homework_submission_id"`
+	HomeworkSubmissionID uint `json:"homeworkSubmissionId"`
 
 	// A user has many comments
 	// Also check user.go
 	// Check: https://gorm.io/docs/has_many.html
-	UserID uint `json:"user_id"`
+	UserID uint `json:"userId"`
 
 	// Regular fields
 	Comment string `json:"comment"`

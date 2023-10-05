@@ -10,12 +10,12 @@ import (
 
 type Homework struct {
 	gorm.Model
-	CourseID       int       `json:"course_id" gorm:"type:int(20)"`
+	CourseID       int       `json:"courseId" gorm:"type:int(20)"`
 	Name           string    `json:"name" gorm:"type:varchar(255)"`
 	Description    string    `json:"description"`
-	BeginDate      time.Time `json:"begin_date"`
-	EndDate        time.Time `json:"end_date"`
-	CommentEndDate time.Time `json:"comment_end_date"`
+	BeginDate      time.Time `json:"beginDate"`
+	EndDate        time.Time `json:"endDate"`
+	CommentEndDate time.Time `json:"commentEndDate"`
 	// A homework has many submissions
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html

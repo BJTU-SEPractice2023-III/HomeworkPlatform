@@ -11,8 +11,8 @@ import (
 type Course struct {
 	gorm.Model
 	Name        string    `json:"name"`
-	BeginDate   time.Time `json:"begin_date"`
-	EndDate     time.Time `json:"end_date"`
+	BeginDate   time.Time `json:"beginDate"`
+	EndDate     time.Time `json:"endDate"`
 	Description string    `json:"description"`
 
 	// A teacher has many course
