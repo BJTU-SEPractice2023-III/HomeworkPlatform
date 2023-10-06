@@ -4,4 +4,5 @@ config.yml
 **/.idea
 **/.sql
 **/data/homeworkassign
+**/data/homework_submission
 dist/
