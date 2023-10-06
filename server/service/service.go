@@ -2,11 +2,15 @@ package service
 
 import (
 	"homework_platform/internal/serializer"
-	"io"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	Bind = iota
+	BindUri
 )
 
 type Service interface {
@@ -14,15 +18,25 @@ type Service interface {
 }
 
 func Handler(s Service) gin.HandlerFunc {
+	return HandlerWithBindType(s, Bind)
+}
+
+func HandlerWithBindType(s Service, bindType int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
-		if c.Request.Method == http.MethodGet {
-			err = c.ShouldBindJSON(s)
-		} else {
-			err = c.ShouldBind(s) //检查json和s的结构是否一致
+
+		// Binding using an auto-selected binding engine
+		// "application/json" --> JSON binding
+		// "application/xml"  --> XML binding
+		switch bindType {
+		case Bind:
+			err = c.ShouldBind(s)
+		case BindUri:
+			err = c.ShouldBindUri(s)
 		}
 		log.Println(err)
-		if err != nil && err != io.EOF {
+		if err != nil /*&& err != io.EOF*/ {
+			log.Printf("[Handler]: Failed to bind: %v\n", err)
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			return
 		}
