@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"math/rand"
 	"time"
 
 	"gorm.io/gorm"
@@ -13,7 +15,7 @@ type Comment struct {
 	// Also check homework_submission.go
 	// Check: https://gorm.io/docs/has_many.html
 	HomeworkSubmissionID uint `json:"homeworkSubmissionId"`
-
+	HomeworkID           uint `json:"homeworkid"`
 	// A user has many comments
 	// Also check user.go
 	// Check: https://gorm.io/docs/has_many.html
@@ -46,13 +48,20 @@ func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid
 	}
 	return comment, nil
 }
+func GetCommentListsByUserIDAndHomeworknID(userid uint, homeworkid uint) (any, error) {
+	var comment []Comment
+	res := DB.Where("homework_id = ? AND user_id = ?", homeworkid, userid).Find(&comment)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return comment, nil
+}
 
-func CreateComment(HomeworkSubmissionID uint, UserID uint, Commen string, Grade int) bool {
+func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,
-		Comment:              Commen,
-		Grade:                Grade,
+		HomeworkID:           HomeworkID,
 	}
 	res := DB.Create(&comment)
 	return res.Error == nil
@@ -64,11 +73,39 @@ func AssignComment(HomeworkID uint) error {
 	if err != nil {
 		return err
 	}
-	if homework.EndDate.Before(time.Now()) && homework.Assigned == -1 {
+	if homework.EndDate.Before(time.Now()) {
 		//分配作业
-		homework.Assigned = 1
-		DB.Save(&homework)
-
+		rand.Seed(time.Now().UnixNano()) // 种子随机化
+		if homework.Assigned == -1 {
+			homework.Assigned = 1
+			DB.Save(&homework)
+			submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
+			if err != nil {
+				homework.Assigned = -1
+				DB.Save(&homework)
+				return err
+			}
+			//TODO:算法部分,暂时采用每人批三份的方式
+			nReviewers := 3 // 每个作业需要三个批改人员
+			var homeworklistsAfterRandon []uint
+			for _, submission := range submissionLists {
+				for i := 0; i < nReviewers; i++ {
+					homeworklistsAfterRandon = append(homeworklistsAfterRandon, submission.ID)
+				}
+			}
+			for i := len(homeworklistsAfterRandon) - 1; i > 0; i-- {
+				//洗牌
+				j := rand.Intn(i + 1)
+				homeworklistsAfterRandon[i], homeworklistsAfterRandon[j] = homeworklistsAfterRandon[j], homeworklistsAfterRandon[i]
+			}
+			for _, submission := range submissionLists {
+				for i := 0; i < nReviewers; i++ {
+					CreateComment(submission.ID, submission.UserID, submission.HomeworkID)
+				}
+			}
+		}
+	} else {
+		return errors.New("现在不是批阅时间")
 	}
 	return nil
 }
