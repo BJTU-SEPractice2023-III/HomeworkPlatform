@@ -101,7 +101,7 @@ func CreateCourse(name string, begindate time.Time,
 	return nil
 }
 
-func GetCourseByID(id int) (Course, error) {
+func GetCourseByID(id uint) (Course, error) {
 	log.Printf("正在查找<Course>(ID = %d)...", id)
 	var course Course
 

@@ -30,15 +30,28 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("没有找到该作业号")
 	}
 	id, _ := c.Get("ID")
-	//检查是否已经存在评论，如果存在，就进行修改
 	comment, res := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
 	if res == nil {
 		res := comment.(models.Comment).UpdateSelf(service.Comment, service.Grade)
 		return nil, res
-	} else {
-		if res := models.CreateComment(service.HomeworkSubmissionID, id.(uint), service.Comment, service.Grade); !res {
-			return nil, errors.New("创建失败")
-		}
-		return nil, nil
 	}
+	return nil, res
+}
+
+type GetCommentListsService struct {
+	HomeworkID uint `josn:"homeworkid"`
+}
+
+func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
+	id, _ := c.Get("ID")
+	err := models.AssignComment(service.HomeworkID)
+	if err != nil {
+		return nil, err
+	}
+	commentLists, res := models.GetCommentListsByUserIDAndHomeworknID(id.(uint), service.HomeworkID)
+	if res != nil {
+		return nil, res
+	}
+
+	return commentLists, nil
 }

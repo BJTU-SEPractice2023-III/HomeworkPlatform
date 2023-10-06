@@ -98,7 +98,8 @@ func InitRouter() *gin.Engine {
 
 			comment := auth.Group("comment")
 			{
-				comment.POST("", service.Handler(&service.CommentService{})) // POST api/comment
+				comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
+				comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
 			}
 
 			grade := auth.Group("grade")

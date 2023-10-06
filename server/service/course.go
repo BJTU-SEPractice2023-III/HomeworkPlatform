@@ -26,7 +26,7 @@ func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
 }
 
 type UpdateCourseDescription struct {
-	CourseID    int    `form:"courseid"`
+	CourseID    uint   `form:"courseid"`
 	Description string `form:"description"`
 }
 
@@ -47,7 +47,7 @@ func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
 }
 
 type DeleteCourse struct {
-	CourseID int `form:"courseid"`
+	CourseID uint `form:"courseid"`
 }
 
 func (service *DeleteCourse) Handle(c *gin.Context) (any, error) {
@@ -67,7 +67,7 @@ func (service *DeleteCourse) Handle(c *gin.Context) (any, error) {
 }
 
 type GetCourseStudentLists struct {
-	CourseID int `form:"courseid"`
+	CourseID uint `form:"courseid"`
 }
 
 func (service *GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
@@ -87,7 +87,7 @@ func (service *GetCourseStudentLists) Handle(c *gin.Context) (any, error) {
 }
 
 type SelectCourseService struct {
-	CourseID int `form:"courseid"`
+	CourseID uint `form:"courseid"`
 }
 
 func (service *SelectCourseService) Handle(c *gin.Context) (any, error) {
@@ -144,7 +144,7 @@ func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
 	return courses, nil
 }
 
-type GetCourses struct {}
+type GetCourses struct{}
 
 func (service *GetCourses) Handle(c *gin.Context) (any, error) {
 	courses, err := models.GetCourses()
