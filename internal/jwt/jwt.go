@@ -28,7 +28,7 @@ func CreateToken(id uint) (string, error) {
 
 func GetTokenStr(c *gin.Context) string {
 	tokenStr := ""
-	log.Println(c.Request.Header.Get("Authorization"))
+	// log.Println(c.Request.Header.Get("Authorization"))
 	if c.Request.URL.Path == "/api/servers/console" && c.Request.Method == "GET" {
 		tokenStr = c.Query("token")
 	} else {
@@ -49,7 +49,7 @@ func at(t time.Time, f func()) {
 func DecodeTokenStr(tokenStr string) (*jwt.Token, error) {
 	var token *jwt.Token
 	var err error
-	log.Println("Decoding", tokenStr)
+	// log.Println("Decoding", tokenStr)
 	at(time.Unix(0, 0), func() {
 		token, err = jwt.ParseWithClaims(tokenStr, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(bootstrap.Config.JWTSigningString), nil

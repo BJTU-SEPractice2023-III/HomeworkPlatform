@@ -3,6 +3,7 @@ package middlewares
 import (
 	"homework_platform/internal/jwt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,14 +11,15 @@ import (
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStr := jwt.GetTokenStr(c)
-		log.Println("[middlewares/JWTAuth]: Token: ", tokenStr)
+		log.Printf("[middlewares/JWTAuth]: Token: %v\n", tokenStr)
 
 		token, err := jwt.DecodeTokenStr(tokenStr)
-		log.Println(token, err)
+		// log.Println(token, err)
 
 		if err != nil || !token.Valid {
-			log.Println("[middlewares/JWTAuth]: Token not valid", err)
+			log.Printf("[middlewares/JWTAuth]: Token not valid: %v\n", err)
 
+			c.Status(http.StatusForbidden)
 			c.Abort()
 			return
 		}

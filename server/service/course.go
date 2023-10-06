@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"homework_platform/internal/models"
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -148,6 +148,15 @@ type GetCourses struct{}
 
 func (service *GetCourses) Handle(c *gin.Context) (any, error) {
 	courses, err := models.GetCourses()
-	log.Println(courses)
 	return courses, err
+}
+
+type GetCourse struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
+func (service *GetCourse) Handle(c *gin.Context) (any, error) {
+	fmt.Println(*service)
+	course, err := models.GetCourseByID(service.ID)
+	return course, err
 }
