@@ -48,7 +48,7 @@ func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid
 	}
 	return comment, nil
 }
-func GetCommentListsByUserIDAndHomeworknID(userid uint, homeworkid uint) (any, error) {
+func GetCommentListsByUserIDAndHomeworkID(userid uint, homeworkid uint) (any, error) {
 	var comment []Comment
 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkid, userid).Find(&comment)
 	if res.Error != nil {

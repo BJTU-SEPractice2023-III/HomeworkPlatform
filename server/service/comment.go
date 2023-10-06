@@ -48,7 +48,7 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	commentLists, res := models.GetCommentListsByUserIDAndHomeworknID(id.(uint), service.HomeworkID)
+	commentLists, res := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
 	if res != nil {
 		return nil, res
 	}
