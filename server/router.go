@@ -83,10 +83,12 @@ func InitRouter() *gin.Engine {
 				homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
 				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 			}
+
 			//course
 			course := auth.Group("course")
 			{
 				course.GET("", service.Handler(&service.GetCourses{}))
+				course.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
 				course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
 				course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
 				course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
