@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -54,4 +56,19 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, Commen string, Grade 
 	}
 	res := DB.Create(&comment)
 	return res.Error == nil
+}
+
+func AssignComment(HomeworkID uint) error {
+	//在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
+	homework, err := GetHomeworkByID(HomeworkID)
+	if err != nil {
+		return err
+	}
+	if homework.EndDate.Before(time.Now()) && homework.Assigned == -1 {
+		//分配作业
+		homework.Assigned = 1
+		DB.Save(&homework)
+
+	}
+	return nil
 }

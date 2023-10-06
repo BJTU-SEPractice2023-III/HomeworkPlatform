@@ -10,12 +10,13 @@ import (
 
 type Homework struct {
 	gorm.Model
-	CourseID       int       `json:"courseId" gorm:"type:int(20)"`
+	CourseID       uint      `json:"courseId" gorm:"type:int(20)"`
 	Name           string    `json:"name" gorm:"type:varchar(255)"`
 	Description    string    `json:"description"`
 	BeginDate      time.Time `json:"beginDate"`
 	EndDate        time.Time `json:"endDate"`
 	CommentEndDate time.Time `json:"commentEndDate"`
+	Assigned       int       `json:"-" gorm:"default:-1"`
 	// A homework has many submissions
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
@@ -38,7 +39,7 @@ func (homeworkd Homework) Deleteself() error {
 	return nil
 }
 
-func CreateHomework(id int, name string, description string,
+func CreateHomework(id uint, name string, description string,
 	begindate time.Time, endtime time.Time, commentendate time.Time) (any, error) {
 	newhomework := Homework{
 		CourseID:       id,

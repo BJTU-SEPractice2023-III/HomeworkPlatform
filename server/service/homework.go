@@ -36,7 +36,7 @@ func (service *HomeworkDetail) Handle(c *gin.Context) (any, error) {
 }
 
 type AssignHomeworkService struct {
-	CourseID       int                     `form:"courseid"`
+	CourseID       uint                    `form:"courseid"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
 	BeginDate      time.Time               `form:"begindate"`
@@ -76,7 +76,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 }
 
 type HomeworkLists struct {
-	CourseID int `form:"courseid"`
+	CourseID uint `form:"courseid"`
 }
 
 func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
@@ -96,8 +96,8 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 }
 
 type DeleteHomework struct {
-	CourseID   int `form:"courseid"`
-	HomeworkID int `form:"homeworkid"`
+	CourseID   uint `form:"courseid"`
+	HomeworkID uint `form:"homeworkid"`
 }
 
 func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
@@ -126,8 +126,8 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 }
 
 type UpdateHomeworkService struct {
-	CourseID       int                     `form:"courseid"`
-	HomeworkID     int                     `form:"homeworkid"`
+	CourseID       uint                    `form:"courseid"`
+	HomeworkID     uint                    `form:"homeworkid"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
 	BeginDate      time.Time               `form:"begindate"`
@@ -167,8 +167,8 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 }
 
 type SubmitListsService struct {
-	CourseID   int `form:"courseid"`
-	HomeworkID int `form:"homeworkid"`
+	CourseID   uint `form:"courseid"`
+	HomeworkID uint `form:"homeworkid"`
 }
 
 func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
