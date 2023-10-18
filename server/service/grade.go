@@ -27,7 +27,7 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 		if res != nil {
 			return nil, res
 		}
-		if homework.CommentEndDate.After(time.Now()) {
+		if homework.CommentEndDate.Before(time.Now()) {
 			submission.Final = 1
 		}
 		submission.Grade = grade
