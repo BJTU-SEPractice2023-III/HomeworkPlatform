@@ -26,22 +26,34 @@ type HomeworkSubmission struct {
 	Final   int    `json:"-" gorm:"default:-1"` //-1表示不是最终结果
 }
 
-func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, error) {
+func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, int, []User, []int, error) {
 	//查询到所有的comment
+	var userLists []User
+	var gradeLists []int
 	comments, res := GetCommentBySubmissionID(submission.ID)
 	if res != nil {
-		return -1, res
+		return -1, -1, userLists, gradeLists, res
 	}
-	grade := 0
+	grade := 0.0
+	totalDegree := 0.0
+	totalDegreeWithoutDegree := 0
 	for _, comment := range comments {
-		grade += comment.Grade
+		user, err := GetUserByID(comment.UserID)
+		if err != nil {
+			return -1, -1, userLists, gradeLists, err
+		}
+		userLists = append(userLists, user)
+		gradeLists = append(gradeLists, comment.Grade)
+		totalDegree += user.DegreeOfConfidence
+		totalDegreeWithoutDegree += comment.Grade
+		grade += float64(comment.Grade) * float64(user.DegreeOfConfidence) //TODO:在这里进行算法开发
 	}
 	if len(comments) == 0 && homewrork.CommentEndDate.Before(time.Now()) {
-		return -1, nil //TODO:这里是没有被批改的学生
+		return -1, -1, userLists, gradeLists, nil //TODO:这里是没有被批改的学生
 	}
-	average := float64(grade) / float64(len(comments))
+	average := float64(grade) / totalDegree
 	average = math.Round(average)
-	return int(average), nil
+	return int(average), totalDegreeWithoutDegree / len(comments), userLists, gradeLists, nil
 }
 
 func (submission *HomeworkSubmission) UpdateGrade(grade int) error {

@@ -3,6 +3,7 @@ package models
 import (
 	"homework_platform/internal/utils"
 	"log"
+	"math"
 	"strings"
 
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ type User struct {
 
 	Username string `json:"username" gorm:"unique"` // 用户名
 	Password string `json:"-"`                      // 密码
-	IsAdmin  bool   `json:"isAdmin"`               // 是否是管理员
+	IsAdmin  bool   `json:"isAdmin"`                // 是否是管理员
 
 	////// Associations //////
 	// A user has many courses
@@ -35,6 +36,9 @@ type User struct {
 	// Also check comment.go
 	// Check: https://gorm.io/docs/has_many.html
 	Comments []Comment `json:"-"`
+
+	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
+	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
 }
 
 // TODO: implement methods
@@ -45,6 +49,25 @@ func (user *User) CheckPassword(password string) bool {
 	log.Printf("盐: %s", salt)
 
 	return user.Password == utils.EncodePassword(password, salt)
+}
+
+func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
+	//如何更新,上限为700,下限为300
+	//TODO:更新权重算法
+	diff := math.Abs(float64(averageGrade - myGrade))
+	//更新动量为当abs()
+	if diff < 5 {
+		user.DegreeOfConfidence += -2*diff + 10
+	} else {
+		user.DegreeOfConfidence -= 10*diff/95 - 50.0/95.0
+	}
+	if user.DegreeOfConfidence > 700 {
+		user.DegreeOfConfidence = 700
+	} else if user.DegreeOfConfidence < 300 {
+		user.DegreeOfConfidence = 300
+	}
+	result := DB.Model(&user).Updates(User{DegreeOfConfidence: user.DegreeOfConfidence})
+	return result.Error
 }
 
 func (user *User) ChangePassword(password string) bool {

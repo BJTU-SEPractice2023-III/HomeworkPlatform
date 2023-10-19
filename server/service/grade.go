@@ -23,11 +23,15 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 			return nil, res
 		}
 		//分数没有被计算过或者未截止
-		grade, res := submission.CalculateGrade(homework)
+		grade, averageGrade, userLists, gradeLists, res := submission.CalculateGrade(homework)
 		if res != nil {
 			return nil, res
 		}
 		if homework.CommentEndDate.Before(time.Now()) {
+			//TODO:批阅结束,开始统计和收尾
+			for i, user := range userLists {
+				user.UpdateDegree(averageGrade, gradeLists[i])
+			}
 			submission.Final = 1
 		}
 		submission.Grade = grade
@@ -96,11 +100,15 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	for _, submission := range submissions {
 		if submission.Final == -1 {
 			//分数没有被计算过或者未截止
-			grade, res := submission.CalculateGrade(homework)
+			grade, averageGrade, userLists, gradeLists, res := submission.CalculateGrade(homework)
 			if res != nil {
 				return nil, res
 			}
 			if homework.CommentEndDate.After(time.Now()) {
+				//TODO:批阅结束,开始统计和收尾
+				for i, user := range userLists {
+					user.UpdateDegree(averageGrade, gradeLists[i])
+				}
 				submission.Final = 1
 			}
 			submission.Grade = grade
