@@ -18,6 +18,9 @@ type CreateCourse struct {
 
 func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
 	id, _ := c.Get("ID")
+	if service.BeginDate.After(service.EndDate) {
+		return nil, errors.New("开始时间晚于结束时间")
+	}
 	id, err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
 	return id, err
 }
