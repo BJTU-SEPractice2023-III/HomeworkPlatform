@@ -18,11 +18,8 @@ type CreateCourse struct {
 
 func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
 	id, _ := c.Get("ID")
-	err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
+	id, err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
+	return id, err
 }
 
 type UpdateCourseDescription struct {
