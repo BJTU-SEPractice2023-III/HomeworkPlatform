@@ -21,11 +21,8 @@ func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
 	if service.BeginDate.After(service.EndDate) {
 		return nil, errors.New("开始时间晚于结束时间")
 	}
-	err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
+	id, err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
+	return id, err
 }
 
 type UpdateCourseDescription struct {

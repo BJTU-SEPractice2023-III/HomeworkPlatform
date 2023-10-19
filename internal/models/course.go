@@ -85,7 +85,7 @@ func GetAllStudents(db *gorm.DB) ([]User, error) {
 }
 
 func CreateCourse(name string, begindate time.Time,
-	enddate time.Time, description string, teachderID uint) error {
+	enddate time.Time, description string, teachderID uint) (uint, error) {
 	c := Course{
 		Name:        name,
 		BeginDate:   begindate,
@@ -95,10 +95,10 @@ func CreateCourse(name string, begindate time.Time,
 	}
 	res := DB.Create(&c)
 	if res.Error != nil {
-		return errors.New("创建失败")
+		return 0, errors.New("创建失败")
 	}
 
-	return nil
+	return c.ID, nil
 }
 
 func GetCourseByID(id uint) (Course, error) {
