@@ -87,22 +87,39 @@ func AssignComment(HomeworkID uint) error {
 			}
 			//TODO:算法部分,暂时采用每人批三份的方式
 			nReviewers := 3 // 每个作业需要三个批改人员
-			var homeworklistsAfterRandon []uint
+			// var homeworklistsAfterRandon []HomeworkSubmission
+			// for _, submission := range submissionLists {
+			// 	for i := 0; i < nReviewers; i++ {
+			// 		homeworklistsAfterRandon = append(homeworklistsAfterRandon, submission)
+			// 	}
+			// }
+			// for i := len(homeworklistsAfterRandon) - 1; i > 0; i-- {
+			// 	//洗牌
+			// 	j := rand.Intn(i + 1)
+			// 	homeworklistsAfterRandon[i], homeworklistsAfterRandon[j] = homeworklistsAfterRandon[j], homeworklistsAfterRandon[i]
+			// }
+
+			// for _, submission := range submissionLists { //在这里获取提交用户的id
+			// 	for i := 0; i < nReviewers; i++ {
+			// 		CreateComment(homeworklistsAfterRandon[i].ID, submission.UserID, submission.HomeworkID)
+			// 	}
+			// }
+			m := make(map[uint]int)
+			var userLists []uint
 			for _, submission := range submissionLists {
+				m[submission.UserID] = nReviewers
+				userLists = append(userLists, submission.UserID)
+			}
+			for _, submission := range submissionLists { //在这里获取提交用户的id
 				for i := 0; i < nReviewers; i++ {
-					homeworklistsAfterRandon = append(homeworklistsAfterRandon, submission.ID)
+					k := rand.Intn(int(len(userLists)))
+					for userLists[k] != submission.UserID && m[userLists[k]] > 0 {
+						CreateComment(userLists[k], submission.UserID, submission.HomeworkID)
+						m[userLists[k]]--
+					}
 				}
 			}
-			for i := len(homeworklistsAfterRandon) - 1; i > 0; i-- {
-				//洗牌
-				j := rand.Intn(i + 1)
-				homeworklistsAfterRandon[i], homeworklistsAfterRandon[j] = homeworklistsAfterRandon[j], homeworklistsAfterRandon[i]
-			}
-			for _, submission := range submissionLists {
-				for i := 0; i < nReviewers; i++ {
-					CreateComment(submission.ID, submission.UserID, submission.HomeworkID)
-				}
-			}
+
 		}
 	} else {
 		return errors.New("现在不是批阅时间")
