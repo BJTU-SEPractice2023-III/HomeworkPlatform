@@ -111,11 +111,23 @@ func AssignComment(HomeworkID uint) error {
 				userLists = append(userLists, submission.UserID)
 			}
 			for _, submission := range submissionLists { //在这里获取提交用户的id
+				var used []uint
 				for i := 0; i < nReviewers; i++ {
-					k := rand.Intn(int(len(userLists)))
-					for userLists[k] != submission.UserID && m[userLists[k]] > 0 {
-						CreateComment(userLists[k], submission.UserID, submission.HomeworkID)
-						m[userLists[k]]--
+					for {
+						k := rand.Intn(int(len(userLists)))
+						found := false
+						for _, z := range used {
+							if int(z) == k {
+								found = true
+								break
+							}
+						}
+						if userLists[k] != submission.UserID && m[userLists[k]] > 0 && !found {
+							CreateComment(userLists[k], submission.UserID, submission.HomeworkID)
+							used = append(used, uint(k))
+							m[userLists[k]]--
+							break
+						}
 					}
 				}
 			}
