@@ -113,7 +113,6 @@ func EncodePassword(password string, salt string) string { //一种单向加密�
 	hash := sha1.New()
 	hash.Write([]byte(password + salt))
 	bs := hex.EncodeToString(hash.Sum(nil))
-
 	//存储 Salt 值和摘要， ":"分割
 	return salt + ":" + string(bs)
 }

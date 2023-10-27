@@ -2,6 +2,8 @@ module homework_platform
 
 go 1.21.1
 
+require github.com/go-playground/assert/v2 v2.2.0
+
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
