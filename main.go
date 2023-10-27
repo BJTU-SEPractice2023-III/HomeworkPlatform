@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	// "io/fs"
 	"homework_platform/internal/bootstrap"
+	"homework_platform/internal/models"
 	"homework_platform/server"
 	"log"
 	"os"
@@ -18,16 +19,11 @@ import (
 //go:embed all:assets/dist/*
 var f embed.FS
 
-func init() {
+func Init() {
+	bootstrap.InitFlag()
+	bootstrap.InitConfig()
 	bootstrap.InitStatic(f)
-
-	// _ = fs.WalkDir(f, ".", func(path string, d fs.DirEntry, err error) error {
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	fmt.Println(path)
-	// 	return nil
-	// })
+	models.InitDB()
 }
 
 func runPnpmDev() {
@@ -57,6 +53,8 @@ func runPnpmDev() {
 }
 
 func main() {
+	Init()
+
 	if bootstrap.Dev {
 		go runPnpmDev()
 	}
