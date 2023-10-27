@@ -1,7 +1,12 @@
 package models
 
 import (
+	"os"
 	"testing"
+
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // 用户密码测试
@@ -29,21 +34,49 @@ func TestCheckPassword(t *testing.T) {
 	}
 }
 
-// var (
-// 	mock sqlmock.Sqlmock
-// 	err  error
-// 	db   *sql.DB
-// )
+var (
+	err error
+)
 
-// // TestMain是在当前package下，最先运行的一个函数，常用于初始化
-// func TestMain(m *testing.M) {
-// 	db, mock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-// 	if err != nil {
+func TestMain(m *testing.M) {
+	// 使用 SQLite 内存数据库创建 Gorm 的数据库连接
+	DB, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		panic(err)
+	}
+	DB.AutoMigrate(&User{})
+	DB.AutoMigrate(&Course{})
+	DB.AutoMigrate(&Homework{})
+	DB.AutoMigrate(&HomeworkSubmission{})
+	DB.AutoMigrate(&Comment{})
+	// 调用包下面各个 Test 函数
+	os.Exit(m.Run())
+}
 
-// 		panic(err)
-// 	}
-// 	DB, err = gorm.Open("mysql", db)
-
-// 	// m.Run 是调用包下面各个Test函数的入口
-// 	os.Exit(m.Run())
-// }
+func TestCreateUser(t *testing.T) {
+	cases := []struct {
+		Name     string
+		Password string
+		expected bool
+	}{
+		{"xyh", "kksk", true},
+		{"", "kksk", false},
+		{"xeh", "", false},
+		{"xyh", "kksk", false},
+	}
+	for _, c := range cases {
+		t.Run(c.Name, func(t *testing.T) {
+			t.Helper()
+			_, err := CreateUser(c.Name, c.Password)
+			if err != nil && c.expected {
+				t.Fatalf("create user %s with password %s expected %t, but %s",
+					c.Name, c.Password, c.expected, err.Error())
+			} else if err == nil && !c.expected {
+				t.Fatalf("create user %s with password %s expected %t, but passed",
+					c.Name, c.Password, c.expected)
+			}
+		})
+	}
+}

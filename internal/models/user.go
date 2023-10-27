@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"homework_platform/internal/utils"
 	"log"
 	"math"
@@ -96,6 +97,12 @@ func (user *User) DeleteSelf() bool {
 }
 
 func CreateUser(username string, password string) (uint, error) {
+	if len(username) == 0 {
+		return 0, errors.New("名称不能为空")
+	}
+	if len(password) == 0 {
+		return 0, errors.New("密码不能为空")
+	}
 	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
 	password = utils.EncodePassword(password, utils.RandStringRunes(16))
 	user := User{Username: username, Password: password, IsAdmin: false} //默认创建的用户权限为普通用户
