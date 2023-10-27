@@ -8,7 +8,7 @@ import (
 
 var Config *config.Config
 
-func init() {
+func InitConfig() {
 	var err error
 	log.Println("[bootstrap/InitConfig]: Initializing config...")
 	Config = config.DefaultACHConfig()

@@ -13,7 +13,7 @@ import (
 
 var DB *gorm.DB
 
-func init() {
+func InitDB() {
 	// db, err := gorm.Open(sqlite.Open("ach.db"), &gorm.Config{})
 	// db, err := gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
 	var db *gorm.DB

@@ -56,15 +56,28 @@ func InitRouter() *gin.Engine {
 		auth := api.Group("")
 		auth.Use(middlewares.JWTAuth())
 		{
+			// Admin required
 			admin := api.Group("admin")
 			admin.Use(middlewares.AdminCheck())
 			{
-				user := admin.Group("user")
+				users := admin.Group("users")
 				{
-					user.GET("", service.Handler(&service.GetUsersService{}))         // GET  api/admin/user
-					user.POST("", service.Handler(&service.UserUpdateService{}))      // POST api/admin/user
-					user.POST("delete", service.Handler(&service.DelteUserService{})) //POST api/admin/user/delete
+					// GET    api/admin/users     | Get a list of all users
+					users.GET("", service.Handler(&service.GetUsersService{}))
+					// POST   api/admin/users     | Create a user
+					users.POST("", service.Handler(&service.UserUpdateService{}))
+					// DELETE api/admin/users/:id | Delete a user
+					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
 				}
+			}
+
+			// api/users
+			users := auth.Group("users")
+			{
+				// GET api/users/:id | Get info of a user
+				users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
+				// GET api/users/:id/courses | Get courses of a user
+				users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
 			}
 
 			//homework_submission
