@@ -6,3 +6,5 @@ config.yml
 **/data/homeworkassign
 **/data/homework_submission
 dist/
+
+*.db
