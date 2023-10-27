@@ -71,7 +71,7 @@ func (service *UserselfUpdateService) Handle(c *gin.Context) (any, error) {
 }
 
 type GetUserService struct {
-	ID uint `form:"id"`
+	ID uint `uri:"id" binding:"required"`
 }
 
 func (service *GetUserService) Handle(c *gin.Context) (any, error) {
@@ -86,4 +86,17 @@ type UserRegisterService struct {
 func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
 	_, err := models.CreateUser(service.Username, service.Password);
 	return nil, err
+}
+
+
+type GetUserCoursesService struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
+func (service *GetUserCoursesService) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByID(service.ID)
+	if err != nil {
+		return nil, err
+	}
+	return user.GetCourses()
 }

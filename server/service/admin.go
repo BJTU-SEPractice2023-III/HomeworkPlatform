@@ -15,12 +15,12 @@ func (service *GetUsersService) Handle(c *gin.Context) (any, error) {
 	return models.GetUserList()
 }
 
-type DelteUserService struct {
-	Username string `form:"username"`
+type DeleteUserService struct {
+	ID uint `uri:"id" binding:"required"`
 }
 
-func (service *DelteUserService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByUsername(service.Username)
+func (service *DeleteUserService) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByID(service.ID)
 	if err != nil {
 		return nil, errors.New("用户不存在")
 	}
