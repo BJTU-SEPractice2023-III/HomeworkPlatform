@@ -5,7 +5,9 @@ import (
 	"homework_platform/internal/utils"
 	"log"
 
-	"gorm.io/driver/mysql"
+	// "gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +15,14 @@ var DB *gorm.DB
 
 func init() {
 	// db, err := gorm.Open(sqlite.Open("ach.db"), &gorm.Config{})
-	db, err := gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+	// db, err := gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+	var db *gorm.DB
+	var err error
+	if bootstrap.Sqlite {
+		db, err = gorm.Open(sqlite.Open("homework-platform.db"), &gorm.Config{})
+	} else {
+		db, err = gorm.Open(postgres.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+	}
 
 	if err != nil {
 		log.Panicf("无法连接数据库，%s", err)
