@@ -6,12 +6,12 @@ import (
 	"math"
 	"strings"
 
-	"gorm.io/gorm"
+	// "gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-
+	// gorm.Model
+	ID       uint   `json:"id" gorm:"primaryKey"`
 	Username string `json:"username" gorm:"unique"` // 用户名
 	Password string `json:"-"`                      // 密码
 	IsAdmin  bool   `json:"isAdmin"`                // 是否是管理员
@@ -146,4 +146,41 @@ func GetUserList() ([]User, error) {
 	log.Printf("获取完成：共 %d 条数据", len(userList))
 
 	return userList, nil
+}
+
+const (
+	Learning = iota
+	Teaching
+)
+
+type UserCourse struct {
+	Course
+
+	CourseType uint
+}
+
+func (user *User) GetCourses() ([]UserCourse, error) {
+	var courses []UserCourse = make([]UserCourse, 0)
+
+	learningCourses, err := user.GetLearningCourse()
+	if err == nil {
+		for _, c := range learningCourses {
+			courses = append(courses, UserCourse{
+				Course:     *c,
+				CourseType: Learning,
+			})
+		}
+	}
+
+	teachingCourses, err := user.GetTeachingCourse()
+	if err == nil {
+		for _, c := range teachingCourses {
+			courses = append(courses, UserCourse{
+				Course:     *c,
+				CourseType: Teaching,
+			})
+		}
+	}
+
+	return courses, nil
 }
