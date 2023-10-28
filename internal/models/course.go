@@ -102,6 +102,15 @@ func GetAllStudents(db *gorm.DB) ([]User, error) {
 
 func CreateCourse(name string, begindate time.Time,
 	enddate time.Time, description string, teachderID uint) (uint, error) {
+	log.Printf("正在创建<Course>(name = %s)", name)
+	if len(name) == 0 {
+		log.Printf("创建失败,课程名不能为空")
+		return 0, errors.New("创建失败")
+	}
+	if enddate.Before(begindate) {
+		log.Printf("创建失败,开始时间不能晚于结束时间")
+		return 0, errors.New("创建失败")
+	}
 	c := Course{
 		Name:        name,
 		BeginDate:   begindate,
