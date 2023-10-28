@@ -41,8 +41,6 @@ type User struct {
 	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
 }
 
-// TODO: implement methods
-
 func (user *User) CheckPassword(password string) bool {
 	salt := strings.Split(user.Password, ":")[0]
 	log.Printf("用户密码为: %s", user.Password)
@@ -51,6 +49,7 @@ func (user *User) CheckPassword(password string) bool {
 	return user.Password == utils.EncodePassword(password, salt)
 }
 
+// TODO:Test
 func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
 	//如何更新,上限为700,下限为300
 	//TODO:更新权重算法
@@ -71,6 +70,11 @@ func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
 }
 
 func (user *User) ChangePassword(password string) bool {
+	log.Printf("正在修改密码<User>(Username = %s, Password = %s)...", user.Username, password)
+	if len(password) == 0 {
+		log.Printf("修改失败,用户密码不能为空")
+		return false
+	}
 	result := DB.Model(&user).Updates(User{Password: utils.EncodePassword(password, utils.RandStringRunes(16))})
 	return result.Error == nil
 }
@@ -92,18 +96,19 @@ func (user *User) GetLearningCourse() ([]*Course, error) {
 }
 
 func (user *User) DeleteSelf() bool {
+	log.Printf("正在删除用户<User>(Username = %s)...", user.Username)
 	res := DB.Delete(&user)
 	return res.Error == nil
 }
 
 func CreateUser(username string, password string) (uint, error) {
+	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
 	if len(username) == 0 {
 		return 0, errors.New("名称不能为空")
 	}
 	if len(password) == 0 {
 		return 0, errors.New("密码不能为空")
 	}
-	log.Printf("正在创建<User>(Username = %s, Password = %s)...", username, password)
 	password = utils.EncodePassword(password, utils.RandStringRunes(16))
 	user := User{Username: username, Password: password, IsAdmin: false} //默认创建的用户权限为普通用户
 
