@@ -47,6 +47,59 @@ func TestGetCourseByID(t *testing.T) {
 
 }
 
+func TestDeleself(t *testing.T) {
+	course, _ := GetCourseByID(3)
+	err := course.Deleteself()
+	if err != nil {
+		t.Fatalf("删除课程失败啦")
+	}
+}
+
 func TestGetStudens(t *testing.T) {
+	t.Run("课程学生为空", func(t *testing.T) {
+		course, _ := GetCourseByID(4)
+		student, err := course.GetStudents()
+		if err != nil {
+			t.Fatalf("课程学生不存在时报错")
+		} else if len(student) != 0 {
+			t.Fatalf("课程学生应该为0但是不为0")
+		}
+	})
+
+	t.Run("课程有学生", func(t *testing.T) {
+		course, _ := GetCourseByID(2)
+		student, err := course.GetStudents()
+		if err != nil {
+			t.Fatalf("课程有学生时报错")
+		} else if len(student) == 0 {
+			t.Fatalf("课程学生不为0但是查询为0")
+		}
+	})
+}
+
+func TestGetCourses(t *testing.T) {
+	courses, err := GetCourses()
+	if err != nil {
+		t.Fatalf("获得所有课程时报错")
+	} else if len(courses) == 0 {
+		t.Fatalf("获得所有的课程时查询到的课程为0个")
+	}
+}
+
+func TestFindStudents(t *testing.T) {
+	t.Run("课程查询学生存在", func(t *testing.T) {
+		course, _ := GetCourseByID(2)
+		res := course.GetStudentsByID(2)
+		if !res {
+			t.Fatalf("通过course查询学生失败!")
+		}
+	})
+	t.Run("课程查询学生不存在", func(t *testing.T) {
+		course, _ := GetCourseByID(2)
+		res := course.GetStudentsByID(99)
+		if res {
+			t.Fatalf("通过course查询学生失败!")
+		}
+	})
 
 }

@@ -19,9 +19,11 @@ func CreateData() {
 	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
 	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
 	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
 	course1, _ := GetCourseByID(1)
 	course2, _ := GetCourseByID(2)
 	course1.SelectCourse(2)
+	course1.SelectCourse(5)
 	course2.SelectCourse(2)
 }
 

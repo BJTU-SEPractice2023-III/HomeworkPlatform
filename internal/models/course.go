@@ -94,11 +94,6 @@ func GetCourses() ([]Course, error) {
 	return courses, err
 }
 
-func GetAllStudents(db *gorm.DB) ([]User, error) {
-	var users []User
-	err := db.Model(&User{}).Preload("Course").Find(&users).Error
-	return users, err
-}
 
 func CreateCourse(name string, begindate time.Time,
 	enddate time.Time, description string, teachderID uint) (uint, error) {
