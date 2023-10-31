@@ -16,7 +16,7 @@ import (
 // 这里就是将前端的构建产物目录嵌入到了二进制文件中
 // 所以如果这里报错，大概是没有构建前端，目录不存在
 //
-//go:embed all:assets/dist/*
+// //go:embed all:assets/dist/*
 var f embed.FS
 
 func Init() {
