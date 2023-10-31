@@ -1,6 +1,7 @@
 package models
 
 import (
+	"homework_platform/internal/bootstrap"
 	"os"
 	"testing"
 	"time"
@@ -26,6 +27,10 @@ func CreateData() {
 	course1.SelectCourse(2)
 	course1.SelectCourse(5)
 	course2.SelectCourse(2)
+	CreateHomework(2, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(2, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(3, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(1, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
 }
 
 func TestMain(m *testing.M) {
@@ -34,6 +39,7 @@ func TestMain(m *testing.M) {
 	DB, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+	bootstrap.Sqlite = true
 	if err != nil {
 		panic(err)
 	}

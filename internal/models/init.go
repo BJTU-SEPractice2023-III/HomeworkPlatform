@@ -5,9 +5,11 @@ import (
 	"homework_platform/internal/utils"
 	"log"
 
-	// "gorm.io/driver/mysql"
-	"gorm.io/driver/postgres"
 	"github.com/glebarez/sqlite"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+
+	// "gocloud.dev/mysql"
 	"gorm.io/gorm"
 )
 
@@ -20,6 +22,8 @@ func InitDB() {
 	var err error
 	if bootstrap.Sqlite {
 		db, err = gorm.Open(sqlite.Open("homework-platform.db"), &gorm.Config{})
+	} else if bootstrap.Mysql {
+		db, err = gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
 	} else {
 		db, err = gorm.Open(postgres.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
 	}
