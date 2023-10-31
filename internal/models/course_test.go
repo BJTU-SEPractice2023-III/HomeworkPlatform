@@ -47,6 +47,38 @@ func TestGetCourseByID(t *testing.T) {
 
 }
 
+func TestUpdateCourseDescription(t *testing.T) {
+	course, _ := GetCourseByID(2)
+	res := course.UpdateCourseDescription("我是神里绫华的狗")
+	if !res {
+		t.Fatalf("修改课程描述失败!")
+	}
+}
+
+func TestSelectCourse(t *testing.T) {
+	course, _ := GetCourseByID(2)
+	t.Run("用户存在", func(t *testing.T) {
+		err := course.SelectCourse(4)
+		if err != nil {
+			t.Fatalf("用户选课失败!")
+		}
+	})
+
+	t.Run("用户重复选课", func(t *testing.T) {
+		err := course.SelectCourse(4)
+		if err == nil {
+			t.Fatalf("用户重复选课但是未报错")
+		}
+	})
+
+	t.Run("用户不存在", func(t *testing.T) {
+		err := course.SelectCourse(999)
+		if err == nil {
+			t.Fatalf("用户不存在但是选课成功")
+		}
+	})
+}
+
 func TestDeleself(t *testing.T) {
 	course, _ := GetCourseByID(3)
 	err := course.Deleteself()
@@ -99,6 +131,26 @@ func TestFindStudents(t *testing.T) {
 		res := course.GetStudentsByID(99)
 		if res {
 			t.Fatalf("通过course查询学生失败!")
+		}
+	})
+}
+
+func TestGetHomeworkLists(t *testing.T) {
+
+	t.Run("有作业列表", func(t *testing.T) {
+		course, _ := GetCourseByID(2)
+		CreateHomework(2, "原神元素融合测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+		homework, err := course.GetHomeworkLists()
+		if err != nil || len(homework) == 0 {
+			t.Fatalf("课程%s的homwork数目不为0但是获取失败", course.Name)
+		}
+	})
+
+	t.Run("空作业列表", func(t *testing.T) {
+		course, _ := GetCourseByID(4)
+		homework, err := course.GetHomeworkLists()
+		if err != nil || len(homework) != 0 {
+			t.Fatalf("课程%s的homwork数目为0但是获取失败", course.Name)
 		}
 	})
 

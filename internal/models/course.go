@@ -94,7 +94,6 @@ func GetCourses() ([]Course, error) {
 	return courses, err
 }
 
-
 func CreateCourse(name string, begindate time.Time,
 	enddate time.Time, description string, teachderID uint) (uint, error) {
 	log.Printf("正在创建<Course>(name = %s)", name)

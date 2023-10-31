@@ -41,6 +41,12 @@ func (homeworkd Homework) Deleteself() error {
 
 func CreateHomework(id uint, name string, description string,
 	begindate time.Time, endtime time.Time, commentendate time.Time) (any, error) {
+	if begindate.After(endtime) {
+		return nil, errors.New("结束时间不可早于开始时间")
+	}
+	if endtime.After(commentendate) {
+		return nil, errors.New("评论开始时间不可早于结束时间")
+	}
 	newhomework := Homework{
 		CourseID:       id,
 		Name:           name,
