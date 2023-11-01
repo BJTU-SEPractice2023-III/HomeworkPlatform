@@ -38,6 +38,105 @@ func InitRouter() *gin.Engine {
 	api.Use(gin.Logger())
 	api.Use(gin.Recovery())
 	{
+
+		v1 := api.Group("v1")
+		{
+			// No login required
+			user := v1.Group("user")
+			{
+				// TODO: Restful?
+				// POST api/v1/user/login | 登录获取 jwt
+				user.POST("login", service.Handler(&service.UserLoginService{}))
+				// POST api/v1/user       | 注册用户
+				user.POST("", service.Handler(&service.UserRegisterService{}))
+				// PUT  api/v1/user       | 更新用户信息
+				user.PUT("", service.Handler(&service.UserselfUpdateService{}))
+			}
+
+			// Admin required
+			// api/v1/admin
+			admin := v1.Group("admin")
+			admin.Use(middlewares.AdminCheck())
+			{
+				// api/v1/admin/users
+				users := admin.Group("users")
+				{
+					// GET    api/v1/admin/users     | 获取所有用户列表
+					users.GET("", service.Handler(&service.GetUsersService{}))
+					// POST   api/v1/admin/users     | 创建用户
+					users.POST("", service.Handler(&service.UserUpdateService{}))
+					// DELETE api/v1/admin/users/:id | 删除用户
+					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
+				}
+			}
+
+			// Login required
+			auth := v1.Group("")
+			auth.Use(middlewares.JWTAuth())
+			{
+				// api/v1/users
+				users := auth.Group("users")
+				{
+					// GET api/users/:id         | 获取指定 id 用户的信息
+					users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
+					// GET api/users/:id/courses | 获取指定 id 用户的课程列表（教的课以及学的课）
+					users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
+				}
+
+				// api/v1/courses
+				courses := auth.Group("courses")
+				{
+					// GET    api/v1/courses       | 获取所有课程信息
+					courses.GET("", service.Handler(&service.GetCourses{}))
+					// GET    api/v1/courses/:id   | 获取指定 id 课程信息
+					courses.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
+					// POST   api/v1/course        | 创建课程
+					courses.POST("", service.Handler(&service.CreateCourse{}))
+					// PUT    api/v1/course        | 更新课程
+					courses.PUT("", service.Handler(&service.UpdateCourseDescription{}))
+					// DELETE api/v1/course        | 删除课程
+					courses.DELETE("", service.Handler(&service.DeleteCourse{}))
+
+					// GET    api/v1/courses/:id/students | 获取指定 id 课程的所有学生信息
+					courses.GET(":id/students", service.HandlerWithBindType(&service.GetCourseStudents{}, service.BindUri))
+					// POST   api/v1/courses/:id/students | 为指定 id 课程添加学生
+					courses.POST(":id/students", service.Handler(&service.AddCourseStudentService{}))
+
+					// GET    api/v1/courses/:id/homeworks | 获取指定 id 课程的所有作业信息
+					courses.GET(":id/homeworks", service.HandlerWithBindType(&service.GetCourseHomeworks{}, service.BindUri))
+					// POST   api/v1/courses/:id/students | 为指定 id 课程添加作业
+					// courses.POST(":id/homeworks", service.Handler(&service.AddCourseHomework{}))
+				}
+
+				// api/v1/homeworks
+				homeworks := auth.Group("homeworks")
+				{
+					// GET api/v1/homeworks/:id | 获取指定 id 作业的信息
+					homeworks.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
+					// homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
+					// homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
+					// homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
+					// homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
+					// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
+					// homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
+				}
+
+				// comment := auth.Group("comment")
+				// {
+				// 	comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
+				// 	comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
+				// }
+
+				// grade := auth.Group("grade")
+				// {
+				// 	grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
+				// 	grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
+				// 	grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
+				// }
+
+			}
+		}
+
 		// No login required
 		user := api.Group("user")
 		{
