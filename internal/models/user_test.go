@@ -31,6 +31,13 @@ func CreateData() {
 	CreateHomework(2, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
 	CreateHomework(3, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
 	CreateHomework(1, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+
+	homework_submission := HomeworkSubmission{
+		UserID:     2,
+		HomeworkID: 2,
+		Content:    "kksk",
+	}
+	AddHomeworkSubmission(&homework_submission)
 }
 
 func TestMain(m *testing.M) {
