@@ -38,6 +38,8 @@ func CreateData() {
 		Content:    "kksk",
 	}
 	AddHomeworkSubmission(&homework_submission)
+	CreateComment(1, 3, 1)
+	CreateComment(1, 2, 1)
 }
 
 func TestMain(m *testing.M) {
