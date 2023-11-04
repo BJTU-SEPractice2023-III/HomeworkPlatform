@@ -76,7 +76,7 @@ func CreateHomework(id uint, name string, description string,
 		return nil, errors.New("内容不可为空")
 	}
 	if bootstrap.Sqlite {
-		//TODO:这里好像sqlite没有外键约束
+		//TODO:这里好像sqlite不会生成外键约束
 		_, err := GetCourseByID(id)
 		if err != nil {
 			return nil, errors.New("课程不存在")

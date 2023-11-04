@@ -72,7 +72,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
-	return nil, nil
+	return homework.(models.Homework).ID, nil
 }
 
 type HomeworkLists struct {
