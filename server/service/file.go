@@ -11,7 +11,7 @@ import (
 )
 
 type GetFileService struct {
-	FilePath string `form:"filepath"`
+	FilePath string `uri:"path" binding:"required"`
 }
 
 func (service *GetFileService) Handle(c *gin.Context) (any, error) {
