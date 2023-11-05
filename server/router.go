@@ -111,14 +111,18 @@ func InitRouter() *gin.Engine {
 				// api/v1/homeworks
 				homeworks := auth.Group("homeworks")
 				{
-					// GET api/v1/homeworks/:id | 获取指定 id 作业的信息
+					// GET	api/v1/homeworks/:id 				| 获取指定 id 作业的信息
 					homeworks.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
-					// homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
-					// homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
-					// homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
-					// homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
-					// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
-					// homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
+					// GET	api/v1/homeworks/:id/submitlists  	| 获取指定 id 作业的全部学生提交信息
+					homeworks.GET(":id/submitlists", service.HandlerWithBindType(&service.SubmitListsService{}, service.BindUri))
+					// POST api/v1/homeworks 					| 发布作业
+					homeworks.POST("", service.Handler(&service.AssignHomeworkService{}))
+					// Get api/v1/homeworks/:id/homeworklists 	| 得到指定课程的所有作业
+					homeworks.GET(":id/homeworklists", service.HandlerWithBindType(&service.HomeworkLists{}, service.BindUri))
+					// DELETE api/v1/homeworks					| 删除指定作业
+					homeworks.DELETE("", service.Handler(&service.DeleteHomework{}))
+					// PUT api/v1/homeworks  					| 更新作业
+					homeworks.PUT("", service.Handler(&service.UpdateHomeworkService{}))
 				}
 
 				// comment := auth.Group("comment")
@@ -188,12 +192,12 @@ func InitRouter() *gin.Engine {
 			//homework
 			homewrok := auth.Group("homework")
 			{
-				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
-				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
-				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
+				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
+				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
+				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
 				// GET api/homework/:id | Get homework detail
-				homewrok.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri)) 
-				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
+				homewrok.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
+				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
 				// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
 				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 			}

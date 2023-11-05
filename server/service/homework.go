@@ -76,7 +76,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 }
 
 type HomeworkLists struct {
-	CourseID uint `form:"courseid"`
+	CourseID uint `uri:"id" binding:"required"`
 }
 
 func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
@@ -96,12 +96,15 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 }
 
 type DeleteHomework struct {
-	CourseID   uint `form:"courseid"`
 	HomeworkID uint `form:"homeworkid"`
 }
 
 func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
-	course, err := models.GetCourseByID(service.CourseID)
+	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
+	if err2 != nil {
+		return nil, err2
+	}
+	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,17 +112,10 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 	if course.TeacherID != id {
 		return nil, errors.New("不能删除不是您的课程的作业")
 	}
-	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
-	if err2 != nil {
-		return nil, err2
-	}
-	if homework.CourseID != service.CourseID {
-		return nil, errors.New("该作业并非属于该课程")
-	}
 	if err := homework.Deleteself(); err != nil {
 		return nil, err
 	}
-	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
+	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", course.ID, service.HomeworkID)
 	os.RemoveAll(dirPath)
 
 	return nil, nil
@@ -167,23 +163,22 @@ func (service *UpdateHomeworkService) Handle(c *gin.Context) (any, error) {
 }
 
 type SubmitListsService struct {
-	CourseID   uint `form:"courseid"`
-	HomeworkID uint `form:"homeworkid"`
+	HomeworkID uint `uri:"id" binding:"required"`
 }
 
 func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
-	course, err := models.GetCourseByID(service.CourseID)
+	homework, err2 := models.GetHomeworkByIDWithSubmissionLists(uint(service.HomeworkID))
+	if err2 != nil {
+		return nil, errors.New("没有找到该作业")
+	}
+	CourseID := homework.CourseID
+	course, err := models.GetCourseByID(CourseID)
 	if err != nil {
 		return nil, err
 	}
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
 		return nil, errors.New("不能查看不是您的课程的作业")
-	}
-	//CourseID
-	homework, err2 := models.GetHomeworkByIDWithSubmissionLists(uint(service.HomeworkID))
-	if err2 != nil {
-		return nil, errors.New("没有找到该作业")
 	}
 	return homework.HomeworkSubmissions, nil
 }
