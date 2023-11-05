@@ -142,6 +142,11 @@ func InitRouter() *gin.Engine {
 					grade.PUT("", service.Handler(&service.UpdateGradeService{}))
 				}
 
+				submit := auth.Group("submit")
+				{
+					// POST api/v1/submit
+					submit.POST("", service.Handler(&service.SubmitHomework{}))
+				}
 			}
 		}
 
