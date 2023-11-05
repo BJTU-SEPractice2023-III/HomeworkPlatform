@@ -9,7 +9,7 @@ import (
 )
 
 type GetGradeBySubmissionIDService struct {
-	HomeworkSubmissionID uint `form:"homeworksubmissionid"`
+	HomeworkSubmissionID uint `uri:"id" binding:"required"`
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
@@ -70,7 +70,7 @@ func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
 }
 
 type GetGradeListsByHomeworkIDService struct {
-	HomeworkID uint `form:"homeworkid"`
+	HomeworkID uint `uri:"id" binding:"required"`
 }
 
 type MyMap struct {

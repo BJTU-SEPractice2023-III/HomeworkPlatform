@@ -38,7 +38,6 @@ func InitRouter() *gin.Engine {
 	api.Use(gin.Logger())
 	api.Use(gin.Recovery())
 	{
-
 		v1 := api.Group("v1")
 		{
 			// No login required
@@ -125,108 +124,24 @@ func InitRouter() *gin.Engine {
 					homeworks.PUT("", service.Handler(&service.UpdateHomeworkService{}))
 				}
 
-				// comment := auth.Group("comment")
-				// {
-				// 	comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
-				// 	comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
-				// }
-
-				// grade := auth.Group("grade")
-				// {
-				// 	grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
-				// 	grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
-				// 	grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
-				// }
-
-			}
-		}
-
-		// No login required
-		user := api.Group("user")
-		{
-			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
-			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
-			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
-		}
-
-		//TODO:后期可以做一下权限验证不能随意获取作业
-		file := api.Group("file")
-		{
-			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile
-		}
-
-		// Login required
-		auth := api.Group("")
-		auth.Use(middlewares.JWTAuth())
-		{
-			// Admin required
-			admin := api.Group("admin")
-			admin.Use(middlewares.AdminCheck())
-			{
-				users := admin.Group("users")
+				comment := auth.Group("comment")
 				{
-					// GET    api/admin/users     | Get a list of all users
-					users.GET("", service.Handler(&service.GetUsersService{}))
-					// POST   api/admin/users     | Create a user
-					users.POST("", service.Handler(&service.UserUpdateService{}))
-					// DELETE api/admin/users/:id | Delete a user
-					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
+					// GET api/v1/comment/:id	| 获得本次作业需要批阅的作业id
+					comment.GET(":id", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
+					// POST api/v1/comment 		|评阅请求提交
+					comment.POST("", service.Handler(&service.CommentService{}))
 				}
-			}
 
-			// api/users
-			users := auth.Group("users")
-			{
-				// GET api/users/:id | Get info of a user
-				users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
-				// GET api/users/:id/courses | Get courses of a user
-				users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
-			}
+				grade := auth.Group("grade")
+				{
+					// GET api/v1/:id/grade/bysubmissionid 	| 根据作业提交号获得单个成绩
+					grade.GET(":id/bysubmissionid", service.HandlerWithBindType(&service.GetGradeBySubmissionIDService{}, service.BindUri))
+					// GET api/v1/:id/grade/byhomeworkid  	| 根据作业号获得一次作业的全部成绩
+					grade.GET(":id/byhomeworkid", service.HandlerWithBindType(&service.GetGradeListsByHomeworkIDService{}, service.BindUri))
+					// PUT api/v1/grade						| 老师修改成绩
+					grade.PUT("", service.Handler(&service.UpdateGradeService{}))
+				}
 
-			//homework_submission
-			homework_submission := auth.Group("homeworksubmission")
-			{
-				//把提交和更新封装一起
-				homework_submission.POST("submit", service.Handler(&service.SubmitHomework{})) // POST api/homeworksubmission/submit
-			}
-			//homework
-			homewrok := auth.Group("homework")
-			{
-				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
-				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
-				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
-				// GET api/homework/:id | Get homework detail
-				homewrok.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
-				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
-				// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
-				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
-			}
-
-			//course
-			course := auth.Group("course")
-			{
-				course.GET("", service.Handler(&service.GetCourses{}))
-				course.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
-				course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
-				course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
-				course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
-				course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
-				course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
-				course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
-				course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
-			}
-
-			comment := auth.Group("comment")
-			{
-				comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
-				comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
-			}
-
-			grade := auth.Group("grade")
-			{
-				grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
-				grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
-				grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
 			}
 		}
 
