@@ -39,7 +39,7 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 }
 
 type GetCommentListsService struct {
-	HomeworkID uint `josn:"homeworkid"`
+	HomeworkID uint `uri:"id" binding:"required"`
 }
 
 func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {

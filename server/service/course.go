@@ -147,21 +147,8 @@ func (service *SelectCourseService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	id, _ := c.Get("ID")
-	res := course.GetStudentsByID(id.(uint))
-	if res {
-		return nil, errors.New("无法重复选课")
-	}
-	//查看该用户是否已经选择了course
-	user, err := models.GetUserByID(id.(uint))
-	if err != nil {
-		return nil, err
-	}
-	user.LearningCourses = append(user.LearningCourses, &course)
-	result := models.DB.Save(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return nil, nil
+	res := course.SelectCourse(id.(uint))
+	return nil, res
 }
 
 type GetTeachingCourse struct {

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"homework_platform/internal/bootstrap"
 	"os"
 	"testing"
 	"time"
@@ -10,12 +11,44 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+func CreateData() {
+	CreateUser("test1", "123")
+	CreateUser("test2", "321")
+	CreateUser("test3", "kksk")
+	CreateUser("test4", "123")
+	CreateUser("test5", "123")
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
+	course1, _ := GetCourseByID(1)
+	course2, _ := GetCourseByID(2)
+	course1.SelectCourse(2)
+	course1.SelectCourse(5)
+	course2.SelectCourse(2)
+	CreateHomework(2, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(2, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(3, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+	CreateHomework(1, "原神元素测试", "kksk", time.Now(), time.Now().Add(time.Hour), time.Now().Add(time.Hour).Add(time.Hour))
+
+	homework_submission := HomeworkSubmission{
+		UserID:     2,
+		HomeworkID: 2,
+		Content:    "kksk",
+	}
+	AddHomeworkSubmission(&homework_submission)
+	CreateComment(1, 3, 1)
+	CreateComment(1, 2, 1)
+}
+
 func TestMain(m *testing.M) {
 	// 使用 SQLite 内存数据库创建 Gorm 的数据库连接
 	var err error
 	DB, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
+	bootstrap.Sqlite = true
 	if err != nil {
 		panic(err)
 	}
@@ -24,18 +57,7 @@ func TestMain(m *testing.M) {
 	DB.AutoMigrate(&Homework{})
 	DB.AutoMigrate(&HomeworkSubmission{})
 	DB.AutoMigrate(&Comment{})
-	CreateUser("test1", "123")
-	CreateUser("test2", "321")
-	CreateUser("test3", "kksk")
-	CreateUser("test4", "123")
-	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
-	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
-	CreateCourse("C++", time.Now(), time.Now().Add(time.Hour), "哈哈", 3)
-	course1, _ := GetCourseByID(1)
-	course2, _ := GetCourseByID(2)
-	course1.SelectCourse(2)
-	course2.SelectCourse(2)
-
+	CreateData()
 	// 调用包下面各个 Test 函数
 	os.Exit(m.Run())
 }
@@ -101,7 +123,7 @@ func TestGetUserByID(t *testing.T) {
 	}{
 		{"查询序号小于1", 0, false},
 		{"正确查询", 1, true},
-		{"查询序号大于当前最大值", 5, false},
+		{"查询序号大于当前最大值", 99, false},
 	}
 	for _, c := range cases {
 		t.Run(c.Case, func(t *testing.T) {
@@ -205,6 +227,7 @@ func TestGetTeachingCourse(t *testing.T) {
 }
 
 func TestGetLearningCourse(t *testing.T) {
+	CreateData()
 	cases := []struct {
 		Case     string
 		uid      uint

@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+	"homework_platform/internal/bootstrap"
+	"log"
 	"math/rand"
 	"time"
 
@@ -48,6 +50,7 @@ func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid
 	}
 	return comment, nil
 }
+
 func GetCommentListsByUserIDAndHomeworkID(userid uint, homeworkid uint) (any, error) {
 	var comment []Comment
 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkid, userid).Find(&comment)
@@ -58,6 +61,20 @@ func GetCommentListsByUserIDAndHomeworkID(userid uint, homeworkid uint) (any, er
 }
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
+	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
+	if bootstrap.Sqlite {
+		_, err := GetUserByID(UserID)
+		if err != nil {
+			log.Printf("用户<user_id:%d>不存在", UserID)
+			return false
+		}
+		res := GetHomeWorkSubmissionByID(HomeworkSubmissionID)
+		if res == nil {
+			log.Printf("作业提交<submission:id:%d>不存在", HomeworkSubmissionID)
+			return false
+		}
+	}
+
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,
@@ -67,6 +84,7 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool
 	return res.Error == nil
 }
 
+// TODO:等待后续测试
 func AssignComment(HomeworkID uint) error {
 	//在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
 	homework, err := GetHomeworkByID(HomeworkID)

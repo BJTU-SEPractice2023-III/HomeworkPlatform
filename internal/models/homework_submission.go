@@ -1,6 +1,8 @@
 package models
 
 import (
+	"homework_platform/internal/bootstrap"
+	"log"
 	"math"
 	"time"
 
@@ -26,6 +28,7 @@ type HomeworkSubmission struct {
 	Final   int    `json:"-" gorm:"default:-1"` //-1表示不是最终结果
 }
 
+// TODO:后续测试,计算成绩
 func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, int, []User, []int, error) {
 	//查询到所有的comment
 	var userLists []User
@@ -56,17 +59,31 @@ func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, i
 	return int(average), totalDegreeWithoutDegree / len(comments), userLists, gradeLists, nil
 }
 
+// TODO:后续测试,计算成绩
 func (submission *HomeworkSubmission) UpdateGrade(grade int) error {
 	submission.Grade = grade
 	return DB.Save(&submission).Error
 }
 
 func (homeworksubmission HomeworkSubmission) UpdateSelf() error {
+	log.Printf("正在修改homeoworksubmission<id:%d>", homeworksubmission.ID)
 	return DB.Save(&homeworksubmission).Error
 }
 
 func AddHomeworkSubmission(work *HomeworkSubmission) bool {
-	println(work.UserID)
+	log.Printf("正在创建homeworksubmission<user_id:%d,homework_id:%d>", work.UserID, work.HomeworkID)
+	if bootstrap.Sqlite {
+		_, err := GetUserByID(work.UserID)
+		if err != nil {
+			log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:user not exist!", work.UserID, work.HomeworkID)
+			return false
+		}
+		_, err = GetHomeworkByID(work.HomeworkID)
+		if err != nil {
+			log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:homework not exist!", work.UserID, work.HomeworkID)
+			return false
+		}
+	}
 	res := DB.Create(&work)
 	return res.Error == nil
 }
