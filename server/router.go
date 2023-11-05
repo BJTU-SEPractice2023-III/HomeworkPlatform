@@ -191,8 +191,10 @@ func InitRouter() *gin.Engine {
 				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{}))  // POST api/homework/assign
 				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))   // POST api/homework/homeworklists
 				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))         // POST api/homework/delete
+				// GET api/homework/:id | Get homework detail
+				homewrok.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri)) 
 				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{}))  // POST api/homework/update
-				homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
+				// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
 				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 			}
 

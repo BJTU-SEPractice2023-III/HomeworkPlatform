@@ -14,16 +14,15 @@ import (
 )
 
 type HomeworkDetail struct {
-	CourseID   int `form:"courseid"`
-	HomeworkID int `form:"homeworkid"`
+	ID uint `uri:"id" binding:"required"`
 }
 
 func (service *HomeworkDetail) Handle(c *gin.Context) (any, error) {
-	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
+	homework, err2 := models.GetHomeworkByID(uint(service.ID))
 	if err2 != nil {
 		return nil, errors.New("没有找到该作业")
 	}
-	path := fmt.Sprintf("./data/homeworkassign/%d/%d", service.CourseID, service.HomeworkID)
+	path := fmt.Sprintf("./data/homeworkassign/%d", service.ID)
 	files, err := os.ReadDir(path)
 	homework.FilePaths = make([]string, 0)
 	if err == nil {
@@ -68,10 +67,11 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	}
 	for _, f := range service.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./data/homeworkassign/%d/%d/%s", service.CourseID, homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homework.(models.Homework).ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
+
 	return homework.(models.Homework).ID, nil
 }
 
