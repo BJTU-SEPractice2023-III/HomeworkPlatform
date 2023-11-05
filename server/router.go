@@ -180,14 +180,12 @@ func InitRouter() *gin.Engine {
 			admin.Use(middlewares.AdminCheck())
 			{
 				users := admin.Group("users")
-				{
-					// GET    api/admin/users     | Get a list of all users
-					users.GET("", service.Handler(&service.GetUsersService{}))
-					// POST   api/admin/users     | Create a user
-					users.POST("", service.Handler(&service.UserUpdateService{}))
-					// DELETE api/admin/users/:id | Delete a user
-					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
-				}
+				// GET    api/admin/users     | Get a list of all users
+				users.GET("", service.Handler(&service.GetUsersService{}))
+				// POST   api/admin/users     | Create a user
+				users.POST("", service.Handler(&service.UserUpdateService{}))
+				// DELETE api/admin/users/:id | Delete a user
+				users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
 			}
 
 			// api/users
