@@ -22,6 +22,11 @@ func InitDB() {
 	var err error
 	if bootstrap.Sqlite {
 		db, err = gorm.Open(sqlite.Open("homework-platform.db"), &gorm.Config{})
+		sqlDB, err := db.DB()
+		sqlDB.SetMaxOpenConns(1)
+		if err != nil {
+			log.Panicln("无法设置连接池")
+		}
 	} else if bootstrap.Mysql {
 		db, err = gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
 	} else {

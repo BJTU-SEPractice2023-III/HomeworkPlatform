@@ -180,19 +180,12 @@ func InitRouter() *gin.Engine {
 			admin.Use(middlewares.AdminCheck())
 			{
 				users := admin.Group("users")
-				comment := auth.Group("comment")
-				{
-					// GET    api/admin/users     | Get a list of all users
-					users.GET("", service.Handler(&service.GetUsersService{}))
-					// POST   api/admin/users     | Create a user
-					users.POST("", service.Handler(&service.UserUpdateService{}))
-					// DELETE api/admin/users/:id | Delete a user
-					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
-					// GET api/v1/comment/:id	| 获得本次作业需要批阅的作业id
-					comment.GET(":id", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
-					// POST api/v1/comment 		|评阅请求提交
-					comment.POST("", service.Handler(&service.CommentService{}))
-				}
+				// GET    api/admin/users     | Get a list of all users
+				users.GET("", service.Handler(&service.GetUsersService{}))
+				// POST   api/admin/users     | Create a user
+				users.POST("", service.Handler(&service.UserUpdateService{}))
+				// DELETE api/admin/users/:id | Delete a user
+				users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
 			}
 
 			// api/users
