@@ -89,11 +89,11 @@ func InitRouter() *gin.Engine {
 					courses.GET("", service.Handler(&service.GetCourses{}))
 					// GET    api/v1/courses/:id   | 获取指定 id 课程信息
 					courses.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
-					// POST   api/v1/course        | 创建课程
+					// POST   api/v1/courses        | 创建课程
 					courses.POST("", service.Handler(&service.CreateCourse{}))
-					// PUT    api/v1/course        | 更新课程
+					// PUT    api/v1/courses        | 更新课程
 					courses.PUT("", service.Handler(&service.UpdateCourseDescription{}))
-					// DELETE api/v1/course        | 删除课程
+					// DELETE api/v1/courses        | 删除课程
 					courses.DELETE("", service.Handler(&service.DeleteCourse{}))
 
 					// GET    api/v1/courses/:id/students | 获取指定 id 课程的所有学生信息
@@ -234,6 +234,13 @@ func InitRouter() *gin.Engine {
 			{
 				comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
 				comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
+			}
+
+			grade := auth.Group("grade")
+			{
+				grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
+				grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
+				grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
 			}
 		}
 	}
