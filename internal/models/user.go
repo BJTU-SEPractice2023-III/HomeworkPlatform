@@ -165,33 +165,19 @@ const (
 )
 
 type UserCourse struct {
-	Course
-
-	CourseType uint
+	TeachingCourses []*Course `json:"teachingCourses"`
+	LearningCourses []*Course `json:"learningCourses"`
 }
 
-func (user *User) GetCourses() ([]UserCourse, error) {
-	var courses []UserCourse = make([]UserCourse, 0)
+func (user *User) GetCourses() (UserCourse, error) {
+	var res UserCourse
+	var err error
 
-	learningCourses, err := user.GetLearningCourse()
-	if err == nil {
-		for _, c := range learningCourses {
-			courses = append(courses, UserCourse{
-				Course:     *c,
-				CourseType: Learning,
-			})
-		}
+	if res.TeachingCourses, err = user.GetTeachingCourse(); err != nil {
+		return res, nil
 	}
-
-	teachingCourses, err := user.GetTeachingCourse()
-	if err == nil {
-		for _, c := range teachingCourses {
-			courses = append(courses, UserCourse{
-				Course:     *c,
-				CourseType: Teaching,
-			})
-		}
+	if res.LearningCourses, err = user.GetLearningCourse(); err != nil {
+		return res, nil
 	}
-
-	return courses, nil
+	return res, nil
 }
