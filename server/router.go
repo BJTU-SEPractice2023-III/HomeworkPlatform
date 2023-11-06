@@ -104,7 +104,7 @@ func InitRouter() *gin.Engine {
 					// GET    api/v1/courses/:id/homeworks | 获取指定 id 课程的所有作业信息
 					courses.GET(":id/homeworks", service.HandlerWithBindType(&service.GetCourseHomeworks{}, service.BindUri))
 					// POST   api/v1/courses/:id/students | 为指定 id 课程添加作业
-					// courses.POST(":id/homeworks", service.Handler(&service.AddCourseHomework{}))
+					courses.POST(":id/homeworks", service.HandlerNoBind(&service.CreateCourseHomework{}))
 				}
 
 				// api/v1/homeworks
