@@ -6,7 +6,6 @@ import (
 	"homework_platform/internal/models"
 	"log"
 	"mime/multipart"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,21 +35,7 @@ func (service *SubmitHomework) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("请先选择这门课")
 	}
 	homworksubmission := models.FindHomeWorkSubmissionByHomeworkIDAndUserID(uint(service.HomeworkID), id.(uint))
-	if homworksubmission != nil {
-		//这里执行更新!
-		homworksubmission.Content = service.Content
-		if err := homworksubmission.UpdateSelf(); err != nil {
-			return nil, err
-		}
-		os.RemoveAll(fmt.Sprintf("./data/homework_submission/%d", homworksubmission.ID))
-		for _, f := range service.Files {
-			log.Println(f.Filename)
-			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
-			// 上传文件到指定的目录
-			c.SaveUploadedFile(f, dst)
-		}
-		return nil, nil
-	} else {
+	if homworksubmission == nil {
 		homworksubmission := models.HomeworkSubmission{
 			HomeworkID: uint(service.HomeworkID),
 			Content:    service.Content,
@@ -68,4 +53,23 @@ func (service *SubmitHomework) Handle(c *gin.Context) (any, error) {
 		}
 		return nil, nil
 	}
+	return nil, nil
+}
+
+type GetHomeworkSubmission struct {
+	userid     uint `uri:"userid" binding:"required"`
+	homeworkid uint `uri:"homeworkid" binding:"required"`
+}
+
+func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
+	homework, err := models.GetHomeworkByIDWithSubmissionLists(service.homeworkid)
+	if err != nil {
+		return "该作业号不存在", nil
+	}
+	for _, value := range homework.HomeworkSubmissions {
+		if value.UserID == service.userid {
+			return value, nil
+		}
+	}
+	return nil, errors.New("该用户未提交作业")
 }
