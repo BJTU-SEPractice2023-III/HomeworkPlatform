@@ -152,7 +152,7 @@ func InitRouter() *gin.Engine {
 				file := auth.Group("file")
 				{
 					// GET api/v1/file/:path	| 获得文件
-					file.GET(":path", service.HandlerWithBindType(&service.GetFileService{}, service.BindUri))
+					file.GET("*path", service.Handler(&service.GetFileService{}))
 				}
 			}
 		}

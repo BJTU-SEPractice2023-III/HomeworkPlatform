@@ -84,10 +84,10 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	if course.TeacherID != id {
-		return nil, errors.New("不能查看不是您的课程的作业")
-	}
+	// id, _ := c.Get("ID")
+	// if course.TeacherID != id {
+	// 	return nil, errors.New("不能查看不是您的课程的作业")
+	// }
 	homeworks, err2 := course.GetHomeworkLists()
 	if err2 != nil {
 		return nil, err2

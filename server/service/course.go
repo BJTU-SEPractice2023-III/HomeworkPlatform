@@ -77,10 +77,10 @@ func (service *GetCourseStudents) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	if course.TeacherID != id {
-		return nil, errors.New("不能查看不是您的课程的学生列表")
-	}
+	// id, _ := c.Get("ID")
+	// if course.TeacherID != id {
+	// 	return nil, errors.New("不能查看不是您的课程的学生列表")
+	// }
 	users, res := course.GetStudents()
 	if res != nil {
 		return nil, res
