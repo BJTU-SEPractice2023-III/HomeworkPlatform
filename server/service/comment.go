@@ -11,7 +11,7 @@ import (
 type CommentService struct {
 	Grade                int    `form:"grade"`
 	Comment              string `form:"comment"`
-	HomeworkSubmissionID uint   `form:"homeworksubmissionid"`
+	HomeworkSubmissionID uint   `uri:"id" binding:"required"`
 }
 
 func (service *CommentService) Handle(c *gin.Context) (any, error) {
@@ -52,6 +52,21 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	if res != nil {
 		return nil, res
 	}
+	var homework_submission []models.HomeworkSubmission
+	for _, comment := range commentLists {
+		homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
+	}
+	m := make(map[string]any)
+	m["homework_submission"] = homework_submission
+	m["comment_lists"] = commentLists
+	return m, nil
+}
 
-	return commentLists, nil
+type GetCommentHomeworkSubmissionService struct {
+	HomeworkSubmissionID uint `uri:"id" binding:"required"`
+}
+
+func (service *GetCommentHomeworkSubmissionService) Handle(c *gin.Context) (any, error) {
+	homework_submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	return homework_submission, nil
 }

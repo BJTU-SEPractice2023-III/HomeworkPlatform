@@ -1,9 +1,12 @@
 package models
 
 import (
+	"fmt"
 	"homework_platform/internal/bootstrap"
+	"io/ioutil"
 	"log"
 	"math"
+	"path/filepath"
 	"time"
 
 	"gorm.io/gorm"
@@ -20,8 +23,8 @@ type HomeworkSubmission struct {
 	// A User has many homework submission
 	// Also check user.go
 	// Check: https://gorm.io/docs/has_many.html
-	UserID uint `json:"userId"`
-
+	UserID    uint     `json:"userId"`
+	FilePaths []string `json:"file_paths" gorm:"-"`
 	// Regular fields
 	Content string `json:"content"`
 	Grade   int    `json:"-" gorm:"default:-1"`
@@ -103,10 +106,19 @@ func FindHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *
 
 func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
 	var homewroksubmission HomeworkSubmission
-
 	res := DB.First(&homewroksubmission, homewroksubmissionid)
 	if res.Error != nil {
 		return nil
+	}
+	root := fmt.Sprintf("./data/homeworkassign/%d/", homewroksubmission.ID)
+	files, err := ioutil.ReadDir(root)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			homewroksubmission.FilePaths = append(homewroksubmission.FilePaths, filepath.Join(root, file.Name()))
+		}
 	}
 	return &homewroksubmission
 }

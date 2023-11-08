@@ -112,8 +112,8 @@ func InitRouter() *gin.Engine {
 				{
 					// GET	api/v1/homeworks/:id				| 获取指定 id 作业的信息
 					homeworks.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
-					// GET	api/v1/homeworks/:id/submitlists  	| 获取指定 id 作业的全部学生提交信息
-					homeworks.GET(":id/submitlists", service.HandlerWithBindType(&service.SubmitListsService{}, service.BindUri))
+					// GET	api/v1/homeworks/:id/submits  		| 根据query获取指定 id 作业的全部学生提交信息
+					homeworks.GET(":id/submits", service.HandlerWithBindType(&service.SubmitListsService{}, service.BindUri))
 					// POST api/v1/homeworks 					| 发布作业
 					homeworks.POST("", service.Handler(&service.AssignHomeworkService{}))
 					// Get api/v1/homeworks/:id/homeworklists 	| 得到指定课程的所有作业
@@ -122,14 +122,16 @@ func InitRouter() *gin.Engine {
 					homeworks.DELETE("", service.Handler(&service.DeleteHomework{}))
 					// PUT api/v1/homeworks  					| 更新作业
 					homeworks.PUT("", service.Handler(&service.UpdateHomeworkService{}))
+					// GET api/v1/homeworks/{id}/comments 		| 获取指定 id 作业的自己的所有批阅
+					homeworks.GET(":id/comments", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
 				}
 
 				comment := auth.Group("comment")
 				{
-					// GET api/v1/comment/:id	| 获得本次作业需要批阅的作业id
-					comment.GET(":id", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
-					// POST api/v1/comment 		|评阅请求提交
-					comment.POST("", service.Handler(&service.CommentService{}))
+					// GET api/v1/comment/:id 		| 获得作业信息
+					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
+					// POST api/v1/comment/:id 		| 评阅请求提交
+					comment.POST(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 				}
 
 				grade := auth.Group("grade")
@@ -144,15 +146,20 @@ func InitRouter() *gin.Engine {
 
 				submit := auth.Group("submit")
 				{
-					// POST api/v1/submit
+					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
+					//TODO: PUT api/v1/submit 						|	修改作业提交信息
+					submit.PUT("", service.Handler(&service.AddCourseHomework{}))
+					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
+					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
+
 				}
 
 				//TODO:这里还有点问题
 				file := auth.Group("file")
 				{
 					// GET api/v1/file/:path	| 获得文件
-					file.GET(":path", service.HandlerWithBindType(&service.GetFileService{}, service.BindUri))
+					file.GET("*path", service.Handler(&service.GetFileService{}))
 				}
 			}
 		}

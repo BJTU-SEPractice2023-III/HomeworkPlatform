@@ -11,12 +11,13 @@ import (
 )
 
 type GetFileService struct {
-	FilePath string `uri:"path" binding:"required"`
+	// FilePath string `uri:"path" binding:"required"`
 }
 
 func (service *GetFileService) Handle(c *gin.Context) (any, error) {
 	c.Header("Content-Disposition", "attachment")
-	filePath := service.FilePath
+	filePath := c.Param("path")[1:]
+	println(filePath)
 	if !strings.HasPrefix(filePath, "./data") && !strings.HasPrefix(filePath, "data") {
 		return nil, errors.New("无法访问该文件")
 	}

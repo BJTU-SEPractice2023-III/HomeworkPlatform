@@ -2,8 +2,11 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"homework_platform/internal/bootstrap"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"time"
 
 	"gorm.io/gorm"
@@ -102,11 +105,20 @@ func CreateHomework(id uint, name string, description string,
 func GetHomeworkByID(id uint) (Homework, error) {
 	log.Printf("正在查找<Homework>(ID = %d)...", id)
 	var work Homework
-
 	res := DB.First(&work, id)
 	if res.Error != nil {
 		log.Printf("查找失败: %s", res.Error)
 		return work, res.Error
+	}
+	root := fmt.Sprintf("./data/homeworkassign/%d/", work.ID)
+	files, err := ioutil.ReadDir(root)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			work.FilePaths = append(work.FilePaths, filepath.Join(root, file.Name()))
+		}
 	}
 	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
 	return work, nil
