@@ -122,15 +122,15 @@ func InitRouter() *gin.Engine {
 					homeworks.DELETE("", service.Handler(&service.DeleteHomework{}))
 					// PUT api/v1/homeworks  					| 更新作业
 					homeworks.PUT("", service.Handler(&service.UpdateHomeworkService{}))
-					// // GET api/v1/homeworks/{id}/comments 		| 获取指定 id 作业的 自己的所有批阅
-					// homeworks.GET(":id/comments", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
+					// GET api/v1/homeworks/{id}/comments 		| 获取指定 id 作业的自己的所有批阅
+					homeworks.GET(":id/comments", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
 				}
 
 				comment := auth.Group("comment")
 				{
 					// GET api/v1/comment/:id 		| 获得作业信息
 					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
-					// POST api/v1/comment/:id 		|评阅请求提交
+					// POST api/v1/comment/:id 		| 评阅请求提交
 					comment.POST(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 				}
 
@@ -148,7 +148,7 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
-					// PUT api/v1/submit 						|	修改作业提交信息
+					//TODO: PUT api/v1/submit 						|	修改作业提交信息
 					submit.PUT("", service.Handler(&service.AddCourseHomework{}))
 					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
 					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))

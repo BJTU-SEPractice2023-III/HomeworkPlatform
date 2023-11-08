@@ -52,8 +52,14 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	if res != nil {
 		return nil, res
 	}
-
-	return commentLists, nil
+	var homework_submission []models.HomeworkSubmission
+	for _, comment := range commentLists {
+		homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
+	}
+	m := make(map[string]any)
+	m["homework_submission"] = homework_submission
+	m["comment_lists"] = commentLists
+	return m, nil
 }
 
 type GetCommentHomeworkSubmissionService struct {
