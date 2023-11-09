@@ -80,6 +80,8 @@ func InitRouter() *gin.Engine {
 					users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
 					// GET api/users/:id/courses | 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
+					// GET api/users/:id/notifications
+					users.GET(":id/notifications", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
 				}
 
 				// api/v1/courses

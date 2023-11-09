@@ -28,6 +28,19 @@ type Homework struct {
 	FilePaths           []string             `json:"file_paths" gorm:"-"`
 }
 
+func (homework *Homework) GetFiles() {
+	root := fmt.Sprintf("./data/homeworkassign/%d/", homework.ID)
+	files, err := ioutil.ReadDir(root)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			homework.FilePaths = append(homework.FilePaths, filepath.Join(root, file.Name()))
+		}
+	}
+}
+
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time, commentendate time.Time) bool {
 	log.Printf("正在修改homework<id:%d>的详细信息", homework.ID)
 	if beginDate.After(endDate) {
@@ -110,16 +123,7 @@ func GetHomeworkByID(id uint) (Homework, error) {
 		log.Printf("查找失败: %s", res.Error)
 		return work, res.Error
 	}
-	root := fmt.Sprintf("./data/homeworkassign/%d/", work.ID)
-	files, err := ioutil.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			work.FilePaths = append(work.FilePaths, filepath.Join(root, file.Name()))
-		}
-	}
+	work.GetFiles()
 	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
 	return work, nil
 }
