@@ -37,6 +37,10 @@ func Handler(s Service) gin.HandlerFunc {
 	return HandlerWithBindType(s, Bind)
 }
 
+func HandlerBindUri(s Service) gin.HandlerFunc {
+	return HandlerWithBindType(s, BindUri)
+}
+
 func HandlerWithBindType(s Service, bindType int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error

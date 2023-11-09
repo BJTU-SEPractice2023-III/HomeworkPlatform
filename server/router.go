@@ -85,9 +85,9 @@ func InitRouter() *gin.Engine {
 				// api/v1/courses
 				courses := auth.Group("courses")
 				{
-					// GET    api/v1/courses       | 获取所有课程信息
+					// GET    api/v1/courses        | 获取所有课程信息
 					courses.GET("", service.Handler(&service.GetCourses{}))
-					// GET    api/v1/courses/:id   | 获取指定 id 课程信息
+					// GET    api/v1/courses/:id    | 获取指定 id 课程信息
 					courses.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
 					// POST   api/v1/courses        | 创建课程
 					courses.POST("", service.Handler(&service.CreateCourse{}))
@@ -98,7 +98,7 @@ func InitRouter() *gin.Engine {
 
 					// GET    api/v1/courses/:id/students | 获取指定 id 课程的所有学生信息
 					courses.GET(":id/students", service.HandlerWithBindType(&service.GetCourseStudents{}, service.BindUri))
-					// POST   api/v1/courses/:id/students | 为指定 id 课程添加学生&选课
+					// POST   api/v1/courses/:id/students | 为指定 id 课程添加学生（请求提交者）
 					courses.POST(":id/students", service.Handler(&service.AddCourseStudentService{}))
 
 					// GET    api/v1/courses/:id/homeworks | 获取指定 id 课程的所有作业信息
@@ -110,20 +110,12 @@ func InitRouter() *gin.Engine {
 				// api/v1/homeworks
 				homeworks := auth.Group("homeworks")
 				{
-					// GET	api/v1/homeworks/:id				| 获取指定 id 作业的信息
-					homeworks.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
-					// GET	api/v1/homeworks/:id/submits  		| 根据query获取指定 id 作业的全部学生提交信息
-					homeworks.GET(":id/submits", service.HandlerWithBindType(&service.SubmitListsService{}, service.BindUri))
-					// POST api/v1/homeworks 					| 发布作业
-					homeworks.POST("", service.Handler(&service.AssignHomeworkService{}))
-					// Get api/v1/homeworks/:id/homeworklists 	| 得到指定课程的所有作业
-					homeworks.GET(":id/homeworklists", service.HandlerWithBindType(&service.HomeworkLists{}, service.BindUri))
-					// DELETE api/v1/homeworks					| 删除指定作业
-					homeworks.DELETE("", service.Handler(&service.DeleteHomework{}))
-					// PUT api/v1/homeworks  					| 更新作业
-					homeworks.PUT("", service.Handler(&service.UpdateHomeworkService{}))
-					// GET api/v1/homeworks/{id}/comments 		| 获取指定 id 作业的自己的所有批阅
-					homeworks.GET(":id/comments", service.HandlerWithBindType(&service.GetCommentListsService{}, service.BindUri))
+					// GET    api/v1/homeworks/:id               | 获取指定 id 作业的信息
+					homeworks.GET(":id", service.HandlerBindUri(&service.GetHomework{}))
+					// PUT    api/v1/homeworks/:id               | 更新指定 id 作业的信息
+					homeworks.PUT(":id", service.HandlerNoBind(&service.UpdateHomework{}))
+					// DELETE api/v1/homeworks/:id               | 删除指定 id 作业
+					homeworks.DELETE(":id", service.HandlerBindUri(&service.DeleteHomework{}))
 				}
 
 				comment := auth.Group("comment")
@@ -148,14 +140,14 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
-					//TODO: PUT api/v1/submit 						|	修改作业提交信息
+					// TODO: PUT api/v1/submit 						|	修改作业提交信息
 					// submit.PUT("", service.Handler(&service.AddCourseHomework{}))
 					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
 					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
 
 				}
 
-				//TODO:这里还有点问题
+				// TODO:这里还有点问题
 				file := auth.Group("file")
 				{
 					// GET api/v1/file/:path	| 获得文件
@@ -217,8 +209,8 @@ func InitRouter() *gin.Engine {
 				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
 				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
 				// GET api/homework/:id | Get homework detail
-				homewrok.GET(":id", service.HandlerWithBindType(&service.HomeworkDetail{}, service.BindUri))
-				homewrok.POST("update", service.Handler(&service.UpdateHomeworkService{})) // POST api/homework/update
+				homewrok.GET(":id", service.HandlerWithBindType(&service.GetHomework{}, service.BindUri))
+				homewrok.POST("update", service.Handler(&service.UpdateHomework{})) // POST api/homework/update
 				// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
 				homewrok.GET("submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 			}
