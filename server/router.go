@@ -76,12 +76,12 @@ func InitRouter() *gin.Engine {
 				// api/v1/users
 				users := auth.Group("users")
 				{
-					// GET api/users/:id         | 获取指定 id 用户的信息
+					// GET api/v1/users/:id         		| 获取指定 id 用户的信息
 					users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
-					// GET api/users/:id/courses | 获取指定 id 用户的课程列表（教的课以及学的课）
+					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
-					// GET api/users/:id/notifications
-					users.GET(":id/notifications", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
+					// GET api/v1/users/:id/notifications	| 获得指定 id 用户的提示信息
+					users.GET(":id/notifications", service.HandlerWithBindType(&service.GetUserNotifications{}, service.BindUri))
 				}
 
 				// api/v1/courses
