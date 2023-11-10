@@ -226,9 +226,9 @@ type CreateCourseHomework struct {
 	CourseID       uint                    `uri:"id" binding:"required"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
-	BeginDate      time.Time               `form:"begindate"`
-	EndDate        time.Time               `form:"enddate"`
-	CommentEndDate time.Time               `form:"commentenddate"`
+	BeginDate      time.Time               `form:"beginDate"`
+	EndDate        time.Time               `form:"endDate"`
+	CommentEndDate time.Time               `form:"commentEndDate"`
 	Files          []*multipart.FileHeader `form:"files"`
 }
 

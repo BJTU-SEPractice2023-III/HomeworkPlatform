@@ -36,12 +36,12 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) {
 }
 
 type AssignHomeworkService struct {
-	CourseID       uint                    `form:"courseid"`
+	CourseID       uint                    `form:"courseId"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
-	BeginDate      time.Time               `form:"begindate"`
-	EndDate        time.Time               `form:"enddate"`
-	CommentEndDate time.Time               `form:"commentenddate"`
+	BeginDate      time.Time               `form:"beginDate"`
+	EndDate        time.Time               `form:"endDate"`
+	CommentEndDate time.Time               `form:"commentEndDate"`
 	Files          []*multipart.FileHeader `form:"files"`
 }
 
@@ -126,9 +126,9 @@ type UpdateHomework struct {
 	HomeworkID     uint                    `uri:"id" bind:"required"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
-	BeginDate      time.Time               `form:"begindate"`
-	EndDate        time.Time               `form:"enddate"`
-	CommentEndDate time.Time               `form:"commentenddate"`
+	BeginDate      time.Time               `form:"beginDate"`
+	EndDate        time.Time               `form:"endDate"`
+	CommentEndDate time.Time               `form:"commentEndDate"`
 	Files          []*multipart.FileHeader `form:"files"`
 }
 
