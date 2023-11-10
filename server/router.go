@@ -116,6 +116,8 @@ func InitRouter() *gin.Engine {
 					homeworks.PUT(":id", service.HandlerNoBind(&service.UpdateHomework{}))
 					// DELETE api/v1/homeworks/:id               | 删除指定 id 作业
 					homeworks.DELETE(":id", service.HandlerBindUri(&service.DeleteHomework{}))
+					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
+					homeworks.POST(":id/submits", service.HandlerNoBind(&service.SubmitHomework{}))
 				}
 
 				comment := auth.Group("comment")
