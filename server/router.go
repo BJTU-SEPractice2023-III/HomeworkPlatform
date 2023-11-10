@@ -5,7 +5,6 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 
-	// "flag"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -76,10 +75,12 @@ func InitRouter() *gin.Engine {
 				// api/v1/users
 				users := auth.Group("users")
 				{
-					// GET api/users/:id         | 获取指定 id 用户的信息
+					// GET api/v1/users/:id         		| 获取指定 id 用户的信息
 					users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
-					// GET api/users/:id/courses | 获取指定 id 用户的课程列表（教的课以及学的课）
+					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
+					// GET api/v1/users/:id/notifications	| 获得指定 id 用户的提示信息
+					users.GET(":id/notifications", service.HandlerWithBindType(&service.GetUserNotifications{}, service.BindUri))
 				}
 
 				// api/v1/courses
@@ -149,7 +150,6 @@ func InitRouter() *gin.Engine {
 
 				}
 
-				// TODO:这里还有点问题
 				file := auth.Group("file")
 				{
 					// GET api/v1/file/:path	| 获得文件
@@ -166,7 +166,6 @@ func InitRouter() *gin.Engine {
 			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
 		}
 
-		//TODO:后期可以做一下权限验证不能随意获取作业
 		file := api.Group("file")
 		{
 			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile

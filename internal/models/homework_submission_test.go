@@ -54,7 +54,7 @@ func TestFindHomeWorkSubmissionByHomeworkIDAndUserID(t *testing.T) {
 	t.Helper()
 	for _, c := range cases {
 		t.Run(c.Case, func(t *testing.T) {
-			res := FindHomeWorkSubmissionByHomeworkIDAndUserID(c.homework_id, c.user_id)
+			res := GetHomeWorkSubmissionByHomeworkIDAndUserID(c.homework_id, c.user_id)
 			if res == nil && c.expected {
 				t.Fatalf("应该找得到但是查找失败")
 			} else if res != nil && !c.expected {

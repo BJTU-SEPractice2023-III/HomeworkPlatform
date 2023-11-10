@@ -56,7 +56,7 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if !course.FindStudents(id.(uint)) {
 		return nil, errors.New("请先选择这门课")
 	}
-	homworksubmission := models.FindHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
+	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
 	if homworksubmission == nil {
 		homworksubmission := models.HomeworkSubmission{
 			HomeworkID: uint(s.HomeworkID),

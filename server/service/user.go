@@ -3,6 +3,7 @@ package service
 import (
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
+	"time"
 
 	"errors"
 	"log"
@@ -75,7 +76,7 @@ type GetUserService struct {
 }
 
 func (service *GetUserService) Handle(c *gin.Context) (any, error) {
-	return models.GetUserByID(service.ID);
+	return models.GetUserByID(service.ID)
 }
 
 type UserRegisterService struct {
@@ -84,10 +85,9 @@ type UserRegisterService struct {
 }
 
 func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
-	_, err := models.CreateUser(service.Username, service.Password);
+	_, err := models.CreateUser(service.Username, service.Password)
 	return nil, err
 }
-
 
 type GetUserCoursesService struct {
 	ID uint `uri:"id" binding:"required"`
@@ -99,4 +99,88 @@ func (service *GetUserCoursesService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	return user.GetCourses()
+}
+
+type GetUserNotifications struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
+type Notifications struct {
+	TeachingHomeworkListsToFinish  []models.Homework `json:"homeworkInProgress"`
+	TeachingHomeworkListsToComment []models.Homework `json:"commentInProgress"`
+	LeaningHomeworkListsToFinish   []models.Homework `json:"homeworksToBeCompleted"`
+	LeaningHomeworkListsToComment  []models.Homework `json:"commentToBeCompleted"`
+}
+
+// 返回应该尚未提交的作业,待批阅的作业和每门课最新发布的作业
+func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByID(service.ID)
+	if err != nil {
+		return nil, err
+	}
+	courses, err := user.GetCourses()
+	if err != nil {
+		return nil, err
+	}
+	var notifications Notifications
+	//得到教的课中进行中和批阅中的作业
+	println("len of homework%d", len(courses.LearningCourses))
+	//得到学的课中还没完成的作业和还没批阅的作业
+	for _, course := range courses.LearningCourses {
+		homeworks, err := course.GetHomeworkLists()
+		if homeworks == nil {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		for j := 0; j < len(homeworks); j++ {
+			if homeworks[j].CommentEndDate.After(time.Now()) {
+				if homeworks[j].BeginDate.Before(time.Now()) {
+					if homeworks[j].EndDate.After(time.Now()) {
+						homework := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworks[j].ID, user.ID)
+						if homework == nil {
+							notifications.LeaningHomeworkListsToFinish =
+								append(notifications.LeaningHomeworkListsToFinish, homeworks[j])
+						}
+					} else {
+						comments, err := models.GetCommentListsByUserIDAndHomeworkID(user.ID, homeworks[j].ID)
+						if err != nil {
+							return nil, err
+						}
+						for i := 0; i < len(comments); i++ {
+							if comments[i].Grade == -1 {
+								notifications.LeaningHomeworkListsToComment =
+									append(notifications.TeachingHomeworkListsToComment, homeworks[j])
+								break
+							}
+						}
+					}
+				}
+			}
+		}
+		for _, course := range courses.TeachingCourses {
+			homeworks, err := course.GetHomeworkLists()
+			if homeworks == nil {
+				continue
+			}
+			if err != nil {
+				return nil, err
+			}
+			for j := 0; j < len(homeworks); j++ {
+				if homeworks[j].CommentEndDate.After(time.Now()) {
+					if homeworks[j].BeginDate.Before(time.Now()) {
+						if homeworks[j].EndDate.After(time.Now()) {
+							notifications.TeachingHomeworkListsToFinish =
+								append(notifications.TeachingHomeworkListsToFinish, homeworks[j])
+						} else {
+							notifications.TeachingHomeworkListsToComment =
+								append(notifications.TeachingHomeworkListsToComment, homeworks[j])
+						}
+					}
+				}
+			}
+		}
+	}
+	return notifications, nil
 }

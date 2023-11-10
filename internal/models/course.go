@@ -37,7 +37,9 @@ func (course Course) GetHomeworkLists() ([]Homework, error) {
 		return nil, res.Error
 	}
 	homeworks := course.Homeworks
-	// TODO: 要包含文件信息
+	for i := 0; i < len(homeworks); i++ {
+		homeworks[i].GetFiles()
+	}
 	return homeworks, nil
 }
 
