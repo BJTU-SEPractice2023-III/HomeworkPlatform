@@ -5,7 +5,6 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 
-	// "flag"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -149,7 +148,6 @@ func InitRouter() *gin.Engine {
 
 				}
 
-				// TODO:这里还有点问题
 				file := auth.Group("file")
 				{
 					// GET api/v1/file/:path	| 获得文件
@@ -166,7 +164,6 @@ func InitRouter() *gin.Engine {
 			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
 		}
 
-		//TODO:后期可以做一下权限验证不能随意获取作业
 		file := api.Group("file")
 		{
 			file.GET("getfile", service.Handler(&service.GetFileService{})) // GET api/file/getfile

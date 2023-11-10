@@ -124,28 +124,13 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 	}
 	var notifications Notifications
 	//得到教的课中进行中和批阅中的作业
-	for _, course := range courses.TeachingCourses {
-		homeworks, err := course.GetHomeworkLists()
-		if err != nil {
-			return nil, err
-		}
-		for j := 0; j < len(homeworks); j++ {
-			if homeworks[j].CommentEndDate.After(time.Now()) {
-				if homeworks[j].BeginDate.Before(time.Now()) {
-					if homeworks[j].EndDate.After(time.Now()) {
-						notifications.TeachingHomeworkListsToFinish =
-							append(notifications.TeachingHomeworkListsToFinish, homeworks[j])
-					} else {
-						notifications.TeachingHomeworkListsToComment =
-							append(notifications.TeachingHomeworkListsToComment, homeworks[j])
-					}
-				}
-			}
-		}
-	}
+	println("len of homework%d", len(courses.LearningCourses))
 	//得到学的课中还没完成的作业和还没批阅的作业
 	for _, course := range courses.LearningCourses {
 		homeworks, err := course.GetHomeworkLists()
+		if homeworks == nil {
+			continue
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -154,7 +139,7 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 				if homeworks[j].BeginDate.Before(time.Now()) {
 					if homeworks[j].EndDate.After(time.Now()) {
 						homework := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworks[j].ID, user.ID)
-						if homework != nil {
+						if homework == nil {
 							notifications.LeaningHomeworkListsToFinish =
 								append(notifications.LeaningHomeworkListsToFinish, homeworks[j])
 						}
@@ -169,6 +154,28 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 									append(notifications.TeachingHomeworkListsToComment, homeworks[j])
 								break
 							}
+						}
+					}
+				}
+			}
+		}
+		for _, course := range courses.TeachingCourses {
+			homeworks, err := course.GetHomeworkLists()
+			if homeworks == nil {
+				continue
+			}
+			if err != nil {
+				return nil, err
+			}
+			for j := 0; j < len(homeworks); j++ {
+				if homeworks[j].CommentEndDate.After(time.Now()) {
+					if homeworks[j].BeginDate.Before(time.Now()) {
+						if homeworks[j].EndDate.After(time.Now()) {
+							notifications.TeachingHomeworkListsToFinish =
+								append(notifications.TeachingHomeworkListsToFinish, homeworks[j])
+						} else {
+							notifications.TeachingHomeworkListsToComment =
+								append(notifications.TeachingHomeworkListsToComment, homeworks[j])
 						}
 					}
 				}
