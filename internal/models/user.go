@@ -20,22 +20,22 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []*Course `json:"-" gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
+	TeachingCourses []*Course `json:"-" gorm:"foreignKey:TeacherID;constraint:OnDelete:CASCADE"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;"`
+	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;constraint:OnDelete:CASCADE"`
 
 	// A user has many homework submissions
 	// Also check homework_submissions.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
 	// A user has many comments
 	// Also check comment.go
 	// Check: https://gorm.io/docs/has_many.html
-	Comments []Comment `json:"-"`
+	Comments []Comment `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
 	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
 	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
@@ -181,5 +181,3 @@ func (user *User) GetCourses() (UserCourse, error) {
 	}
 	return res, nil
 }
-
-
