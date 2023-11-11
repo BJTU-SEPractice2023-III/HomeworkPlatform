@@ -4,10 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/models"
-	"io/ioutil"
+	"os"
 	"log"
 	"mime/multipart"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -195,7 +194,7 @@ func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
 		}
 		for i := 0; i < len(homework.HomeworkSubmissions); i++ {
 			root := fmt.Sprintf("./data/homeworkassign/%d/", homework.HomeworkSubmissions[i].ID)
-			files, err := ioutil.ReadDir(root)
+			files, err := os.ReadDir(root)
 			if err == nil {
 				for _, file := range files {
 					if file.IsDir() {
