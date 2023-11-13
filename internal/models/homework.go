@@ -24,7 +24,7 @@ type Homework struct {
 	// A homework has many submissions
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 	FilePaths           []string             `json:"file_paths" gorm:"-"`
 }
 
