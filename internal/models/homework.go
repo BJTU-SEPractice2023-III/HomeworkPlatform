@@ -24,8 +24,21 @@ type Homework struct {
 	// A homework has many submissions
 	// Also check homeworkSubmission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 	FilePaths           []string             `json:"file_paths" gorm:"-"`
+}
+
+func (homework *Homework) GetFiles() {
+	root := fmt.Sprintf("./data/homeworkassign/%d/", homework.ID)
+	files, err := ioutil.ReadDir(root)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			homework.FilePaths = append(homework.FilePaths, filepath.Join(root, file.Name()))
+		}
+	}
 }
 
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time, commentendate time.Time) bool {
@@ -110,16 +123,7 @@ func GetHomeworkByID(id uint) (Homework, error) {
 		log.Printf("查找失败: %s", res.Error)
 		return work, res.Error
 	}
-	root := fmt.Sprintf("./data/homeworkassign/%d/", work.ID)
-	files, err := ioutil.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			work.FilePaths = append(work.FilePaths, filepath.Join(root, file.Name()))
-		}
-	}
+	work.GetFiles()
 	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
 	return work, nil
 }

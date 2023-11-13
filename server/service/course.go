@@ -6,6 +6,8 @@ import (
 	"homework_platform/internal/models"
 	"log"
 	"mime/multipart"
+
+	// "net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -208,10 +210,10 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	if course.TeacherID != id {
-		return nil, errors.New("不能查看不是您的课程的作业")
-	}
+	// id, _ := c.Get("ID")
+	// if course.TeacherID != id {
+	// 	return nil, errors.New("不能查看不是您的课程的作业")
+	// }
 	homeworks, err2 := course.GetHomeworkLists()
 	if err2 != nil {
 		return nil, err2
@@ -219,43 +221,64 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 	return homeworks, nil
 }
 
-// TODO: 有问题，需要把 uri 和 form 分割为两个结构体进行两次 bind，需要重构下框架。
-type AddCourseHomework struct {
+// This is a special one using no bindings (manualy do the bindings in Handle func)
+type CreateCourseHomework struct {
 	CourseID       uint                    `uri:"id" binding:"required"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
-	BeginDate      time.Time               `form:"begindate"`
-	EndDate        time.Time               `form:"enddate"`
-	CommentEndDate time.Time               `form:"commentenddate"`
+	BeginDate      time.Time               `form:"beginDate"`
+	EndDate        time.Time               `form:"endDate"`
+	CommentEndDate time.Time               `form:"commentEndDate"`
 	Files          []*multipart.FileHeader `form:"files"`
 }
 
-func (service *AddCourseHomework) Handle(c *gin.Context) (any, error) {
-	course, err := models.GetCourseByID(service.CourseID)
+func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
+	if c.ContentType() != "multipart/form-data" {
+		return nil, errors.New("not supported content-type")
+	}
+
+	var err error
+	// 从 Uri 获取 CourseID
+	err = c.ShouldBindUri(s)
 	if err != nil {
 		return nil, err
 	}
+	// 从 Form 获取其他数据
+	err = c.ShouldBind(s)
+	if err != nil {
+		return nil, err
+	}
+	log.Println(s)
+
+	// 获取课程
+	course, err := models.GetCourseByID(s.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	// 获取请求者 ID
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
-	//CourseID
+
+	// 创建课程
 	homework, err2 := models.CreateHomework(
-		service.CourseID,
-		service.Name,
-		service.Description,
-		service.BeginDate,
-		service.EndDate,
-		service.CommentEndDate,
+		s.CourseID,
+		s.Name,
+		s.Description,
+		s.BeginDate,
+		s.EndDate,
+		s.CommentEndDate,
 	)
 	if err2 != nil {
 		return nil, errors.New("创建失败")
 	}
-	for _, f := range service.Files {
+	// 保存课程文件
+	for _, f := range s.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./data/homeworkassign/%d/%d/%s", service.CourseID, homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homework.(models.Homework).ID, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
-	return nil, nil
+	return homework.(models.Homework).ID, nil
 }

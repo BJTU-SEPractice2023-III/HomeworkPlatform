@@ -12,17 +12,39 @@ import (
 )
 
 type SubmitHomework struct {
-	HomeworkID int                     `form:"homeworkid"`
+	HomeworkID uint                    `uri:"id" bind:"required"`
 	Content    string                  `form:"content"`
 	Files      []*multipart.FileHeader `form:"files"`
 }
 
-func (service *SubmitHomework) Handle(c *gin.Context) (any, error) {
+func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
+	if c.ContentType() != "multipart/form-data" {
+		return nil, errors.New("not supported content-type")
+	}
+	log.Println("ASDSAD")
+
+	var err error
+	// 从 Uri 获取 HomeworkID
+	err = c.ShouldBindUri(s)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("!!")
+	log.Println(s)
+	// 从 Form 获取其他数据
+	err = c.ShouldBind(s)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("??")
+	log.Println(s)
+
+
 	id, _ := c.Get("ID")
 	time := time.Now()
-	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
-	if err2 != nil {
-		return nil, err2
+	homework, err := models.GetHomeworkByID(uint(s.HomeworkID))
+	if err != nil {
+		return nil, err
 	}
 	if homework.EndDate.Before(time) {
 		return nil, errors.New("超时提交")
@@ -34,18 +56,18 @@ func (service *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if !course.FindStudents(id.(uint)) {
 		return nil, errors.New("请先选择这门课")
 	}
-	homworksubmission := models.FindHomeWorkSubmissionByHomeworkIDAndUserID(uint(service.HomeworkID), id.(uint))
+	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
 	if homworksubmission == nil {
 		homworksubmission := models.HomeworkSubmission{
-			HomeworkID: uint(service.HomeworkID),
-			Content:    service.Content,
+			HomeworkID: uint(s.HomeworkID),
+			Content:    s.Content,
 			UserID:     id.(uint),
 		}
 		res := models.AddHomeworkSubmission(&homworksubmission)
 		if !res {
 			return nil, errors.New("提交失败")
 		}
-		for _, f := range service.Files {
+		for _, f := range s.Files {
 			log.Println(f.Filename)
 			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
 			// 上传文件到指定的目录

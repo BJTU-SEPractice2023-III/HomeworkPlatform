@@ -9,7 +9,7 @@ import (
 )
 
 type CommentService struct {
-	Grade                int    `form:"grade"`
+	Grade                int    `form:"grade" gorm:"default:-1"`
 	Comment              string `form:"comment"`
 	HomeworkSubmissionID uint   `uri:"id" binding:"required"`
 }

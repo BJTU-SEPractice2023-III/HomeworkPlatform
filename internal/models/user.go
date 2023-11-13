@@ -20,22 +20,22 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []*Course `json:"-" gorm:"foreignKey:TeacherID"` //引用了Course这个字段作为外键
+	TeachingCourses []*Course `json:"-" gorm:"foreignKey:TeacherID;constraint:OnDelete:CASCADE"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;"`
+	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;constraint:OnDelete:CASCADE"`
 
 	// A user has many homework submissions
 	// Also check homework_submissions.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-"`
+	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
 	// A user has many comments
 	// Also check comment.go
 	// Check: https://gorm.io/docs/has_many.html
-	Comments []Comment `json:"-"`
+	Comments []Comment `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
 	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
 	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
@@ -165,33 +165,19 @@ const (
 )
 
 type UserCourse struct {
-	Course
-
-	CourseType uint
+	TeachingCourses []*Course `json:"teachingCourses"`
+	LearningCourses []*Course `json:"learningCourses"`
 }
 
-func (user *User) GetCourses() ([]UserCourse, error) {
-	var courses []UserCourse = make([]UserCourse, 0)
+func (user *User) GetCourses() (UserCourse, error) {
+	var res UserCourse
+	var err error
 
-	learningCourses, err := user.GetLearningCourse()
-	if err == nil {
-		for _, c := range learningCourses {
-			courses = append(courses, UserCourse{
-				Course:     *c,
-				CourseType: Learning,
-			})
-		}
+	if res.TeachingCourses, err = user.GetTeachingCourse(); err != nil {
+		return res, nil
 	}
-
-	teachingCourses, err := user.GetTeachingCourse()
-	if err == nil {
-		for _, c := range teachingCourses {
-			courses = append(courses, UserCourse{
-				Course:     *c,
-				CourseType: Teaching,
-			})
-		}
+	if res.LearningCourses, err = user.GetLearningCourse(); err != nil {
+		return res, nil
 	}
-
-	return courses, nil
+	return res, nil
 }

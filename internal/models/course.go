@@ -18,17 +18,17 @@ type Course struct {
 	// A teacher has many course
 	// Also check user.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeacherID uint
+	TeacherID uint `json:"teacherID"`
 
 	// A student has many Course, a course has many students
 	// Also check user.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	Students []*User `json:"-" gorm:"many2many:user_courses;"`
+	Students []*User `json:"-" gorm:"many2many:user_courses;constraint:OnDelete:CASCADE"`
 
 	// A course has many homework
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
-	Homeworks []Homework `json:"-" gorm:"foreignKey:CourseID"`
+	Homeworks []Homework `json:"-" gorm:"foreignKey:CourseID;constraint:OnDelete:CASCADE"`
 }
 
 func (course Course) GetHomeworkLists() ([]Homework, error) {
@@ -37,6 +37,9 @@ func (course Course) GetHomeworkLists() ([]Homework, error) {
 		return nil, res.Error
 	}
 	homeworks := course.Homeworks
+	for i := 0; i < len(homeworks); i++ {
+		homeworks[i].GetFiles()
+	}
 	return homeworks, nil
 }
 

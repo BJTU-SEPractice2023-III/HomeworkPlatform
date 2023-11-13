@@ -8,3 +8,5 @@ config.yml
 dist/
 
 *.db
+data
+.DS_Store

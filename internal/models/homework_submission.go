@@ -31,6 +31,19 @@ type HomeworkSubmission struct {
 	Final   int    `json:"-" gorm:"default:-1"` //-1表示不是最终结果
 }
 
+func (homeworksubmission *HomeworkSubmission) GetFiles() {
+	root := fmt.Sprintf("./data/homeworkassign/%d/", homeworksubmission.ID)
+	files, err := ioutil.ReadDir(root)
+	if err == nil {
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			homeworksubmission.FilePaths = append(homeworksubmission.FilePaths, filepath.Join(root, file.Name()))
+		}
+	}
+}
+
 // TODO:后续测试,计算成绩
 func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, int, []User, []int, error) {
 	//查询到所有的comment
@@ -91,7 +104,7 @@ func AddHomeworkSubmission(work *HomeworkSubmission) bool {
 	return res.Error == nil
 }
 
-func FindHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
+func GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
 	var submission *HomeworkSubmission
 	if err := DB.Where("user_id = ? AND homework_id = ?", userID, homeworkID).First(&submission).Error; err != nil {
 		return nil
@@ -110,23 +123,17 @@ func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
 	if res.Error != nil {
 		return nil
 	}
-	root := fmt.Sprintf("./data/homeworkassign/%d/", homewroksubmission.ID)
-	files, err := ioutil.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			homewroksubmission.FilePaths = append(homewroksubmission.FilePaths, filepath.Join(root, file.Name()))
-		}
-	}
+	homewroksubmission.GetFiles()
 	return &homewroksubmission
 }
 
 func GetSubmissionListsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
 	var submission []HomeworkSubmission
 	if err := DB.Where("homework_id = ?", id).First(&submission).Error; err != nil {
+		for i := 0; i < len(submission); i++ {
+			submission[i].GetFiles()
+		}
 		return submission, err
 	}
-	return submission, nil
+	return nil, nil
 }
