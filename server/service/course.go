@@ -201,6 +201,12 @@ func (service *GetCourse) Handle(c *gin.Context) (any, error) {
 	return course, err
 }
 
+type StudentHomework struct {
+	models.Homework
+	Submitted bool `json:"submitted"`
+	Score     int  `json:"score"`
+}
+
 type GetCourseHomeworks struct {
 	CourseID uint `uri:"id" binding:"required"`
 }
@@ -210,15 +216,34 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	// id, _ := c.Get("ID")
-	// if course.TeacherID != id {
-	// 	return nil, errors.New("不能查看不是您的课程的作业")
-	// }
-	homeworks, err2 := course.GetHomeworkLists()
-	if err2 != nil {
-		return nil, err2
+	homeworks, err := course.GetHomeworkLists()
+	if err != nil {
+		return nil, err
 	}
-	return homeworks, nil
+
+	id := c.GetUint("ID")
+	if id != course.TeacherID {
+		studentHomeworks := []StudentHomework{}
+		for _, homework := range homeworks {
+			studentHomework := StudentHomework{
+				Homework: homework,
+				Submitted: false,
+				Score: -1,
+			} 
+
+			homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
+			if homeworkSubmission != nil {
+				studentHomework.Submitted = true
+				studentHomework.Score = homeworkSubmission.Final
+			}
+
+			studentHomeworks = append(studentHomeworks, studentHomework)
+		}
+		return studentHomeworks, nil
+	} else {
+		// TODO: Frontend oriented 的老师需要的作业信息（比如额外增加提交人数统计等）
+		return homeworks, nil
+	}
 }
 
 // This is a special one using no bindings (manualy do the bindings in Handle func)
