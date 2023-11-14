@@ -143,7 +143,7 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
-					// TODO: PUT api/v1/submit 						|	修改作业提交信息
+					// TODO: PUT api/v1/submit 					|	修改作业提交信息
 					// submit.PUT("", service.Handler(&service.AddCourseHomework{}))
 					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
 					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
