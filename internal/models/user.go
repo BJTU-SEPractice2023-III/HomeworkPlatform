@@ -49,7 +49,6 @@ func (user *User) CheckPassword(password string) bool {
 	return user.Password == utils.EncodePassword(password, salt)
 }
 
-// TODO:Test
 func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
 	//如何更新,上限为700,下限为300
 	//TODO:更新权重算法

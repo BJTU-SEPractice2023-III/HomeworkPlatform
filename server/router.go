@@ -125,7 +125,7 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/comment/:id 		| 获得作业信息
 					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
-					// POST api/v1/comment/:id 		| 评阅请求提交
+					// POST api/v1/comment/:id 		| 评阅请求提交,提交和修改一体化接口()
 					comment.POST(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 				}
 

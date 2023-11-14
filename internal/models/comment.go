@@ -25,11 +25,27 @@ type Comment struct {
 
 	// Regular fields
 	Comment string `json:"comment"`
-	Grade   int    `json:"grade"`
+	Score   int    `json:"score" gorm:"default:-1"`
 }
 
-func (comment Comment) UpdateSelf(comm string, grade int) error {
-	res := DB.Model(&comment).Updates(Comment{Comment: comm, Grade: grade})
+// 计算已经有几个人批过了
+func GetCommentNum(homeworksubmission_id uint) uint {
+	comments, err := GetCommentBySubmissionID(homeworksubmission_id)
+	if err != nil {
+		return 0
+	}
+	var num uint
+	num = 0
+	for _, comment := range comments {
+		if comment.Score != -1 {
+			num += 1
+		}
+	}
+	return num
+}
+
+func (comment Comment) UpdateSelf(comm string, score int) error {
+	res := DB.Model(&comment).Updates(Comment{Comment: comm, Score: score})
 	return res.Error
 }
 
@@ -84,7 +100,6 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool
 	return res.Error == nil
 }
 
-// TODO:等待后续测试
 func AssignComment(HomeworkID uint) error {
 	//在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
 	homework, err := GetHomeworkByID(HomeworkID)

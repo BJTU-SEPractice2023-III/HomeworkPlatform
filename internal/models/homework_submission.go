@@ -27,8 +27,7 @@ type HomeworkSubmission struct {
 	FilePaths []string `json:"file_paths" gorm:"-"`
 	// Regular fields
 	Content string `json:"content"`
-	Grade   int    `json:"-" gorm:"default:-1"`
-	Final   int    `json:"-" gorm:"default:-1"` //-1表示不是最终结果
+	Score   int    `json:"score" gorm:"default:-1"` //-1表示不是最终结果
 }
 
 func (homeworksubmission *HomeworkSubmission) GetFiles() {
@@ -45,39 +44,63 @@ func (homeworksubmission *HomeworkSubmission) GetFiles() {
 }
 
 // TODO:后续测试,计算成绩
-func (submission *HomeworkSubmission) CalculateGrade(homewrork Homework) (int, int, []User, []int, error) {
+func (submission *HomeworkSubmission) CalculateGrade() {
 	//查询到所有的comment
-	var userLists []User
-	var gradeLists []int
+	homewrork, err := GetHomeworkByID(submission.HomeworkID)
+	if homewrork.CommentEndDate.Before(time.Now()) {
+		return
+	}
+	if err != nil {
+		return
+	}
 	comments, res := GetCommentBySubmissionID(submission.ID)
 	if res != nil {
-		return -1, -1, userLists, gradeLists, res
+		return
+	}
+	if len(comments) == 0 {
+		return
 	}
 	grade := 0.0
 	totalDegree := 0.0
 	totalDegreeWithoutDegree := 0
+	var userList []User
+	var gradeList []int
 	for _, comment := range comments {
+		if comment.Score == -1 {
+			continue
+		}
 		user, err := GetUserByID(comment.UserID)
 		if err != nil {
-			return -1, -1, userLists, gradeLists, err
+			return
 		}
-		userLists = append(userLists, user)
-		gradeLists = append(gradeLists, comment.Grade)
 		totalDegree += user.DegreeOfConfidence
-		totalDegreeWithoutDegree += comment.Grade
-		grade += float64(comment.Grade) * float64(user.DegreeOfConfidence) //TODO:在这里进行算法开发
+		totalDegreeWithoutDegree += comment.Score
+		userList = append(userList, user)
+		gradeList = append(gradeList, comment.Score)
+		grade += float64(comment.Score) * float64(user.DegreeOfConfidence) //TODO:在这里进行算法开发
 	}
-	if len(comments) == 0 && homewrork.CommentEndDate.Before(time.Now()) {
-		return -1, -1, userLists, gradeLists, nil //TODO:这里是没有被批改的学生
+	if grade == 0 {
+		return
+	}
+	flag := false
+	if submission.Score == -1 {
+		flag = true
 	}
 	average := float64(grade) / totalDegree
 	average = math.Round(average)
-	return int(average), totalDegreeWithoutDegree / len(comments), userLists, gradeLists, nil
+	submission.UpdateGrade(int(average))
+	if flag {
+		//TODO:更新degree,不过我是懒B,只算第一次计算
+		for i := 0; i < len(userList); i++ {
+			userList[i].UpdateDegree(int(average), gradeList[i])
+		}
+	}
+
 }
 
 // TODO:后续测试,计算成绩
-func (submission *HomeworkSubmission) UpdateGrade(grade int) error {
-	submission.Grade = grade
+func (submission *HomeworkSubmission) UpdateGrade(Score int) error {
+	submission.Score = Score
 	return DB.Save(&submission).Error
 }
 

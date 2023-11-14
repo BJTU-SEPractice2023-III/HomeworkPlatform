@@ -226,15 +226,15 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 		studentHomeworks := []StudentHomework{}
 		for _, homework := range homeworks {
 			studentHomework := StudentHomework{
-				Homework: homework,
+				Homework:  homework,
 				Submitted: false,
-				Score: -1,
-			} 
+				Score:     -1,
+			}
 
 			homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
 			if homeworkSubmission != nil {
 				studentHomework.Submitted = true
-				studentHomework.Score = homeworkSubmission.Final
+				studentHomework.Score = homeworkSubmission.Score
 			}
 
 			studentHomeworks = append(studentHomeworks, studentHomework)

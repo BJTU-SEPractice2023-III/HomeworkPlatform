@@ -149,7 +149,7 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 							return nil, err
 						}
 						for i := 0; i < len(comments); i++ {
-							if comments[i].Grade == -1 {
+							if comments[i].Score == -1 {
 								notifications.LeaningHomeworkListsToComment =
 									append(notifications.TeachingHomeworkListsToComment, homeworks[j])
 								break

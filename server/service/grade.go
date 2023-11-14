@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,33 +16,12 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
-	if submission.Final == -1 {
-		homework, res := models.GetHomeworkByID(submission.HomeworkID)
-		if res != nil {
-			return nil, res
-		}
-		//分数没有被计算过或者未截止
-		grade, averageGrade, userLists, gradeLists, res := submission.CalculateGrade(homework)
-		if res != nil {
-			return nil, res
-		}
-		if homework.CommentEndDate.Before(time.Now()) {
-			//TODO:批阅结束,开始统计和收尾
-			for i, user := range userLists {
-				user.UpdateDegree(averageGrade, gradeLists[i])
-			}
-			submission.Final = 1
-		}
-		submission.Grade = grade
-		err := submission.UpdateSelf()
-		return grade, err
-	}
-	return submission.Grade, nil
+	return submission.Score, nil
 }
 
 type UpdateGradeService struct {
 	HomeworkSubmissionID uint `form:"homeworksubmissionid"`
-	Grade                int  `form:"grade"`
+	Score                int  `form:"score"`
 }
 
 func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
@@ -63,9 +41,10 @@ func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
 	if id.(uint) != course.TeacherID {
 		return nil, errors.New("您无权限修改")
 	}
-	submission.Final = 1
-	submission.Grade = service.Grade
+	submission.Score = service.Score
+	// submission.Grade = service.Final
 	err2 := submission.UpdateSelf()
+	//TODO:还需要更新那些人的置信度,但是我是懒B
 	return nil, err2
 }
 
@@ -76,7 +55,7 @@ type GetGradeListsByHomeworkIDService struct {
 type MyMap struct {
 	UserID   uint   `form:"userid"`
 	UserName string `form:"username"`
-	Grade    int    `form:"grade"`
+	Score    int    `form:"Score"`
 }
 
 func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) {
@@ -98,30 +77,11 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	}
 	var maps []MyMap
 	for _, submission := range submissions {
-		if submission.Final == -1 {
-			//分数没有被计算过或者未截止
-			grade, averageGrade, userLists, gradeLists, res := submission.CalculateGrade(homework)
-			if res != nil {
-				return nil, res
-			}
-			if homework.CommentEndDate.After(time.Now()) {
-				//TODO:批阅结束,开始统计和收尾
-				for i, user := range userLists {
-					user.UpdateDegree(averageGrade, gradeLists[i])
-				}
-				submission.Final = 1
-			}
-			submission.Grade = grade
-			err := submission.UpdateSelf()
-			if err != nil {
-				return nil, err
-			}
-		}
 		user, err := models.GetUserByID(submission.UserID)
 		if err != nil {
 			return nil, err
 		}
-		maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Grade: submission.Grade})
+		maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})
 	}
 	return maps, nil
 }
