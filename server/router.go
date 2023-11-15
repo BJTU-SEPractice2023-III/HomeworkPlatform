@@ -119,6 +119,9 @@ func InitRouter() *gin.Engine {
 					homeworks.DELETE(":id", service.HandlerBindUri(&service.DeleteHomework{}))
 					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
 					homeworks.POST(":id/submits", service.HandlerNoBind(&service.SubmitHomework{}))
+					// GET 	  api/v1/homeworks/:id/comments
+					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
+
 				}
 
 				comment := auth.Group("comment")
@@ -232,8 +235,7 @@ func InitRouter() *gin.Engine {
 
 			comment := auth.Group("comment")
 			{
-				comment.GET("lists", service.Handler(&service.GetCommentListsService{})) // GET api/comment/lists
-				comment.POST("", service.Handler(&service.CommentService{}))             // POST api/comment
+				comment.POST("", service.Handler(&service.CommentService{})) // POST api/comment
 			}
 
 			grade := auth.Group("grade")
