@@ -152,11 +152,11 @@ func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
 
 func GetSubmissionListsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
 	var submission []HomeworkSubmission
-	if err := DB.Where("homework_id = ?", id).First(&submission).Error; err != nil {
-		for i := 0; i < len(submission); i++ {
-			submission[i].GetFiles()
-		}
-		return submission, err
+	if err := DB.Where("homework_id = ?", id).Find(&submission).Error; err != nil {
+		return nil, err
 	}
-	return nil, nil
+	for i := 0; i < len(submission); i++ {
+		submission[i].GetFiles()
+	}
+	return submission, nil
 }
