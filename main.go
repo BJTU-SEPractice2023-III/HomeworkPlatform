@@ -27,18 +27,18 @@ func Init() {
 }
 
 func runPnpmDev() {
-	projectPath := "assets"
-	err := os.Chdir(projectPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// projectPath := "assets"
+	// err := os.Chdir(projectPath)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// 执行 PNPM dev 命令
-	cmd := exec.Command("pnpm", "dev")
+	cmd := exec.Command("pnpm", "--dir", "assets", "dev")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err = cmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
