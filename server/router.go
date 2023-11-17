@@ -150,8 +150,6 @@ func InitRouter() *gin.Engine {
 					submit.PUT("", service.Handler(&service.UpdateSubmission{}))
 					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
 					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
-					// GET api/v1/submit/:id
-					submit.GET(":id", service.HandlerWithBindType(&service.GetSubmissionID{}, service.BindUri))
 				}
 
 				file := auth.Group("file")

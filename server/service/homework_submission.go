@@ -95,22 +95,67 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 }
 
 type UpdateSubmission struct {
+	HomeworkID uint                    `uri:"id" bind:"required"`
+	Content    string                  `form:"content"`
+	Files      []*multipart.FileHeader `form:"files"`
 }
 
-func (service *UpdateSubmission) Handle(c *gin.Context) (any, error) {
-
-	return nil, errors.New("该用户未提交作业")
-}
-
-type GetSubmissionID struct {
-	homeworkid uint `uri:"id" binding:"required"`
-}
-
-func (service *GetSubmissionID) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
-	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.homeworkid, id.(uint))
-	if submission == nil {
-		return nil, errors.New("该用户未提交作业")
+func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
+	if c.ContentType() != "multipart/form-data" {
+		return nil, errors.New("not supported content-type")
 	}
-	return submission.ID, nil
+
+	var err error
+	// 从 Uri 获取 HomeworkID
+	err = c.ShouldBindUri(s)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("!!")
+	log.Println(s)
+	// 从 Form 获取其他数据
+	err = c.ShouldBind(s)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("??")
+	log.Println(s)
+
+	id, _ := c.Get("ID")
+	time := time.Now()
+	homework, err := models.GetHomeworkByID(uint(s.HomeworkID))
+	if err != nil {
+		return nil, err
+	}
+	if homework.EndDate.Before(time) {
+		return nil, errors.New("超时提交")
+	}
+	course, err := models.GetCourseByID(homework.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	if !course.FindStudents(id.(uint)) {
+		return nil, errors.New("请先选择这门课")
+	}
+	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
+	if homworksubmission != nil {
+		homworksubmission := models.HomeworkSubmission{
+			HomeworkID: uint(s.HomeworkID),
+			Content:    s.Content,
+			UserID:     id.(uint),
+		}
+		res := models.AddHomeworkSubmission(&homworksubmission)
+		if !res {
+			return nil, errors.New("更新失败")
+		}
+		
+		for _, f := range s.Files {
+			log.Println(f.Filename)
+			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
+			// 上传文件到指定的目录
+			c.SaveUploadedFile(f, dst)
+		}
+		return nil, nil
+	}
+	return nil, errors.New("请先提交作业")
 }
