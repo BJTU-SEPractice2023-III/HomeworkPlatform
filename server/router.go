@@ -121,7 +121,8 @@ func InitRouter() *gin.Engine {
 					homeworks.POST(":id/submits", service.HandlerNoBind(&service.SubmitHomework{}))
 					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
-
+					// // GET 	  api/v1/homeworks/:homeworkid 	|	根据作业id和用户id获取作业信息
+					// homeworks.GET(":homeworkid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
 				}
 
 				comment := auth.Group("comment")
@@ -148,8 +149,9 @@ func InitRouter() *gin.Engine {
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
 					// TODO: PUT api/v1/submit 					|	修改作业提交信息
 					submit.PUT("", service.Handler(&service.UpdateSubmission{}))
-					// GET api/v1/submit/:homeworkid/:userid 	|	根据作业id获取作业信息
-					submit.GET(":homeworkid/:userid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
+					// GET api/v1/submit/:id					|  获得指定submission_id的作业
+					submit.GET("", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
+
 				}
 
 				file := auth.Group("file")

@@ -78,17 +78,17 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 }
 
 type GetHomeworkSubmission struct {
-	userid     uint `uri:"userid" binding:"required"`
 	homeworkid uint `uri:"homeworkid" binding:"required"`
 }
 
 func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
+	userid, _ := c.Get("ID")
 	homework, err := models.GetHomeworkByIDWithSubmissionLists(service.homeworkid)
 	if err != nil {
 		return "该作业号不存在", nil
 	}
 	for _, value := range homework.HomeworkSubmissions {
-		if value.UserID == service.userid {
+		if value.UserID == userid.(uint) {
 			return value, nil
 		}
 	}
@@ -152,4 +152,14 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 		return nil, nil
 	}
 	return nil, errors.New("请先提交作业")
+}
+
+type GetSubmissionService struct {
+	HomeworkID uint `uri:"id" bind:"required"`
+}
+
+func (s *GetSubmissionService) Handle(c *gin.Context) (any, error) {
+	submit := models.GetHomeWorkSubmissionByID(s.HomeworkID)
+	submit.GetFiles()
+	return submit, nil
 }

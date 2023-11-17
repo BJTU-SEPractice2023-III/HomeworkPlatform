@@ -131,7 +131,6 @@ func AssignComment(HomeworkID uint) error {
 						}
 					}
 				}
-
 			} else {
 				for _, submission := range submissionLists {
 					m[submission.UserID] = nReviewers
@@ -158,7 +157,6 @@ func AssignComment(HomeworkID uint) error {
 						}
 					}
 				}
-
 			}
 		}
 	} else {

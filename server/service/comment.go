@@ -48,11 +48,13 @@ type GetCommentListsService struct {
 }
 
 func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
+	println("123\n")
 	id, _ := c.Get("ID")
 	err := models.AssignComment(service.HomeworkID)
 	if err != nil {
 		return nil, err
 	}
+
 	commentLists, res := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
 	if res != nil {
 		return nil, res
