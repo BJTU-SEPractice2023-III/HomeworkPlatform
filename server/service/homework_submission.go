@@ -6,6 +6,7 @@ import (
 	"homework_platform/internal/models"
 	"log"
 	"mime/multipart"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -148,16 +149,9 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	}
 	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
 	if homworksubmission != nil {
-		homworksubmission := models.HomeworkSubmission{
-			HomeworkID: uint(s.HomeworkID),
-			Content:    s.Content,
-			UserID:     id.(uint),
-		}
-		res := models.AddHomeworkSubmission(&homworksubmission)
-		if !res {
-			return nil, errors.New("更新失败")
-		}
-
+		homworksubmission.Content = s.Content
+		homworksubmission.UpdateSelf()
+		os.RemoveAll(fmt.Sprintf("./data/homework_submission/%d", homworksubmission.ID))
 		for _, f := range s.Files {
 			log.Println(f.Filename)
 			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
