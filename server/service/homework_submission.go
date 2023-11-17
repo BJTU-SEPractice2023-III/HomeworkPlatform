@@ -95,15 +95,6 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	return nil, errors.New("该用户未提交作业")
 }
 
-type GetHomeworkSubmissionByID struct {
-	submissionid uint `uri:"submissionid" binding:"required"`
-}
-
-func (service *GetHomeworkSubmissionByID) Handle(c *gin.Context) (any, error) {
-	homework := models.GetHomeWorkSubmissionByID(service.submissionid)
-	return homework, nil
-}
-
 type UpdateSubmission struct {
 	HomeworkID uint                    `uri:"id" bind:"required"`
 	Content    string                  `form:"content"`
