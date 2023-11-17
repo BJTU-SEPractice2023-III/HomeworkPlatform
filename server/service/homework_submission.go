@@ -94,6 +94,15 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	return nil, errors.New("该用户未提交作业")
 }
 
+type GetHomeworkSubmissionByID struct {
+	submissionid uint `uri:"submissionid" binding:"required"`
+}
+
+func (service *GetHomeworkSubmissionByID) Handle(c *gin.Context) (any, error) {
+	homework := models.GetHomeWorkSubmissionByID(service.submissionid)
+	return homework, nil
+}
+
 type UpdateSubmission struct {
 	HomeworkID uint                    `uri:"id" bind:"required"`
 	Content    string                  `form:"content"`
@@ -148,7 +157,7 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 		if !res {
 			return nil, errors.New("更新失败")
 		}
-		
+
 		for _, f := range s.Files {
 			log.Println(f.Filename)
 			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
