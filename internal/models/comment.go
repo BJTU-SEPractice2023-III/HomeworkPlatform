@@ -110,7 +110,7 @@ func AssignComment(HomeworkID uint) error {
 		//分配作业
 		rand.Seed(time.Now().UnixNano()) // 种子随机化
 		if homework.Assigned == -1 {
-			homework.Assigned = 1
+			homework.Assigned = 1 //标志位,表示是否已经被分配
 			DB.Save(&homework)
 			submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
 			if err != nil {

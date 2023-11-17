@@ -21,7 +21,6 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if c.ContentType() != "multipart/form-data" {
 		return nil, errors.New("not supported content-type")
 	}
-	log.Println("ASDSAD")
 
 	var err error
 	// 从 Uri 获取 HomeworkID
@@ -38,7 +37,6 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	}
 	log.Println("??")
 	log.Println(s)
-
 
 	id, _ := c.Get("ID")
 	time := time.Now()
@@ -94,4 +92,25 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 		}
 	}
 	return nil, errors.New("该用户未提交作业")
+}
+
+type UpdateSubmission struct {
+}
+
+func (service *UpdateSubmission) Handle(c *gin.Context) (any, error) {
+
+	return nil, errors.New("该用户未提交作业")
+}
+
+type GetSubmissionID struct {
+	homeworkid uint `uri:"id" binding:"required"`
+}
+
+func (service *GetSubmissionID) Handle(c *gin.Context) (any, error) {
+	id, _ := c.Get("ID")
+	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.homeworkid, id.(uint))
+	if submission == nil {
+		return nil, errors.New("该用户未提交作业")
+	}
+	return submission.ID, nil
 }
