@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	// "errors"
 	"homework_platform/internal/bootstrap"
 	"log"
 	"math/rand"
@@ -67,9 +67,10 @@ func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid
 	return comment, nil
 }
 
-func GetCommentListsByUserIDAndHomeworkID(userid uint, homeworkid uint) ([]Comment, error) {
+func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
 	var comment []Comment
-	res := DB.Where("homework_id = ? AND user_id = ?", homeworkid, userid).Find(&comment)
+	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
+	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -101,66 +102,87 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool
 }
 
 func AssignComment(HomeworkID uint) error {
-	//在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
+	// 在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
 	homework, err := GetHomeworkByID(HomeworkID)
 	if err != nil {
 		return err
 	}
-	if homework.EndDate.Before(time.Now()) {
-		//分配作业
-		rand.Seed(time.Now().UnixNano()) // 种子随机化
-		if homework.Assigned == -1 {
-			homework.Assigned = 1 //标志位,表示是否已经被分配
-			DB.Save(&homework)
-			submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
-			if err != nil {
-				homework.Assigned = -1
-				DB.Save(&homework)
-				return err
-			}
-			//TODO:算法部分,暂时采用每人批三份的方式
-			nReviewers := 3 // 每个作业需要三个批改人员
-			m := make(map[uint]int)
-			var userLists []uint
-			if len(submissionLists) <= nReviewers {
-				//少于3人,那么直接分配其他的人就行
-				for _, users := range submissionLists {
-					for _, submission := range submissionLists {
-						if users.ID != submission.ID {
-							CreateComment(submission.ID, users.UserID, submission.HomeworkID)
-						}
-					}
-				}
-			} else {
-				for _, submission := range submissionLists {
-					m[submission.UserID] = nReviewers
-					userLists = append(userLists, submission.UserID)
-				}
-				for _, submission := range submissionLists { //在这里获取提交用户的id
-					var used []uint
-					for i := 0; i < nReviewers; i++ {
-						for {
-							k := rand.Intn(int(len(userLists)))
-							found := false
-							for _, z := range used {
-								if int(z) == k {
-									found = true
-									break
-								}
-							}
-							if userLists[k] != submission.UserID && m[userLists[k]] > 0 && !found {
-								CreateComment(submission.ID, userLists[k], submission.HomeworkID)
-								used = append(used, uint(k))
-								m[userLists[k]]--
-								break
-							}
-						}
-					}
-				}
-			}
-		}
-	} else {
-		return errors.New("现在不是批阅时间")
+
+	if homework.Assigned == 1 || homework.EndDate.After(time.Now()) {
+		return nil
 	}
+
+	// 分配作业
+	submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
+	if err != nil {
+		log.Println("no")
+		return err
+	}
+
+	// TODO: 算法部分,暂时采用每人批三份的方式
+	submittedUsers, err := GetSubmittedUsers(HomeworkID)
+	if err != nil {
+		return err
+	}
+	log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
+	userCommentCnt := make(map[uint]int)
+
+	nReviewers := min(3, len(submittedUsers)-1)
+	log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
+
+	for _, submission := range submissionLists {
+		for cnt := 0; cnt < nReviewers; cnt++ {
+			// Find a user to comment this submission
+			targetUserId := submittedUsers[rand.Intn(len(submittedUsers))].ID
+			for targetUserId == submission.UserID || userCommentCnt[targetUserId] >= nReviewers {
+				targetUserId = submittedUsers[rand.Intn(len(submittedUsers))].ID
+			}
+			userCommentCnt[targetUserId]++
+
+			CreateComment(submission.ID, targetUserId, submission.HomeworkID)
+		}
+	}
+
+	// var userLists []uint
+	// if len(submissionLists) <= nReviewers {
+	// 	//少于3人,那么直接分配其他的人就行
+	// 	for _, users := range submissionLists {
+	// 		for _, submission := range submissionLists {
+	// 			if users.ID != submission.ID {
+	// 				CreateComment(submission.ID, users.UserID, submission.HomeworkID)
+	// 			}
+	// 		}
+	// 	}
+	// } else {
+	// 	for _, submission := range submissionLists {
+	// 		m[submission.UserID] = nReviewers
+	// 		userLists = append(userLists, submission.UserID)
+	// 	}
+	// 	for _, submission := range submissionLists { //在这里获取提交用户的id
+	// 		var used []uint
+	// 		for i := 0; i < nReviewers; i++ {
+	// 			for {
+	// 				k := rand.Intn(int(len(userLists)))
+	// 				found := false
+	// 				for _, z := range used {
+	// 					if int(z) == k {
+	// 						found = true
+	// 						break
+	// 					}
+	// 				}
+	// 				if userLists[k] != submission.UserID && m[userLists[k]] > 0 && !found {
+	// 					CreateComment(submission.ID, userLists[k], submission.HomeworkID)
+	// 					used = append(used, uint(k))
+	// 					m[userLists[k]]--
+	// 					break
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	homework.Assigned = 1 //标志位,表示是否已经被分配
+	DB.Save(&homework)
+
 	return nil
 }

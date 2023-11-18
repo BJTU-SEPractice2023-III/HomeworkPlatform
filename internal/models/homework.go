@@ -140,3 +140,20 @@ func GetHomeworkByIDWithSubmissionLists(id uint) (Homework, error) {
 	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
 	return work, nil
 }
+
+func GetSubmittedUsers(id uint) ([]User, error) {
+	homework, err := GetHomeworkByIDWithSubmissionLists(id)
+	if err != nil {
+		return nil, err
+	}
+
+	users := []User{}
+	for _, submissions := range homework.HomeworkSubmissions {
+		user, err := GetUserByID(submissions.UserID)
+		if err == nil {
+			users = append(users, user)
+		}
+	}
+
+	return users, nil
+}
