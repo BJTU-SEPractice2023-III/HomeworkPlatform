@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,24 +49,39 @@ type GetCommentListsService struct {
 }
 
 func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
-	println("123\n")
-	id, _ := c.Get("ID")
-	err := models.AssignComment(service.HomeworkID)
+	// println("123\n")
+	log.Println("[GetCommentListsService]: Trying to assign comments")
+	if err := models.AssignComment(service.HomeworkID); err != nil {
+		return nil, err
+	}
+
+	homework, err := models.GetHomeworkByID(service.HomeworkID)
+	if err != nil {
+		return nil, err
+	}
+	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
 	}
 
-	commentLists, res := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
-	if res != nil {
-		return nil, res
+	id, _ := c.Get("ID")
+	if id == course.TeacherID {
+		// TODO: commentList, err := models.GetCommentsByHomeworkId()
+		return nil, nil
+	}
+
+	commentList, err := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
+	if err != nil {
+		return nil, err
 	}
 	var homework_submission []models.HomeworkSubmission
-	for _, comment := range commentLists {
+	for _, comment := range commentList {
 		homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
 	}
 	m := make(map[string]any)
 	m["homework_submission"] = homework_submission
-	m["comment_lists"] = commentLists
+	m["comment_lists"] = commentList
+	log.Printf("%x", len(commentList))
 	return m, nil
 }
 
