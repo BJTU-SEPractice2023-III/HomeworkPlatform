@@ -58,6 +58,15 @@ func GetCommentBySubmissionID(submissionid uint) ([]Comment, error) {
 	return comments, nil
 }
 
+func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
+	var comments []Comment
+	err := DB.Where("homework_id=?", HomeworkID).Find(&comments)
+	if err.Error != nil {
+		return nil, err.Error
+	}
+	return comments, nil
+}
+
 func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (any, error) {
 	var comment Comment
 	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)

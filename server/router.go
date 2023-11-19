@@ -93,7 +93,7 @@ func InitRouter() *gin.Engine {
 					// POST   api/v1/courses        | 创建课程
 					courses.POST("", service.Handler(&service.CreateCourse{}))
 					// PUT    api/v1/courses        | 更新课程
-					courses.PUT("", service.Handler(&service.UpdateCourseDescription{}))
+					courses.PUT(":id", service.Handler(&service.UpdateCourseDescription{}))
 					// DELETE api/v1/courses        | 删除课程
 					courses.DELETE("", service.Handler(&service.DeleteCourse{}))
 
@@ -151,7 +151,6 @@ func InitRouter() *gin.Engine {
 					submit.PUT("", service.Handler(&service.UpdateSubmission{}))
 					// GET api/v1/submit/:id					|  获得指定submission_id的作业
 					submit.GET(":id", service.HandlerWithBindType(&service.GetSubmissionService{}, service.BindUri))
-
 				}
 
 				file := auth.Group("file")
