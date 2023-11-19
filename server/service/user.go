@@ -124,9 +124,10 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 	}
 	var notifications Notifications
 	//得到教的课中进行中和批阅中的作业
-	println("len of homework%d", len(courses.LearningCourses))
+	log.Printf("len of homework%d\n", len(courses.LearningCourses))
 	//得到学的课中还没完成的作业和还没批阅的作业
 	for _, course := range courses.LearningCourses {
+		//每门课的作业
 		homeworks, err := course.GetHomeworkLists()
 		if homeworks == nil {
 			continue
@@ -135,19 +136,25 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 			return nil, err
 		}
 		for j := 0; j < len(homeworks); j++ {
+			// 在批阅时段中
 			if homeworks[j].CommentEndDate.After(time.Now()) {
+				// 作业已经开始
 				if homeworks[j].BeginDate.Before(time.Now()) {
+					// 作业在提交时段内
 					if homeworks[j].EndDate.After(time.Now()) {
 						homework := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworks[j].ID, user.ID)
+						// 没交作业
 						if homework == nil {
 							notifications.LeaningHomeworkListsToFinish =
 								append(notifications.LeaningHomeworkListsToFinish, homeworks[j])
 						}
 					} else {
+						// 评论时段内,获取所有的comment
 						comments, err := models.GetCommentListsByUserIDAndHomeworkID(user.ID, homeworks[j].ID)
 						if err != nil {
 							return nil, err
 						}
+						// 如果有score==-1就代表尚未完成评论
 						for i := 0; i < len(comments); i++ {
 							if comments[i].Score == -1 {
 								notifications.LeaningHomeworkListsToComment =
@@ -159,24 +166,28 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 				}
 			}
 		}
-		for _, course := range courses.TeachingCourses {
-			homeworks, err := course.GetHomeworkLists()
-			if homeworks == nil {
-				continue
-			}
-			if err != nil {
-				return nil, err
-			}
-			for j := 0; j < len(homeworks); j++ {
-				if homeworks[j].CommentEndDate.After(time.Now()) {
-					if homeworks[j].BeginDate.Before(time.Now()) {
-						if homeworks[j].EndDate.After(time.Now()) {
-							notifications.TeachingHomeworkListsToFinish =
-								append(notifications.TeachingHomeworkListsToFinish, homeworks[j])
-						} else {
-							notifications.TeachingHomeworkListsToComment =
-								append(notifications.TeachingHomeworkListsToComment, homeworks[j])
-						}
+	}
+	for _, course := range courses.TeachingCourses {
+		// 教的课中的作业
+		homeworks, err := course.GetHomeworkLists()
+		if homeworks == nil {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		for j := 0; j < len(homeworks); j++ {
+			// comment尚未结束
+			if homeworks[j].CommentEndDate.After(time.Now()) {
+				//作业已经开始
+				if homeworks[j].BeginDate.Before(time.Now()) {
+					//在提交时段内
+					if homeworks[j].EndDate.After(time.Now()) {
+						notifications.TeachingHomeworkListsToFinish =
+							append(notifications.TeachingHomeworkListsToFinish, homeworks[j])
+					} else {
+						notifications.TeachingHomeworkListsToComment =
+							append(notifications.TeachingHomeworkListsToComment, homeworks[j])
 					}
 				}
 			}
