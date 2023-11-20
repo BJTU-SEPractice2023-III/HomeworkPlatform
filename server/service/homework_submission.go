@@ -78,12 +78,14 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 }
 
 type GetHomeworkSubmission struct {
-	homeworkid uint `uri:"homeworkid" binding:"required"`
+	HomeworkId uint `uri:"id" binding:"required"`
 }
 
 func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	userid, _ := c.Get("ID")
-	homework, err := models.GetHomeworkByIDWithSubmissionLists(service.homeworkid)
+	log.Printf("用户id为%d", userid.(uint))
+	log.Printf("homeworkid为%d", service.HomeworkId)
+	homework, err := models.GetHomeworkByIDWithSubmissionLists(service.HomeworkId)
 	if err != nil {
 		return "该作业号不存在", nil
 	}
