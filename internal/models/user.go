@@ -37,7 +37,7 @@ type User struct {
 	// Check: https://gorm.io/docs/has_many.html
 	Comments []Comment `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
-	TeacherNotices []TeacherNotice `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
+	Complaints []Complaint `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
 	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
 	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
 }

@@ -129,7 +129,7 @@ func InitRouter() *gin.Engine {
 
 				notice := auth.Group("notice")
 				{
-					notice.POST("")
+					notice.POST("", service.Handler(&service.SelectCourseService{}))
 				}
 
 				// submissions := auth.Group("submissions") // *——****8*&￥*（#&&#￥@#￥**￥*******

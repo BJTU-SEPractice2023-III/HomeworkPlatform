@@ -26,10 +26,10 @@ type HomeworkSubmission struct {
 	UserID    uint     `json:"userId"`
 	FilePaths []string `json:"file_paths" gorm:"-"`
 	// Regular fields
-	Content        string          `json:"content"`
-	Score          int             `json:"score" gorm:"default:-1"` //-1表示不是最终结果
-	Comments       []Comment       `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
-	TeacherNotices []TeacherNotice `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
+	Content        string      `json:"content"`
+	Score          int         `json:"score" gorm:"default:-1"` //-1表示不是最终结果
+	Comments       []Comment   `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
+	Complaints []Complaint `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (homeworksubmission *HomeworkSubmission) GetFiles() {
