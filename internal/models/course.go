@@ -29,6 +29,8 @@ type Course struct {
 	// Also check homework.go
 	// Check: https://gorm.io/docs/has_many.html
 	Homeworks []Homework `json:"-" gorm:"foreignKey:CourseID;constraint:OnDelete:CASCADE"`
+
+	TeacherNotices []TeacherNotice `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func (course Course) GetHomeworkLists() ([]Homework, error) {

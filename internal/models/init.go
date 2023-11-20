@@ -43,6 +43,7 @@ func InitDB() {
 	DB.AutoMigrate(&Homework{})
 	DB.AutoMigrate(&HomeworkSubmission{})
 	DB.AutoMigrate(&Comment{})
+	DB.AutoMigrate(&TeacherNotice{})
 	// 创建初始管理员账户
 	addDefaultUser()
 }

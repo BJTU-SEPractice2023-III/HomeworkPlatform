@@ -5,6 +5,7 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -45,8 +46,8 @@ func InitRouter() *gin.Engine {
 				user.POST("login", service.Handler(&service.UserLoginService{}))
 				// POST api/v1/user       | 注册用户
 				user.POST("", service.Handler(&service.UserRegisterService{}))
-				// PUT  api/v1/user       | 更新用户信息
-				user.PUT("", service.Handler(&service.UserselfUpdateService{}))
+				// PUT api/v1/users       | 更新用户信息
+				user.PUT("", service.Handler(&service.UserselfupdateService{}))
 			}
 
 			// Admin required
@@ -75,10 +76,13 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/users/:id         		| 获取指定 id 用户的信息
 					users.GET(":id", service.HandlerWithBindType(&service.GetUserService{}, service.BindUri))
+					// PUT api/v1/users/signature 			| 更新用户的签名
+					users.PUT("signature", service.Handler(&service.UpdateSignature{}))
 					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerWithBindType(&service.GetUserCoursesService{}, service.BindUri))
 					// GET api/v1/users/:id/notifications	| 获得指定 id 用户的提示信息
 					users.GET(":id/notifications", service.HandlerWithBindType(&service.GetUserNotifications{}, service.BindUri))
+
 				}
 
 				// api/v1/courses
@@ -121,6 +125,11 @@ func InitRouter() *gin.Engine {
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
 					// GET 	  api/v1/homeworks/byhomeworkid/:homeworkid 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
+				}
+
+				notice := auth.Group("notice")
+				{
+					notice.POST("")
 				}
 
 				// submissions := auth.Group("submissions") // *——****8*&￥*（#&&#￥@#￥**￥*******
@@ -170,7 +179,7 @@ func InitRouter() *gin.Engine {
 		{
 			user.POST("login", service.Handler(&service.UserLoginService{}))       // POST api/user/login
 			user.POST("register", service.Handler(&service.UserRegisterService{})) // POST api/user/register
-			user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
+			// user.POST("update", service.Handler(&service.UserselfUpdateService{})) // POST api/user/update
 		}
 
 		file := api.Group("file")

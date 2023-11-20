@@ -45,14 +45,14 @@ func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 }
 
 // 自己修改密码
-type UserselfUpdateService struct {
-	Username    string `form:"username"`    // 用户名
-	OldPassword string `form:"oldpassword"` // 旧码
-	NewPassword string `form:"newpassword"`
+type UserselfupdateService struct {
+	UserName    string `form:"userName"`
+	OldPassword string `form:"oldPassword"` // 旧码
+	NewPassword string `form:"newPassword"` //新密码
 }
 
-func (service *UserselfUpdateService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByUsername(service.Username)
+func (service *UserselfupdateService) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByUsername(service.UserName)
 	if err != nil {
 		return nil, errors.New("该用户不存在")
 	}
@@ -99,6 +99,22 @@ func (service *GetUserCoursesService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	return user.GetCourses()
+}
+
+type UpdateSignature struct {
+	Signature string `form:"signature"`
+}
+
+func (Service *UpdateSignature) Handle(c *gin.Context) (any, error) {
+	id, _ := c.Get("ID")
+	user, err := models.GetUserByID(id.(uint))
+	if err != nil {
+		return nil, err
+	}
+	if err := user.ChangeSignature(Service.Signature); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 type GetUserNotifications struct {

@@ -11,11 +11,11 @@ import (
 
 type User struct {
 	// gorm.Model
-	ID       uint   `json:"id" gorm:"primaryKey"`
-	Username string `json:"username" gorm:"unique"` // 用户名
-	Password string `json:"-"`                      // 密码
-	IsAdmin  bool   `json:"isAdmin"`                // 是否是管理员
-
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	Username  string `json:"username" gorm:"unique"` // 用户名
+	Password  string `json:"-"`                      // 密码
+	IsAdmin   bool   `json:"isAdmin"`                // 是否是管理员
+	Signature string `json:"signature"`              // 用户个性签名
 	////// Associations //////
 	// A user has many courses
 	// Also check course.go
@@ -37,6 +37,7 @@ type User struct {
 	// Check: https://gorm.io/docs/has_many.html
 	Comments []Comment `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
+	TeacherNotices []TeacherNotice `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
 	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
 	DegreeOfConfidence float64 `json:"-" gorm:"default:0.5"`
 }
@@ -65,6 +66,12 @@ func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
 		user.DegreeOfConfidence = 300
 	}
 	result := DB.Model(&user).Updates(User{DegreeOfConfidence: user.DegreeOfConfidence})
+	return result.Error
+}
+
+func (user *User) ChangeSignature(signature string) error {
+	log.Printf("正在修改签名<User>(Username = %s, Signature = %s)...", user.Username, signature)
+	result := DB.Model(&user).Updates(User{Signature: signature})
 	return result.Error
 }
 
