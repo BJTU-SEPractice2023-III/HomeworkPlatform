@@ -4,9 +4,7 @@ import (
 	"homework_platform/internal/bootstrap"
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
-
 	"log"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -121,9 +119,15 @@ func InitRouter() *gin.Engine {
 					homeworks.POST(":id/submits", service.HandlerNoBind(&service.SubmitHomework{}))
 					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
-					// // GET 	  api/v1/homeworks/:homeworkid 	|	根据作业id和用户id获取作业信息
-					// homeworks.GET(":homeworkid", service.HandlerWithBindType(&service.GetHomeworkSubmission{}, service.BindUri))
+					// GET 	  api/v1/homeworks/byhomeworkid/:homeworkid 	|	根据作业id和用户id获取作业信息
+					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
 				}
+
+				// submissions := auth.Group("submissions") // *——****8*&￥*（#&&#￥@#￥**￥*******
+				// {
+				// 	// GET 	  api/v1/homeworks/byhomeworkid/:homeworkid 	|	根据作业id和用户id获取作业信息
+				// 	submissios.GET(":id/", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
+				// }
 
 				comment := auth.Group("comment")
 				{
