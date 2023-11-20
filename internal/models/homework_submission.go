@@ -43,6 +43,15 @@ func (homeworksubmission *HomeworkSubmission) GetFiles() {
 	}
 }
 
+func GetHomeWorkSubmissionListsByHomeworkID(homeworkID uint) []HomeworkSubmission {
+	var homework_submission []HomeworkSubmission
+	res := DB.Where("homework_id = ?", homeworkID).Find(&homework_submission)
+	if res.Error != nil {
+		return nil
+	}
+	return homework_submission
+}
+
 // TODO:后续测试,计算成绩
 func (submission *HomeworkSubmission) CalculateGrade() {
 	//查询到所有的comment

@@ -195,3 +195,13 @@ func AssignComment(HomeworkID uint) error {
 
 	return nil
 }
+
+func DeleteCommentsByHomeworkID(homeworkID uint) error {
+	result := DB.Where("homework_id = ?", homeworkID).Delete(&Comment{})
+	if result.Error != nil {
+		// 处理删除错误
+		log.Fatal(result.Error)
+		return result.Error
+	}
+	return nil
+}

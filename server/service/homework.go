@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/models"
-	"os"
 	"log"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -157,6 +157,28 @@ func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 	id, _ := c.Get("ID")
 	if course.TeacherID != id {
 		return nil, errors.New("不能修改不是您的课程的作业")
+	}
+
+	// TODO: 已经被分配了 需要特殊处理
+	if homework.Assigned == 1 {
+		//如果提后了提交时间,那么就要重新设置
+		if s.EndDate.After(time.Now()) {
+			homework.Assigned = -1
+			//删除现有评论并且把分数置为0
+			err := models.DeleteCommentsByHomeworkID(homework.ID)
+			if err != nil {
+				return nil, err
+			}
+			homework_submission := models.GetHomeWorkSubmissionListsByHomeworkID(homework.ID)
+			for _, submission := range homework_submission {
+				submission.Score = -1
+				err := submission.UpdateSelf()
+				if err != nil {
+					return nil, err
+				}
+			}
+			models.DB.Save(&homework)
+		}
 	}
 
 	homework.UpdateInformation(s.Name, s.Description, s.BeginDate, s.EndDate, s.CommentEndDate)
