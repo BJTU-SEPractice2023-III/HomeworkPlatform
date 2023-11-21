@@ -129,7 +129,16 @@ func InitRouter() *gin.Engine {
 
 				notice := auth.Group("notice")
 				{
-					notice.POST("", service.Handler(&service.SelectCourseService{}))
+					// POST 	api/v1/notice/:id	| 提交对homeworkId的申诉
+					notice.POST(":id", service.HandlerNoBind(&service.CreateComplaint{}))
+					// DELETE 	api/v1/notice/:id	| 撤销指定Id的申诉
+					notice.DELETE(":id", service.HandlerBindUri(&service.DeleteComplaint{}))
+					// PUT 		api/v1/notice/:id	| 修改指定id的申诉
+					notice.PUT(":id", service.HandlerNoBind(&service.UpdateComplaint{}))
+					// POST 	api/v1/notice/:id/solve | 老师确认申诉
+					notice.POST(":id/solve", service.HandlerBindUri(&service.SolveComplaint{}))
+					// GET		api/v1/notice/:id		| 得到某次作业提交的申诉,学生得到自己的申诉,老师得到全部的申诉
+					notice.GET(":id", service.HandlerBindUri(&service.GetComplaint{}))
 				}
 
 				// submissions := auth.Group("submissions") // *——****8*&￥*（#&&#￥@#￥**￥*******

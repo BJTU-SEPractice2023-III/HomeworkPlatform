@@ -124,8 +124,12 @@ type GetUserNotifications struct {
 type Notifications struct {
 	TeachingHomeworkListsToFinish  []models.Homework `json:"homeworkInProgress"`
 	TeachingHomeworkListsToComment []models.Homework `json:"commentInProgress"`
-	LeaningHomeworkListsToFinish   []models.Homework `json:"homeworksToBeCompleted"`
-	LeaningHomeworkListsToComment  []models.Homework `json:"commentToBeCompleted"`
+
+	ComplaintToBeSolved []models.Complaint `json:"complaintToBeSolved"`
+	ComplaintInProgress []models.Complaint `json:"complaintInProgress"`
+
+	LeaningHomeworkListsToFinish  []models.Homework `json:"homeworksToBeCompleted"`
+	LeaningHomeworkListsToComment []models.Homework `json:"commentToBeCompleted"`
 }
 
 // 返回应该尚未提交的作业,待批阅的作业和每门课最新发布的作业
@@ -183,6 +187,7 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 			}
 		}
 	}
+	//得到老师的课正在进行的作业
 	for _, course := range courses.TeachingCourses {
 		// 教的课中的作业
 		homeworks, err := course.GetHomeworkLists()
@@ -208,6 +213,16 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 				}
 			}
 		}
+	}
+	//得到老师待审核的complaint
+	notifications.ComplaintToBeSolved, err = models.GetComplaintByTeacherID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+	//得到学生还未被处理的complaint
+	notifications.ComplaintInProgress, err = models.GetComplaintByUserID(user.ID)
+	if err != nil {
+		return nil, err
 	}
 	return notifications, nil
 }

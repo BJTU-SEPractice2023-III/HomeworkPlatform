@@ -21,6 +21,7 @@ type Complaint struct {
 func CreateTeacherComplaint(submissionId uint, homeworkId uint, CourseID uint, reason string) error {
 	log.Printf("正在创建<Complaint>(SubmissionId = %d)...", submissionId)
 	homeworkSubmission := GetHomeWorkSubmissionByID(submissionId)
+
 	course, err := GetCourseByID(CourseID)
 	if err != nil {
 		return err
@@ -72,7 +73,12 @@ func GetComplaintById(Id uint) (Complaint, error) {
 	return complaint, nil
 }
 
-func GetComplaintBySubmission(submissionId uint) (Complaint, error) {
+func (complaint *Complaint) Save() error {
+	res := DB.Save(&complaint)
+	return res.Error
+}
+
+func GetComplaintBySubmissionID(submissionId uint) (Complaint, error) {
 	log.Printf("正在查找<Complaint>(submissionId = %d)...", submissionId)
 	var complaint Complaint
 
@@ -84,11 +90,23 @@ func GetComplaintBySubmission(submissionId uint) (Complaint, error) {
 	return complaint, nil
 }
 
+func GetComplaintByHomeworkID(homeworkId uint) ([]Complaint, error) {
+	log.Printf("正在查找<Complaint>(homeworkId = %d)...", homeworkId)
+	var complaints []Complaint
+
+	res := DB.Where("homework_id=?", homeworkId).Find(&complaints)
+	if res.Error != nil {
+		log.Printf("查找失败: %s", res.Error)
+		return complaints, res.Error
+	}
+	return complaints, nil
+}
+
 func GetComplaintByUserID(UserID uint) ([]Complaint, error) {
 	log.Printf("正在查找<Complaint>(userId = %d)...", UserID)
 	var complaint []Complaint
 
-	res := DB.Where("user_id=?", UserID).Find(&complaint)
+	res := DB.Where("user_id=? and solved=0", UserID).Find(&complaint)
 	if res.Error != nil {
 		log.Printf("查找失败: %s", res.Error)
 		return complaint, res.Error
@@ -100,7 +118,7 @@ func GetComplaintByTeacherID(teacherId uint) ([]Complaint, error) {
 	log.Printf("正在查找<Complaint>(TeacherID = %d)...", teacherId)
 	var complaint []Complaint
 
-	res := DB.Where("teacher_id=?", teacherId).Find(&complaint)
+	res := DB.Where("teacher_id=? and solved = 0", teacherId).Find(&complaint)
 	if res.Error != nil {
 		log.Printf("查找失败: %s", res.Error)
 		return complaint, res.Error
