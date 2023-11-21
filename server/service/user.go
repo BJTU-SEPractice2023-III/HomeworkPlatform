@@ -40,7 +40,7 @@ func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 	res["token"] = jwtToken //之后解码token验证和user是否一致
 	res["user"] = user
 	// res["user_name"] = user.Username
-
+	log.Printf("登陆成功")
 	return res, nil
 }
 
@@ -106,7 +106,10 @@ type UpdateSignature struct {
 }
 
 func (Service *UpdateSignature) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
+	id, exist := c.Get("ID")
+	if !exist {
+		return nil, errors.New("不存在id")
+	}
 	user, err := models.GetUserByID(id.(uint))
 	if err != nil {
 		return nil, err
