@@ -8,6 +8,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/gorm/logger"
 
 	// "gocloud.dev/mysql"
 	"gorm.io/gorm"
@@ -29,6 +30,11 @@ func InitDB() {
 		}
 	} else if bootstrap.Mysql {
 		db, err = gorm.Open(mysql.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+	} else if bootstrap.Test {
+		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
+		log.Println("正在使用memory sqlite数据库")
 	} else {
 		db, err = gorm.Open(postgres.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
 	}

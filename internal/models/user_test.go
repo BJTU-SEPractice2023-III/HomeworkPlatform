@@ -57,6 +57,7 @@ func TestMain(m *testing.M) {
 	DB.AutoMigrate(&Homework{})
 	DB.AutoMigrate(&HomeworkSubmission{})
 	DB.AutoMigrate(&Comment{})
+	DB.AutoMigrate(&Complaint{})
 	CreateData()
 	// 调用包下面各个 Test 函数
 	os.Exit(m.Run())
