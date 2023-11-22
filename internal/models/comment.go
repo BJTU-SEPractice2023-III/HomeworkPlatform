@@ -45,7 +45,7 @@ func GetCommentNum(homeworksubmission_id uint) uint {
 }
 
 func (comment Comment) UpdateSelf(comm string, score int) error {
-	res := DB.Model(&comment).Updates(Comment{Comment: comm, Score: score})
+	res := DB.Model(&comment).Updates((map[string]interface{}{"comment": comm, "score": score}))
 	return res.Error
 }
 
