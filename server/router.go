@@ -122,8 +122,12 @@ func InitRouter() *gin.Engine {
 					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
 					homeworks.POST(":id/submits", service.HandlerNoBind(&service.SubmitHomework{}))
 					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
+					//TODO:待测试
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
-					// GET 	  api/v1/homeworks/byhomeworkid/:homeworkid 	|	根据作业id和用户id获取作业信息
+					// GET	  api/v1/homeworks/:id/mycomments 	| 得到id作业号的用户的被评论信息
+					//TODO:待测试
+					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
+					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
 				}
 
@@ -151,6 +155,7 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/comment/:id 		| 获得作业信息
 					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
+					// GET api/v1/comment/:id		|
 					// POST api/v1/comment/:id 		| 评阅请求提交,提交和修改一体化接口()
 					comment.POST(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 				}

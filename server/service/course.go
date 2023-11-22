@@ -330,3 +330,4 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	}
 	return homework.(models.Homework).ID, nil
 }
+

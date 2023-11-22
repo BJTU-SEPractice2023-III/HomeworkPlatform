@@ -35,6 +35,7 @@ type Course struct {
 
 func (course Course) GetHomeworkLists() ([]Homework, error) {
 	res := DB.Preload("Homeworks").First(&course, course.ID)
+
 	if res.Error != nil {
 		return nil, res.Error
 	}
@@ -54,9 +55,15 @@ func (course Course) GetStudents() ([]*User, error) {
 }
 
 func (course Course) FindStudents(id uint) bool {
-	var student User
-	err := DB.Model(&course).Association("Students").Find(&student, "id = ?", id)
-	return err == nil
+	var students []*User
+	err := DB.Model(&course).Association("Students").Find(&students, "id = ?", id)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	log.Println(students)
+	return len(students) > 0
 }
 
 func SelectCourse(userId uint, courseId uint) error {

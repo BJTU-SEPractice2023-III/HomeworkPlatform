@@ -55,8 +55,9 @@ func CreateData() {
 	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 
-	models.SelectCourse(5, 1)
+	models.SelectCourse(6, 1)
 	models.SelectCourse(4, 2)
 	models.SelectCourse(4, 3)
 	models.SelectCourse(1, 3)
@@ -64,6 +65,17 @@ func CreateData() {
 	models.SelectCourse(3, 1)
 	models.SelectCourse(3, 2)
 	models.SelectCourse(3, 3)
+
+	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+		UserID:     1,
+		HomeworkID: 3,
+		Content:    "kksk",
+	})
+	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+		UserID:     1,
+		HomeworkID: 4,
+		Content:    "kksk",
+	})
 }
 
 func TestMain(m *testing.M) {

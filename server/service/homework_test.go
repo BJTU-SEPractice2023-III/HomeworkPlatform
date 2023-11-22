@@ -127,7 +127,7 @@ func TestDeleteHomework(t *testing.T) {
 		HomeworkId uint
 		ExpextCode int
 	}{
-		{"成功查询", 1, 200},
+		{"成功删除", 2, 200},
 		{"非自己的作业", 3, 400},
 		{"作业不存在", 999, 400},
 	}
@@ -220,6 +220,39 @@ func TestSubmitHomework(t *testing.T) {
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("提交作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)
+			}
+		})
+	}
+}
+
+func TestGetHomeworkSubmission(t *testing.T) {
+	var cases = []struct {
+		Case       string
+		HomeworkId uint
+		ExpextCode int
+	}{
+		{"成功获取", 3, 200},
+		{"作业不存在", 1, 400},
+	}
+
+	//登录拿到json
+	data := map[string]interface{}{"username": "xyh", "password": "123"}
+	jsonData, _ := json.Marshal(data)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	Router.ServeHTTP(w, req)
+	Authorization := GetAuthorziation(w)
+	log.Printf("Authorization为:%s", Authorization)
+	for _, testcase := range cases {
+		t.Run(testcase.Case, func(t *testing.T) {
+			log.Printf("正在测试")
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkId))+"/submission", nil)
+			req.Header.Set("Authorization", Authorization)
+			Router.ServeHTTP(w, req)
+			if w.Code != testcase.ExpextCode {
+				t.Fatalf("获取作业:%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
 			}
 		})
 	}

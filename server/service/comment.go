@@ -87,11 +87,20 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	return m, nil
 }
 
-// type GetCommentHomeworkSubmissionService struct {
-// 	HomeworkSubmissionID uint `uri:"id" binding:"required"`
-// }
+type GetMyCommentService struct {
+	HomeworkID uint `uri:"id" binding:"required"`
+}
 
-// func (service *GetCommentHomeworkSubmissionService) Handle(c *gin.Context) (any, error) {
-// 	homework_submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
-// 	return homework_submission, nil
-// }
+func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
+	_, err := models.GetHomeworkByID(service.HomeworkID)
+	if err != nil {
+		return nil, err
+	}
+	id, _ := c.Get("ID")
+	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
+	comments, err := models.GetCommentBySubmissionID(submission.ID)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
