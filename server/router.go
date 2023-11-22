@@ -95,18 +95,18 @@ func InitRouter() *gin.Engine {
 					// POST   api/v1/courses        | 创建课程
 					courses.POST("", service.Handler(&service.CreateCourse{}))
 					// PUT    api/v1/courses        | 更新课程
-					courses.PUT(":id", service.Handler(&service.UpdateCourseDescription{}))
-					// DELETE api/v1/courses        | 删除课程
-					courses.DELETE("", service.Handler(&service.DeleteCourse{}))
+					courses.PUT(":id", service.HandlerNoBind(&service.UpdateCourseDescription{}))
+					// DELETE api/v1/courses/:id        | 删除课程
+					courses.DELETE(":id", service.HandlerBindUri(&service.DeleteCourse{}))
 
 					// GET    api/v1/courses/:id/students | 获取指定 id 课程的所有学生信息
 					courses.GET(":id/students", service.HandlerWithBindType(&service.GetCourseStudents{}, service.BindUri))
 					// POST   api/v1/courses/:id/students | 为指定 id 课程添加学生（请求提交者）
-					courses.POST(":id/students", service.Handler(&service.AddCourseStudentService{}))
+					courses.POST(":id/students", service.HandlerBindUri(&service.AddCourseStudentService{}))
 
 					// GET    api/v1/courses/:id/homeworks | 获取指定 id 课程的所有作业信息
 					courses.GET(":id/homeworks", service.HandlerWithBindType(&service.GetCourseHomeworks{}, service.BindUri))
-					// POST   api/v1/courses/:id/students | 为指定 id 课程添加作业
+					// POST   api/v1/courses/:id/homeworks | 为指定 id 课程添加作业
 					courses.POST(":id/homeworks", service.HandlerNoBind(&service.CreateCourseHomework{}))
 				}
 

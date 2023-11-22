@@ -25,16 +25,30 @@ func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
 	if service.BeginDate.After(service.EndDate) {
 		return nil, errors.New("开始时间晚于结束时间")
 	}
+	if service.Name == "" {
+		return nil, errors.New("课程名不能为空")
+	}
 	id, err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
 	return id, err
 }
 
 type UpdateCourseDescription struct {
-	CourseID    uint   `form:"courseid"`
+	CourseID    uint   `uri:"id" binding:"required"`
 	Description string `form:"description"`
 }
 
 func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
+	var err error
+	// 从 Uri 获取 CourseID
+	err = c.ShouldBindUri(service)
+	if err != nil {
+		return nil, err
+	}
+	// 从 Form 获取其他数据
+	err = c.ShouldBind(service)
+	if err != nil {
+		return nil, err
+	}
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
@@ -51,7 +65,7 @@ func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
 }
 
 type DeleteCourse struct {
-	CourseID uint `form:"courseid"`
+	CourseID uint `uri:"id" binding:"required"`
 }
 
 func (service *DeleteCourse) Handle(c *gin.Context) (any, error) {
@@ -273,8 +287,18 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(s)
-
+	log.Print(s)
+	if s.Name == "" {
+		return nil, errors.New("名称不能为空")
+	}
+	if len(s.Files) == 0 && s.Description == "" {
+		log.Printf("作业没有内容")
+		return nil, errors.New("内容不能为空")
+	}
+	if s.BeginDate.After(s.EndDate) || s.EndDate.After(s.CommentEndDate) {
+		log.Printf("时间混乱")
+		return nil, errors.New("时间顺序错误")
+	}
 	// 获取课程
 	course, err := models.GetCourseByID(s.CourseID)
 	if err != nil {
@@ -285,7 +309,6 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	if course.TeacherID != id {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
-
 	// 创建课程
 	homework, err2 := models.CreateHomework(
 		s.CourseID,

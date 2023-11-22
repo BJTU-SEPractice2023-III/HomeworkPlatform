@@ -8,6 +8,7 @@ import (
 	"homework_platform/server"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -41,7 +42,16 @@ func CreateData() {
 	models.CreateUser("xyh", "123")
 	models.CreateUser("xeh", "123")
 	models.CreateUser("xsh", "123")
+	models.CreateUser("tjw", "123")
 
+	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
+	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
+	models.CreateCourse("c#", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
+	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
+
+	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	models.CreateHomework(1, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 }
 
 func TestMain(m *testing.M) {
@@ -62,7 +72,7 @@ func TestMain(m *testing.M) {
 	models.DB.AutoMigrate(&models.HomeworkSubmission{})
 	models.DB.AutoMigrate(&models.Comment{})
 	models.DB.AutoMigrate(&models.Complaint{})
-	models.DB.Create(&models.User{})
+
 	CreateData()
 	Router = server.InitRouter()
 	// api.Run(":8888")
