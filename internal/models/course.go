@@ -59,6 +59,24 @@ func (course Course) FindStudents(id uint) bool {
 	return err == nil
 }
 
+func SelectCourse(userId uint, courseId uint) error {
+	course, err := GetCourseByID(courseId)
+	if err != nil {
+		return err
+	}
+	user, err := GetUserByID(userId)
+	if err != nil {
+		return err
+	}
+	res := course.GetStudentsByID(userId)
+	if res {
+		return errors.New("无法重复选课")
+	}
+	user.LearningCourses = append(user.LearningCourses, &course)
+	result := DB.Save(&user)
+	return result.Error
+}
+
 func (course Course) SelectCourse(id uint) error {
 	res := course.GetStudentsByID(id)
 	if res {

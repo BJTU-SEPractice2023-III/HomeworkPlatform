@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
 
@@ -150,14 +151,13 @@ func TestUpdateSignature(t *testing.T) {
 }
 
 func TestGetUserCoursesService(t *testing.T) {
-	//TODO:尚未完成,先去添加课程
 	var cases = []struct {
 		Case       string
-		Signature  string
+		UserId     uint
 		ExpextCode int
 	}{
-		{"修改成功", "1", 200},
-		{"错误失败", "", 200},
+		{"有课程", 1, 200},
+		{"无课程", 5, 200},
 	}
 
 	//登录拿到json
@@ -172,30 +172,29 @@ func TestGetUserCoursesService(t *testing.T) {
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			data := map[string]interface{}{"signature": testcase.Signature}
-			jsonData, _ := json.Marshal(data)
+			// data := map[string]interface{}{"signature": testcase.Signature}
+			// jsonData, _ := json.Marshal(data)
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("PUT", "/api/v1/users/signature", bytes.NewBuffer(jsonData))
-			req.Header.Set("Content-Type", "application/json")
+			req, _ := http.NewRequest("GET", "/api/v1/users/"+strconv.Itoa(int(testcase.UserId))+"/courses", nil)
+			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
-				t.Fatalf("修改用户签名为%s,需要的code为%d,但是实际code为%d", testcase.Signature, testcase.ExpextCode, w.Code)
+				t.Fatalf("获得用户课程信息为%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
 			}
 		})
 	}
 }
 
 func TestGetUserNotifications(t *testing.T) {
-	//TODO:尚未完成,先去添加课程
 	var cases = []struct {
 		Case       string
-		Signature  string
+		UserId     uint
 		ExpextCode int
 	}{
-		{"修改成功", "1", 200},
-		{"错误失败", "", 200},
+		{"有通知", 1, 200},
+		{"无通知", 5, 200},
 	}
 
 	//登录拿到json
@@ -210,16 +209,16 @@ func TestGetUserNotifications(t *testing.T) {
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			data := map[string]interface{}{"signature": testcase.Signature}
-			jsonData, _ := json.Marshal(data)
+			// data := map[string]interface{}{"signature": testcase.Signature}
+			// jsonData, _ := json.Marshal(data)
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("PUT", "/api/v1/users/signature", bytes.NewBuffer(jsonData))
-			req.Header.Set("Content-Type", "application/json")
+			req, _ := http.NewRequest("GET", "/api/v1/users/"+strconv.Itoa(int(testcase.UserId))+"/notifications", bytes.NewBuffer(jsonData))
+			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
-				t.Fatalf("修改用户签名为%s,需要的code为%d,但是实际code为%d", testcase.Signature, testcase.ExpextCode, w.Code)
+				t.Fatalf("测试用例为%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
 			}
 		})
 	}
