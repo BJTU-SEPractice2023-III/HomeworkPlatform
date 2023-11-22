@@ -176,11 +176,11 @@ func InitRouter() *gin.Engine {
 				submit := auth.Group("submit")
 				{
 					// POST api/v1/submit 						|	提交作业
-					// submit.POST("", service.Handler(&service.SubmitHomework{}))
-					// TODO: PUT api/v1/submit 					|	修改作业提交信息
-					submit.PUT("", service.Handler(&service.UpdateSubmission{}))
+					submit.POST("", service.Handler(&service.SubmitHomework{}))
+					// TODO: PUT api/v1/submit/:id					|	修改作业提交信息
+					submit.PUT(":id", service.Handler(&service.UpdateSubmission{}))
 					// GET api/v1/submit/:id					|  获得指定submission_id的作业
-					// submit.GET(":id", service.HandlerWithBindType(&service.GetSubmissionService{}, service.BindUri))
+					submit.GET(":id", service.HandlerWithBindType(&service.GetSubmissionService{}, service.BindUri))
 				}
 
 				file := auth.Group("file")

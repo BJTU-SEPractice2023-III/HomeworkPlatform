@@ -111,14 +111,11 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("!!")
-	log.Println(s)
 	// 从 Form 获取其他数据
 	err = c.ShouldBind(s)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("??")
 	log.Println(s)
 
 	id, _ := c.Get("ID")
@@ -153,12 +150,12 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	return nil, errors.New("请先提交作业")
 }
 
-// type GetSubmissionService struct {
-// 	HomeworkID uint `uri:"id" bind:"required"`
-// }
+type GetSubmissionService struct {
+	HomeworkID uint `uri:"id" bind:"required"`
+}
 
-// func (s *GetSubmissionService) Handle(c *gin.Context) (any, error) {
-// 	submit := models.GetHomeWorkSubmissionByID(s.HomeworkID)
-// 	submit.GetFiles()
-// 	return submit, nil
-// }
+func (s *GetSubmissionService) Handle(c *gin.Context) (any, error) {
+	submit := models.GetHomeWorkSubmissionByID(s.HomeworkID)
+	submit.GetFiles()
+	return submit, nil
+}
