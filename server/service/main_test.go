@@ -44,6 +44,8 @@ func CreateData() {
 	models.CreateUser("xsh", "123")
 	models.CreateUser("tjw", "123")
 	models.CreateUser("xb", "123")
+	models.CreateUser("xbb", "123")
+	models.CreateUser("xbbb", "123")
 
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
@@ -52,8 +54,9 @@ func CreateData() {
 
 	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	models.CreateHomework(1, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 
+	models.SelectCourse(5, 1)
 	models.SelectCourse(4, 2)
 	models.SelectCourse(4, 3)
 	models.SelectCourse(1, 3)

@@ -144,7 +144,17 @@ func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	log.Println(s)
-
+	if s.Name == "" {
+		return nil, errors.New("名称不能为空")
+	}
+	if len(s.Files) == 0 && s.Description == "" {
+		log.Printf("作业没有内容")
+		return nil, errors.New("内容不能为空")
+	}
+	if s.BeginDate.After(s.EndDate) || s.EndDate.After(s.CommentEndDate) {
+		log.Printf("时间混乱")
+		return nil, errors.New("时间顺序错误")
+	}
 	homework, err := models.GetHomeworkByID(s.HomeworkID)
 	if err != nil {
 		return nil, err

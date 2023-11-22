@@ -52,6 +52,7 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("正在检查该用户有没有选课%d", id.(uint))
 	if !course.FindStudents(id.(uint)) {
 		return nil, errors.New("请先选择这门课")
 	}
