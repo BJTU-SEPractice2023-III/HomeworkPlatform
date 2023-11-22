@@ -223,3 +223,4 @@ func TestGetUserNotifications(t *testing.T) {
 		})
 	}
 }
+
