@@ -40,6 +40,7 @@ func GetAuthorziation(w *httptest.ResponseRecorder) string {
 
 func CreateData() {
 	models.CreateUser("xyh", "123")
+	models.UpgradeToAdmin(1)
 	models.CreateUser("xeh", "123")
 	models.CreateUser("xsh", "123")
 	models.CreateUser("tjw", "123")
@@ -47,6 +48,7 @@ func CreateData() {
 	models.CreateUser("xbb", "123")
 	models.CreateUser("xbbb", "123")
 	models.CreateUser("xbbbb", "123")
+	models.CreateUser("deleteUser", "123")
 
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)

@@ -60,8 +60,8 @@ func InitRouter() *gin.Engine {
 				{
 					// GET    api/v1/admin/users     | 获取所有用户列表
 					users.GET("", service.Handler(&service.GetUsersService{}))
-					// POST   api/v1/admin/users     | 创建用户
-					users.POST("", service.Handler(&service.UserUpdateService{}))
+					// PUT   api/v1/admin/users     | 修改密码
+					users.PUT("", service.Handler(&service.UserUpdateService{}))
 					// DELETE api/v1/admin/users/:id | 删除用户
 					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
 				}

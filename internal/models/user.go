@@ -69,6 +69,16 @@ func (user *User) UpdateDegree(averageGrade int, myGrade int) error {
 	return result.Error
 }
 
+func UpgradeToAdmin(userId uint) error {
+	user, err := GetUserByID(userId)
+	if err != nil {
+		return err
+	}
+	user.IsAdmin = true
+	err = DB.Save(&user).Error
+	return err
+}
+
 func (user *User) ChangeSignature(signature string) error {
 	log.Printf("正在修改签名<User>(Username = %s, Signature = %s)...", user.Username, signature)
 	result := DB.Model(&user).Updates(User{Signature: signature})
