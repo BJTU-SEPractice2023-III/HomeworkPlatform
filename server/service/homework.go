@@ -31,6 +31,28 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) {
 			homework.FilePaths = append(homework.FilePaths, filePath)
 		}
 	}
+
+	course, err := models.GetCourseByID(homework.CourseID)
+	if err != nil {
+		return nil, err
+	}
+
+	id := c.GetUint("ID")
+	if id != course.TeacherID {
+		studentHomework := StudentHomework{
+			Homework:  homework,
+			Submitted: false,
+			Score:     -1,
+		}
+
+		homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
+		if homeworkSubmission != nil {
+			studentHomework.Submitted = true
+			studentHomework.Score = homeworkSubmission.Score
+		}
+
+		return studentHomework, nil
+	}
 	return homework, nil
 }
 
