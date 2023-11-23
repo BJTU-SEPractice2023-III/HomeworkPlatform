@@ -203,52 +203,52 @@ func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 	return nil, nil
 }
 
-type SubmitListsService struct {
-	HomeworkID uint `uri:"id" binding:"required"`
-}
+// type SubmitListsService struct {
+// 	HomeworkID uint `uri:"id" binding:"required"`
+// }
 
-func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
-	query := c.Request.URL.Query()
-	category := query.Get("all")
-	if category == "true" {
-		homework, err2 := models.GetHomeworkByIDWithSubmissionLists(uint(service.HomeworkID))
-		if err2 != nil {
-			return nil, errors.New("没有找到该作业")
-		}
-		CourseID := homework.CourseID
-		course, err := models.GetCourseByID(CourseID)
-		if err != nil {
-			return nil, err
-		}
-		id, _ := c.Get("ID")
-		if course.TeacherID != id {
-			return nil, errors.New("不能查看不是您的课程的作业")
-		}
-		for i := 0; i < len(homework.HomeworkSubmissions); i++ {
-			root := fmt.Sprintf("./data/homeworkassign/%d/", homework.HomeworkSubmissions[i].ID)
-			files, err := os.ReadDir(root)
-			if err == nil {
-				for _, file := range files {
-					if file.IsDir() {
-						continue
-					}
-					homework.HomeworkSubmissions[i].FilePaths = append(homework.HomeworkSubmissions[i].FilePaths, filepath.Join(root, file.Name()))
-				}
-			}
-		}
-		return homework.HomeworkSubmissions, nil
-	} else {
-		id, _ := c.Get("ID")
-		id = id.(uint)
-		homework, err := models.GetHomeworkByIDWithSubmissionLists(service.HomeworkID)
-		if err != nil {
-			return "该作业号不存在", nil
-		}
-		for _, value := range homework.HomeworkSubmissions {
-			if value.UserID == id {
-				return value, nil
-			}
-		}
-		return nil, errors.New("该用户未提交作业")
-	}
-}
+// func (service *SubmitListsService) Handle(c *gin.Context) (any, error) {
+// 	query := c.Request.URL.Query()
+// 	category := query.Get("all")
+// 	if category == "true" {
+// 		homework, err2 := models.GetHomeworkByIDWithSubmissionLists(uint(service.HomeworkID))
+// 		if err2 != nil {
+// 			return nil, errors.New("没有找到该作业")
+// 		}
+// 		CourseID := homework.CourseID
+// 		course, err := models.GetCourseByID(CourseID)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		id, _ := c.Get("ID")
+// 		if course.TeacherID != id {
+// 			return nil, errors.New("不能查看不是您的课程的作业")
+// 		}
+// 		for i := 0; i < len(homework.HomeworkSubmissions); i++ {
+// 			root := fmt.Sprintf("./data/homeworkassign/%d/", homework.HomeworkSubmissions[i].ID)
+// 			files, err := os.ReadDir(root)
+// 			if err == nil {
+// 				for _, file := range files {
+// 					if file.IsDir() {
+// 						continue
+// 					}
+// 					homework.HomeworkSubmissions[i].FilePaths = append(homework.HomeworkSubmissions[i].FilePaths, filepath.Join(root, file.Name()))
+// 				}
+// 			}
+// 		}
+// 		return homework.HomeworkSubmissions, nil
+// 	} else {
+// 		id, _ := c.Get("ID")
+// 		id = id.(uint)
+// 		homework, err := models.GetHomeworkByIDWithSubmissionLists(service.HomeworkID)
+// 		if err != nil {
+// 			return "该作业号不存在", nil
+// 		}
+// 		for _, value := range homework.HomeworkSubmissions {
+// 			if value.UserID == id {
+// 				return value, nil
+// 			}
+// 		}
+// 		return nil, errors.New("该用户未提交作业")
+// 	}
+// }

@@ -22,13 +22,13 @@ func TestUpdateSubmission(t *testing.T) {
 		Content    string
 		ExpextCode int
 	}{
-		{"成功修改", 1, "1123", 200},
+		{"成功修改", 3, "1123", 200},
 		{"作业不存在", 1, "1123", 400},
 		{"作业不存在", 555, "1123", 400},
 		{"未选课", 1, "1123", 400},
 	}
 	//登录拿到json
-	data := map[string]interface{}{"username": "xbbbb", "password": "123"}
+	data := map[string]interface{}{"username": "xyh", "password": "123"}
 	jsonData, _ := json.Marshal(data)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
@@ -70,7 +70,7 @@ func TestUpdateSubmission(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkID))+"/submits", payload)
+			req, _ := http.NewRequest("PUT", "/api/v1/submit/"+strconv.Itoa(int(testcase.HomeworkID)), payload)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)

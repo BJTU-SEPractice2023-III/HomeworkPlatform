@@ -41,8 +41,8 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	// comment是预先分配好的,所以不需要自我创建
-	comment, res := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
-	if res == nil {
+	comment, err := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
+	if err == nil {
 		res := comment.(models.Comment).UpdateSelf(service.Comment, service.Score)
 		num := models.GetCommentNum(service.HomeworkSubmissionID)
 		if num == 3 {
@@ -50,7 +50,7 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 		}
 		return nil, res
 	}
-	return nil, res
+	return nil, err
 }
 
 type GetCommentListsService struct {

@@ -53,6 +53,70 @@ func TestGetHomework(t *testing.T) {
 	}
 }
 
+func TestAssignHomeworkService(t *testing.T) {
+	var cases = []struct {
+		Case           string
+		CourseID       uint
+		Name           string
+		Description    string
+		BeginDate      time.Time
+		EndDate        time.Time
+		CommentEndDate time.Time
+		ExpextCode     int
+	}{
+		{"成功创建", 1, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 200},
+		{"非自己的课程", 3, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
+	}
+	//登录拿到json
+	data := map[string]interface{}{"username": "xyh", "password": "123"}
+	jsonData, _ := json.Marshal(data)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	Router.ServeHTTP(w, req)
+	Authorization := GetAuthorziation(w)
+	log.Printf("Authorization为:%s", Authorization)
+	for _, testcase := range cases {
+		t.Run(testcase.Case, func(t *testing.T) {
+			log.Printf("正在测试")
+
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			if testcase.Case != "空描述" {
+				file, errFile1 := os.Open("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png")
+				defer file.Close()
+				part1,
+					errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
+				_, errFile1 = io.Copy(part1, file)
+				if errFile1 != nil {
+					fmt.Println(errFile1)
+					return
+				}
+			}
+			_ = writer.WriteField("courseId", strconv.Itoa(int(testcase.CourseID)))
+			_ = writer.WriteField("description", testcase.Description)
+			_ = writer.WriteField("name", testcase.Name)
+			_ = writer.WriteField("beginDate", testcase.BeginDate.UTC().Format("2006-01-02T15:04:05Z"))
+			_ = writer.WriteField("endDate", testcase.EndDate.UTC().Format("2006-01-02T15:04:05Z"))
+			_ = writer.WriteField("commentEndDate", testcase.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
+			err := writer.Close()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("POST", "/api/homework/assign", payload)
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+			req.Header.Set("Authorization", Authorization)
+			Router.ServeHTTP(w, req)
+			if w.Code != testcase.ExpextCode {
+				t.Fatalf("创建作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)
+			}
+		})
+	}
+}
+
 func TestUpdateHomework(t *testing.T) {
 	var cases = []struct {
 		Case           string
