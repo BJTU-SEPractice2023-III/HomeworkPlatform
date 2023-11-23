@@ -81,19 +81,25 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	}
 	id, _ := c.Get("ID")
 	if id.(uint) != course.TeacherID {
-		return nil, errors.New("您无权限查询")
-	}
-	submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
-	if err2 != nil {
-		return nil, err2
-	}
-	var maps []MyMap
-	for _, submission := range submissions {
-		user, err := models.GetUserByID(submission.UserID)
-		if err != nil {
-			return nil, err
+		//学生自己查
+		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
+		if submission==nil{
+			return nil,errors.New("未提交作业")
 		}
-		maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})
+		return submission, nil
+	} else {
+		submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+		if err2 != nil {
+			return nil, err2
+		}
+		var maps []MyMap
+		for _, submission := range submissions {
+			user, err := models.GetUserByID(submission.UserID)
+			if err != nil {
+				return nil, err
+			}
+			maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})
+		}
+		return maps, nil
 	}
-	return maps, nil
 }
