@@ -16,6 +16,15 @@ type CommentService struct {
 }
 
 func (service *CommentService) Handle(c *gin.Context) (any, error) {
+	err := c.ShouldBindUri(service)
+	if err != nil {
+		return nil, err
+	}
+	//绑定reason
+	err = c.ShouldBind(service)
+	if err != nil {
+		return nil, err
+	}
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效分数")
 	}

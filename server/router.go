@@ -160,7 +160,7 @@ func InitRouter() *gin.Engine {
 					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 					// GET api/v1/comment/:id		|
 					// POST api/v1/comment/:id 		| 评阅请求提交,提交和修改一体化接口()
-					comment.POST(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
+					comment.POST(":id", service.HandlerNoBind(&service.CommentService{}))
 				}
 
 				grade := auth.Group("grade")
@@ -177,6 +177,7 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
+
 					// TODO: PUT api/v1/submit/:id					|	修改作业提交信息
 					submit.PUT(":id", service.Handler(&service.UpdateSubmission{}))
 					// GET api/v1/submit/:id					|  获得指定submission_id的作业
