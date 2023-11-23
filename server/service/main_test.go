@@ -56,6 +56,7 @@ func CreateData() {
 	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
 	models.CreateCourse("c#", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
+	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 
 	//保证作业1是可以提交的
 	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
@@ -80,6 +81,9 @@ func CreateData() {
 		HomeworkID: 3,
 		Content:    "kksk",
 	})
+	submission := models.GetHomeWorkSubmissionByID(1)
+	submission.Score = 20
+	models.DB.Save(&submission)
 
 	models.AddHomeworkSubmission(&models.HomeworkSubmission{
 		UserID:     1,
@@ -87,7 +91,7 @@ func CreateData() {
 		Content:    "kksk",
 	})
 
-	//submission 3和4用来测试
+	//submission
 	models.AddHomeworkSubmission(&models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 5,

@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestGetCommentListsService(t *testing.T) {
+func TestGetGradeBySubmissionIDService(t *testing.T) {
 	var cases = []struct {
 		Case       string
 		HomeworkId uint

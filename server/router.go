@@ -162,20 +162,19 @@ func InitRouter() *gin.Engine {
 
 				grade := auth.Group("grade")
 				{
-					// GET api/v1/:id/grade/bysubmissionid 	| 根据作业提交号获得单个成绩
-					grade.GET(":id/bysubmissionid", service.HandlerWithBindType(&service.GetGradeBySubmissionIDService{}, service.BindUri))
-					// GET api/v1/:id/grade/byhomeworkid  	| 根据作业号获得一次作业的全部成绩
-					grade.GET(":id/byhomeworkid", service.HandlerWithBindType(&service.GetGradeListsByHomeworkIDService{}, service.BindUri))
-					// PUT api/v1/grade						| 老师修改成绩
-					grade.PUT("", service.Handler(&service.UpdateGradeService{}))
+					// GET api/v1/grade/:id/bysubmissionid 	| 根据作业提交号获得单个成绩
+					grade.GET(":id/bysubmissionid", service.HandlerBindUri(&service.GetGradeBySubmissionIDService{}))
+					// GET api/v1/grade/:id/byhomeworkid  	| 根据作业号获得一次作业的全部成绩
+					grade.GET(":id/byhomeworkid", service.HandlerBindUri(&service.GetGradeListsByHomeworkIDService{}))
+					// PUT api/v1/grade/:id						| 老师修改成绩
+					grade.PUT(":id", service.HandlerNoBind(&service.UpdateGradeService{}))
 				}
 
 				submit := auth.Group("submit")
 				{
 					// POST api/v1/submit 						|	提交作业
 					submit.POST("", service.Handler(&service.SubmitHomework{}))
-
-					// TODO: PUT api/v1/submit/:id					|	修改作业提交信息
+					//  PUT api/v1/submit/:id					|	修改作业提交信息
 					submit.PUT(":id", service.Handler(&service.UpdateSubmission{}))
 					// GET api/v1/submit/:id					|  获得指定submission_id的作业
 					submit.GET(":id", service.HandlerWithBindType(&service.GetSubmissionService{}, service.BindUri))
@@ -251,11 +250,11 @@ func InitRouter() *gin.Engine {
 			{
 				course.GET("", service.Handler(&service.GetCourses{}))
 				course.GET(":id", service.HandlerWithBindType(&service.GetCourse{}, service.BindUri))
-				course.POST("create", service.Handler(&service.CreateCourse{}))             // POST api/course/create
-				course.POST("update", service.Handler(&service.UpdateCourseDescription{}))  // POST api/course/update
-				course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
-				course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
-				course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
+				course.POST("create", service.Handler(&service.CreateCourse{}))            // POST api/course/create
+				course.POST("update", service.Handler(&service.UpdateCourseDescription{})) // POST api/course/update
+				course.POST("delete", service.Handler(&service.DeleteCourse{}))            // POST api/course/delete
+				course.GET("userlists", service.Handler(&service.GetCourseStudentLists{})) // Get api/course/userlists
+				course.POST("select", service.Handler(&service.SelectCourseService{}))     // POST api/course/select
 				// course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
 				// course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
 			}

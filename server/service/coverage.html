@@ -61,11 +61,11 @@
 				
 				<option value="file2">homework_platform/server/service/complaint.go (0.0%)</option>
 				
-				<option value="file3">homework_platform/server/service/course.go (62.2%)</option>
+				<option value="file3">homework_platform/server/service/course.go (69.3%)</option>
 				
 				<option value="file4">homework_platform/server/service/file.go (92.9%)</option>
 				
-				<option value="file5">homework_platform/server/service/grade.go (0.0%)</option>
+				<option value="file5">homework_platform/server/service/grade.go (84.8%)</option>
 				
 				<option value="file6">homework_platform/server/service/homework.go (69.2%)</option>
 				
@@ -471,20 +471,20 @@ type DeleteCourse struct {
         CourseID uint `uri:"id" binding:"required"`
 }
 
-func (service *DeleteCourse) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *DeleteCourse) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         course, err := models.GetCourseByID(service.CourseID)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">id, _ := c.Get("ID")
-        if course.TeacherID != id </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">id, _ := c.Get("ID")
+        if course.TeacherID != id </span><span class="cov8" title="1">{
                 return nil, errors.New("不能修改不是您的课程")
         }</span>
-        <span class="cov0" title="0">res := course.Deleteself()
+        <span class="cov8" title="1">res := course.Deleteself()
         if res != nil </span><span class="cov0" title="0">{
                 return nil, res
         }</span>
-        <span class="cov0" title="0">return nil, nil</span>
+        <span class="cov8" title="1">return nil, nil</span>
 }
 
 type GetCourseStudents struct {
@@ -787,37 +787,49 @@ type GetGradeBySubmissionIDService struct {
         HomeworkSubmissionID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
-        if submission == nil </span><span class="cov0" title="0">{
+        if submission == nil </span><span class="cov8" title="1">{
                 return nil, errors.New("作业没找到")
         }</span>
-        <span class="cov0" title="0">return submission.Score, nil</span>
+        <span class="cov8" title="1">return submission.Score, nil</span>
 }
 
 type UpdateGradeService struct {
-        HomeworkSubmissionID uint `form:"homeworksubmissionid"`
+        HomeworkSubmissionID uint `uri:"id" binding:"required"`
         Score                int  `form:"score"`
 }
 
-func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
-        submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
-        if submission == nil </span><span class="cov0" title="0">{
-                return nil, errors.New("作业没找到")
-        }</span>
-        <span class="cov0" title="0">homework, res := models.GetHomeworkByID(submission.HomeworkID)
-        if res != nil </span><span class="cov0" title="0">{
-                return nil, res
-        }</span>
-        <span class="cov0" title="0">course, err := models.GetCourseByID(homework.CourseID)
+func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
+        err := c.ShouldBindUri(service)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">id, _ := c.Get("ID")
-        if id.(uint) != course.TeacherID </span><span class="cov0" title="0">{
+        //绑定reason
+        <span class="cov8" title="1">err = c.ShouldBind(service)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if service.Score &lt; 0 || service.Score &gt; 100 </span><span class="cov8" title="1">{
+                return nil, errors.New("无效成绩")
+        }</span>
+        <span class="cov8" title="1">submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+        if submission == nil </span><span class="cov8" title="1">{
+                return nil, errors.New("作业没找到")
+        }</span>
+        <span class="cov8" title="1">homework, res := models.GetHomeworkByID(submission.HomeworkID)
+        if res != nil </span><span class="cov0" title="0">{
+                return nil, res
+        }</span>
+        <span class="cov8" title="1">course, err := models.GetCourseByID(homework.CourseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">id, _ := c.Get("ID")
+        if id.(uint) != course.TeacherID </span><span class="cov8" title="1">{
                 return nil, errors.New("您无权限修改")
         }</span>
-        <span class="cov0" title="0">submission.Score = service.Score
+        <span class="cov8" title="1">submission.Score = service.Score
         // submission.Grade = service.Final
         err2 := submission.UpdateSelf()
         //TODO:还需要更新那些人的置信度,但是我是懒B
@@ -834,32 +846,32 @@ type MyMap struct {
         Score    int    `form:"Score"`
 }
 
-func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         homework, res := models.GetHomeworkByID(service.HomeworkID)
-        if res != nil </span><span class="cov0" title="0">{
+        if res != nil </span><span class="cov8" title="1">{
                 return nil, res
         }</span>
-        <span class="cov0" title="0">course, err := models.GetCourseByID(homework.CourseID)
+        <span class="cov8" title="1">course, err := models.GetCourseByID(homework.CourseID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">id, _ := c.Get("ID")
-        if id.(uint) != course.TeacherID </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">id, _ := c.Get("ID")
+        if id.(uint) != course.TeacherID </span><span class="cov8" title="1">{
                 return nil, errors.New("您无权限查询")
         }</span>
-        <span class="cov0" title="0">submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+        <span class="cov8" title="1">submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
         if err2 != nil </span><span class="cov0" title="0">{
                 return nil, err2
         }</span>
-        <span class="cov0" title="0">var maps []MyMap
-        for _, submission := range submissions </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">var maps []MyMap
+        for _, submission := range submissions </span><span class="cov8" title="1">{
                 user, err := models.GetUserByID(submission.UserID)
                 if err != nil </span><span class="cov0" title="0">{
                         return nil, err
                 }</span>
-                <span class="cov0" title="0">maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})</span>
+                <span class="cov8" title="1">maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})</span>
         }
-        <span class="cov0" title="0">return maps, nil</span>
+        <span class="cov8" title="1">return maps, nil</span>
 }
 </pre>
 		

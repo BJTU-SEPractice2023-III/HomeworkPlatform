@@ -20,11 +20,23 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 }
 
 type UpdateGradeService struct {
-	HomeworkSubmissionID uint `form:"homeworksubmissionid"`
+	HomeworkSubmissionID uint `uri:"id" binding:"required"`
 	Score                int  `form:"score"`
 }
 
 func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
+	err := c.ShouldBindUri(service)
+	if err != nil {
+		return nil, err
+	}
+	//绑定reason
+	err = c.ShouldBind(service)
+	if err != nil {
+		return nil, err
+	}
+	if service.Score < 0 || service.Score > 100 {
+		return nil, errors.New("无效成绩")
+	}
 	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")

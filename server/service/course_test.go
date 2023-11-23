@@ -123,24 +123,36 @@ func TestDeleteCourse(t *testing.T) {
 		CourseID   uint
 		ExpextCode int
 	}{
-		{"课程存在", 1, 200},
+		{"权限不足", 5, 400},
+		{"课程存在", 5, 200},
 		{"课程不存在", 992, 400},
 	}
 
 	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
+	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			if testcase.Case == "权限不足" {
+				data := map[string]interface{}{"username": "xeh", "password": "123"}
+				jsonData, _ := json.Marshal(data)
+				w := httptest.NewRecorder()
+				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+				req.Header.Set("Content-Type", "application/json")
+				Router.ServeHTTP(w, req)
+				Authorization = GetAuthorziation(w)
+				log.Printf("Authorization为:%s", Authorization)
+			} else {
+				data := map[string]interface{}{"username": "xyh", "password": "123"}
+				jsonData, _ := json.Marshal(data)
+				w := httptest.NewRecorder()
+				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+				req.Header.Set("Content-Type", "application/json")
+				Router.ServeHTTP(w, req)
+				Authorization = GetAuthorziation(w)
+				log.Printf("Authorization为:%s", Authorization)
+			}
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("GET", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID)), nil)
+			req, _ := http.NewRequest("DELETE", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID)), nil)
 			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
