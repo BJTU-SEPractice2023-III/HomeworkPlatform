@@ -25,8 +25,12 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Println(service)
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效分数")
+	}
+	if service.Comment == "" {
+		return nil, errors.New("评论为空")
 	}
 	homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
 	homework, res1 := models.GetHomeworkByID(homewroksubmission.HomeworkID)
@@ -44,8 +48,8 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	comment, err := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
 	if err == nil {
 		res := comment.(models.Comment).UpdateSelf(service.Comment, service.Score)
-		num := models.GetCommentNum(service.HomeworkSubmissionID)
-		if num == 3 {
+		num, len := models.GetCommentNum(service.HomeworkSubmissionID)
+		if num == len {
 			homewroksubmission.CalculateGrade()
 		}
 		return nil, res
@@ -70,6 +74,9 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
+	}
+	if homework.EndDate.After(time.Now()) {
+		return nil, errors.New("评阅未开始")
 	}
 
 	id, _ := c.Get("ID")
@@ -101,9 +108,12 @@ type GetMyCommentService struct {
 }
 
 func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
-	_, err := models.GetHomeworkByID(service.HomeworkID)
+	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
+	}
+	if homework.EndDate.After(time.Now()) {
+		return nil, errors.New("评阅未开始")
 	}
 	id, _ := c.Get("ID")
 	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))

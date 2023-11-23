@@ -39,27 +39,32 @@ func GetAuthorziation(w *httptest.ResponseRecorder) string {
 }
 
 func CreateData() {
-	models.CreateUser("xyh", "123")
+	models.CreateUser("xyh", "123") //1
 	models.UpgradeToAdmin(1)
-	models.CreateUser("xeh", "123")
-	models.CreateUser("xsh", "123")
-	models.CreateUser("tjw", "123")
-	models.CreateUser("xb", "123")
-	models.CreateUser("xbb", "123")
-	models.CreateUser("xbbb", "123")
-	models.CreateUser("xbbbb", "123")
-	models.CreateUser("deleteUser", "123")
+	models.CreateUser("xeh", "123") //2
+	models.CreateUser("xsh", "123") //3
+	models.CreateUser("tjw", "123") //4
+
+	models.CreateUser("xb", "123")         //5
+	models.CreateUser("xbb", "123")        //6
+	models.CreateUser("xbbb", "123")       //7
+	models.CreateUser("xbbbb", "123")      //8
+	models.CreateUser("deleteUser", "123") //9
+	models.CreateUser("10", "123")
 
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
 	models.CreateCourse("c#", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 
+	//保证作业1是可以提交的
 	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
 
+	models.SelectCourse(10, 2)
 	models.SelectCourse(8, 1)
 	models.SelectCourse(6, 1)
 	models.SelectCourse(4, 2)
@@ -75,9 +80,22 @@ func CreateData() {
 		HomeworkID: 3,
 		Content:    "kksk",
 	})
+
 	models.AddHomeworkSubmission(&models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 4,
+		Content:    "kksk",
+	})
+
+	//submission 3和4用来测试
+	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+		UserID:     1,
+		HomeworkID: 5,
+		Content:    "kksk",
+	})
+	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+		UserID:     10,
+		HomeworkID: 5,
 		Content:    "kksk",
 	})
 }

@@ -125,10 +125,8 @@ func InitRouter() *gin.Engine {
 					// homeworks.GET(":id/submitlists", service.Handler(&service.SubmitListsService{})) // GET api/homework/submitlists
 
 					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
-					//TODO:待测试
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
 					// GET	  api/v1/homeworks/:id/mycomments 	| 得到id作业号的用户的被评论信息
-					//TODO:待测试
 					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
 					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
@@ -157,8 +155,7 @@ func InitRouter() *gin.Engine {
 				comment := auth.Group("comment")
 				{
 					// GET api/v1/comment/:id 		| 获得作业信息
-					comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
-					// GET api/v1/comment/:id		|
+					// comment.GET(":id", service.HandlerWithBindType(&service.CommentService{}, service.BindUri))
 					// POST api/v1/comment/:id 		| 评阅请求提交,提交和修改一体化接口()
 					comment.POST(":id", service.HandlerNoBind(&service.CommentService{}))
 				}
@@ -259,8 +256,8 @@ func InitRouter() *gin.Engine {
 				course.POST("delete", service.Handler(&service.DeleteCourse{}))             // POST api/course/delete
 				course.GET("userlists", service.Handler(&service.GetCourseStudentLists{}))  // Get api/course/userlists
 				course.POST("select", service.Handler(&service.SelectCourseService{}))      // POST api/course/select
-				course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
-				course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
+				// course.GET("teachingcourse", service.Handler(&service.GetTeachingCourse{})) // GET api/course/teachingcourse
+				// course.GET("learningcourse", service.Handler(&service.GetLearningCourse{})) // GET api/course/learningcourse
 			}
 
 			comment := auth.Group("comment")

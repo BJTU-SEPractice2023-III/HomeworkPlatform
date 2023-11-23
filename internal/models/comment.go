@@ -29,19 +29,19 @@ type Comment struct {
 }
 
 // 计算已经有几个人批过了
-func GetCommentNum(homeworksubmission_id uint) uint {
+func GetCommentNum(homeworksubmission_id uint) (int, int) {
 	comments, err := GetCommentBySubmissionID(homeworksubmission_id)
 	if err != nil {
-		return 0
+		return 0, 0
 	}
-	var num uint
+	var num int
 	num = 0
 	for _, comment := range comments {
 		if comment.Score != -1 {
 			num += 1
 		}
 	}
-	return num
+	return num, len(comments)
 }
 
 func (comment Comment) UpdateSelf(comm string, score int) error {

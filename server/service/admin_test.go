@@ -63,7 +63,7 @@ func TestUserUpdateService(t *testing.T) {
 		Password   string
 		ExpextCode int
 	}{
-		{"admin获取", 1, "xbb", "12", 200},
+		{"admin获取", 1, "xbbb", "12", 200},
 		{"用户不存在", 1, "xasdb", "12", 400},
 		{"非admin", 5, "xbb", "21", 403},
 	}

@@ -55,13 +55,13 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">homework_platform/server/service/admin.go (0.0%)</option>
+				<option value="file0">homework_platform/server/service/admin.go (89.5%)</option>
 				
-				<option value="file1">homework_platform/server/service/comment.go (0.0%)</option>
+				<option value="file1">homework_platform/server/service/comment.go (83.6%)</option>
 				
 				<option value="file2">homework_platform/server/service/complaint.go (0.0%)</option>
 				
-				<option value="file3">homework_platform/server/service/course.go (55.2%)</option>
+				<option value="file3">homework_platform/server/service/course.go (62.2%)</option>
 				
 				<option value="file4">homework_platform/server/service/file.go (92.9%)</option>
 				
@@ -69,11 +69,11 @@
 				
 				<option value="file6">homework_platform/server/service/homework.go (69.2%)</option>
 				
-				<option value="file7">homework_platform/server/service/homework_submission.go (80.0%)</option>
+				<option value="file7">homework_platform/server/service/homework_submission.go (78.8%)</option>
 				
 				<option value="file8">homework_platform/server/service/service.go (84.6%)</option>
 				
-				<option value="file9">homework_platform/server/service/user.go (73.6%)</option>
+				<option value="file9">homework_platform/server/service/user.go (78.0%)</option>
 				
 				</select>
 			</div>
@@ -100,7 +100,7 @@ import (
 
 type GetUsersService struct{}
 
-func (service *GetUsersService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *GetUsersService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         return models.GetUserList()
 }</span>
 
@@ -108,16 +108,16 @@ type DeleteUserService struct {
         ID uint `uri:"id" binding:"required"`
 }
 
-func (service *DeleteUserService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *DeleteUserService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         user, err := models.GetUserByID(service.ID)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, errors.New("用户不存在")
         }</span>
-        <span class="cov0" title="0">result := user.DeleteSelf()
+        <span class="cov8" title="1">result := user.DeleteSelf()
         if !result </span><span class="cov0" title="0">{
                 return nil, errors.New("删除失败")
         }</span>
-        <span class="cov0" title="0">res := make(map[string]any)
+        <span class="cov8" title="1">res := make(map[string]any)
         res["msg"] = "删除成功"
         return res, nil</span>
 }
@@ -127,16 +127,16 @@ type UserUpdateService struct { //管理员修改密码
         Password string `form:"password"` //新密码
 }
 
-func (service *UserUpdateService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *UserUpdateService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         user, err := models.GetUserByUsername(service.Username)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, errors.New("该用户不存在")
         }</span>
-        <span class="cov0" title="0">result := user.ChangePassword(service.Password)
+        <span class="cov8" title="1">result := user.ChangePassword(service.Password)
         if !result </span><span class="cov0" title="0">{
                 return nil, errors.New("修改失败")
         }</span>
-        <span class="cov0" title="0">res := make(map[string]any)
+        <span class="cov8" title="1">res := make(map[string]any)
         res["msg"] = "修改成功"
         return res, nil</span>
 }
@@ -159,31 +159,44 @@ type CommentService struct {
         HomeworkSubmissionID uint   `uri:"id" binding:"required"`
 }
 
-func (service *CommentService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
-        if service.Score &lt; 0 || service.Score &gt; 100 </span><span class="cov0" title="0">{
+func (service *CommentService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
+        err := c.ShouldBindUri(service)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        //绑定reason
+        <span class="cov8" title="1">err = c.ShouldBind(service)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">log.Println(service)
+        if service.Score &lt; 0 || service.Score &gt; 100 </span><span class="cov8" title="1">{
                 return nil, errors.New("无效分数")
         }</span>
-        <span class="cov0" title="0">homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+        <span class="cov8" title="1">if service.Comment == "" </span><span class="cov8" title="1">{
+                return nil, errors.New("评论为空")
+        }</span>
+        <span class="cov8" title="1">homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
         homework, res1 := models.GetHomeworkByID(homewroksubmission.HomeworkID)
         if res1 != nil </span><span class="cov0" title="0">{
                 return nil, res1
         }</span>
-        <span class="cov0" title="0">if homework.CommentEndDate.Before(time.Now()) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if homework.CommentEndDate.Before(time.Now()) </span><span class="cov0" title="0">{
                 return nil, errors.New("超时批阅")
         }</span>
-        <span class="cov0" title="0">if homewroksubmission == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if homewroksubmission == nil </span><span class="cov0" title="0">{
                 return nil, errors.New("没有找到该作业号")
         }</span>
-        <span class="cov0" title="0">id, _ := c.Get("ID")
+        <span class="cov8" title="1">id, _ := c.Get("ID")
         // comment是预先分配好的,所以不需要自我创建
         comment, err := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
-        if err == nil </span><span class="cov0" title="0">{
+        if err == nil </span><span class="cov8" title="1">{
                 res := comment.(models.Comment).UpdateSelf(service.Comment, service.Score)
-                num := models.GetCommentNum(service.HomeworkSubmissionID)
-                if num == 3 </span><span class="cov0" title="0">{
+                num, len := models.GetCommentNum(service.HomeworkSubmissionID)
+                if num == len </span><span class="cov8" title="1">{
                         homewroksubmission.CalculateGrade()
                 }</span>
-                <span class="cov0" title="0">return nil, res</span>
+                <span class="cov8" title="1">return nil, res</span>
         }
         <span class="cov0" title="0">return nil, err</span>
 }
@@ -192,39 +205,42 @@ type GetCommentListsService struct {
         HomeworkID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         log.Println("[GetCommentListsService]: Trying to assign comments")
-        if err := models.AssignComment(service.HomeworkID); err != nil </span><span class="cov0" title="0">{
+        if err := models.AssignComment(service.HomeworkID); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">homework, err := models.GetHomeworkByID(service.HomeworkID)
+        <span class="cov8" title="1">homework, err := models.GetHomeworkByID(service.HomeworkID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">course, err := models.GetCourseByID(homework.CourseID)
+        <span class="cov8" title="1">course, err := models.GetCourseByID(homework.CourseID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
+        }</span>
+        <span class="cov8" title="1">if homework.EndDate.After(time.Now()) </span><span class="cov8" title="1">{
+                return nil, errors.New("评阅未开始")
         }</span>
 
-        <span class="cov0" title="0">id, _ := c.Get("ID")
-        if id == course.TeacherID </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">id, _ := c.Get("ID")
+        if id == course.TeacherID </span><span class="cov8" title="1">{
                 commentList, err := models.GetCommentsByHomeworkId(service.HomeworkID)
                 if err != nil </span><span class="cov0" title="0">{
                         return nil, err
                 }</span>
-                <span class="cov0" title="0">return commentList, nil</span>
+                <span class="cov8" title="1">return commentList, nil</span>
         }
 
-        <span class="cov0" title="0">commentList, err := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
+        <span class="cov8" title="1">commentList, err := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">var homework_submission []models.HomeworkSubmission
-        for _, comment := range commentList </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">var homework_submission []models.HomeworkSubmission
+        for _, comment := range commentList </span><span class="cov8" title="1">{
                 homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
         }</span>
-        <span class="cov0" title="0">m := make(map[string]any)
+        <span class="cov8" title="1">m := make(map[string]any)
         m["homework_submission"] = homework_submission
         m["comment_lists"] = commentList
         log.Printf("%x", len(commentList))
@@ -235,18 +251,21 @@ type GetMyCommentService struct {
         HomeworkID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
-        _, err := models.GetHomeworkByID(service.HomeworkID)
-        if err != nil </span><span class="cov0" title="0">{
+func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
+        homework, err := models.GetHomeworkByID(service.HomeworkID)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">id, _ := c.Get("ID")
+        <span class="cov8" title="1">if homework.EndDate.After(time.Now()) </span><span class="cov8" title="1">{
+                return nil, errors.New("评阅未开始")
+        }</span>
+        <span class="cov8" title="1">id, _ := c.Get("ID")
         submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
         comments, err := models.GetCommentBySubmissionID(submission.ID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">return comments, nil</span>
+        <span class="cov8" title="1">return comments, nil</span>
 }
 </pre>
 		
@@ -551,36 +570,36 @@ func (service *SelectCourseService) Handle(c *gin.Context) (any, error) <span cl
         return nil, res</span>
 }
 
-type GetTeachingCourse struct {
-}
+// type GetTeachingCourse struct {
+// }
 
-func (service *GetTeachingCourse) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
-        id, _ := c.Get("ID")
-        user, err := models.GetUserByID(id.(uint))
-        if err != nil </span><span class="cov0" title="0">{
-                return nil, err
-        }</span>
-        <span class="cov0" title="0">courses, res := user.GetTeachingCourse()
-        if res != nil </span><span class="cov0" title="0">{
-                return nil, res
-        }</span>
-        <span class="cov0" title="0">return courses, nil</span>
-}
+// func (service *GetTeachingCourse) Handle(c *gin.Context) (any, error) {
+//         id, _ := c.Get("ID")
+//         user, err := models.GetUserByID(id.(uint))
+//         if err != nil {
+//                 return nil, err
+//         }
+//         courses, res := user.GetTeachingCourse()
+//         if res != nil {
+//                 return nil, res
+//         }
+//         return courses, nil
+// }
 
-type GetLearningCourse struct{}
+// type GetLearningCourse struct{}
 
-func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
-        id, _ := c.Get("ID")
-        user, err := models.GetUserByID(id.(uint))
-        if err != nil </span><span class="cov0" title="0">{
-                return nil, err
-        }</span>
-        <span class="cov0" title="0">courses, res := user.GetLearningCourse()
-        if res != nil </span><span class="cov0" title="0">{
-                return nil, res
-        }</span>
-        <span class="cov0" title="0">return courses, nil</span>
-}
+// func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
+//         id, _ := c.Get("ID")
+//         user, err := models.GetUserByID(id.(uint))
+//         if err != nil {
+//                 return nil, err
+//         }
+//         courses, res := user.GetLearningCourse()
+//         if res != nil {
+//                 return nil, res
+//         }
+//         return courses, nil
+// }
 
 type GetCourses struct{}
 
@@ -714,7 +733,6 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) <span class="
         }</span>
         <span class="cov8" title="1">return homework.(models.Homework).ID, nil</span>
 }
-
 </pre>
 		
 		<pre class="file" id="file4" style="display: none">package service
@@ -1152,7 +1170,7 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) <span class="cov8" 
                 return nil, err
         }</span>
         <span class="cov8" title="1">log.Printf("正在检查该用户有没有选课%d", id.(uint))
-        if !course.FindStudents(id.(uint)) </span><span class="cov8" title="1">{
+        if !course.FindStudents(id.(uint)) </span><span class="cov0" title="0">{
                 return nil, errors.New("请先选择这门课")
         }</span>
         <span class="cov8" title="1">homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
@@ -1513,14 +1531,14 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) <span c
                                                         notifications.LeaningHomeworkListsToFinish =
                                                                 append(notifications.LeaningHomeworkListsToFinish, homeworks[j])
                                                 }</span>
-                                        } else<span class="cov0" title="0"> {
+                                        } else<span class="cov8" title="1"> {
                                                 // 评论时段内,获取所有的comment
                                                 comments, err := models.GetCommentListsByUserIDAndHomeworkID(user.ID, homeworks[j].ID)
                                                 if err != nil </span><span class="cov0" title="0">{
                                                         return nil, err
                                                 }</span>
                                                 // 如果有score==-1就代表尚未完成评论
-                                                <span class="cov0" title="0">for i := 0; i &lt; len(comments); i++ </span><span class="cov0" title="0">{
+                                                <span class="cov8" title="1">for i := 0; i &lt; len(comments); i++ </span><span class="cov8" title="1">{
                                                         if comments[i].Score == -1 </span><span class="cov0" title="0">{
                                                                 notifications.LeaningHomeworkListsToComment =
                                                                         append(notifications.TeachingHomeworkListsToComment, homeworks[j])

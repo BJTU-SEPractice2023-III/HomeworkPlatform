@@ -167,36 +167,36 @@ func (service *SelectCourseService) Handle(c *gin.Context) (any, error) {
 	return nil, res
 }
 
-type GetTeachingCourse struct {
-}
+// type GetTeachingCourse struct {
+// }
 
-func (service *GetTeachingCourse) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
-	user, err := models.GetUserByID(id.(uint))
-	if err != nil {
-		return nil, err
-	}
-	courses, res := user.GetTeachingCourse()
-	if res != nil {
-		return nil, res
-	}
-	return courses, nil
-}
+// func (service *GetTeachingCourse) Handle(c *gin.Context) (any, error) {
+// 	id, _ := c.Get("ID")
+// 	user, err := models.GetUserByID(id.(uint))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	courses, res := user.GetTeachingCourse()
+// 	if res != nil {
+// 		return nil, res
+// 	}
+// 	return courses, nil
+// }
 
-type GetLearningCourse struct{}
+// type GetLearningCourse struct{}
 
-func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
-	user, err := models.GetUserByID(id.(uint))
-	if err != nil {
-		return nil, err
-	}
-	courses, res := user.GetLearningCourse()
-	if res != nil {
-		return nil, res
-	}
-	return courses, nil
-}
+// func (service *GetLearningCourse) Handle(c *gin.Context) (any, error) {
+// 	id, _ := c.Get("ID")
+// 	user, err := models.GetUserByID(id.(uint))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	courses, res := user.GetLearningCourse()
+// 	if res != nil {
+// 		return nil, res
+// 	}
+// 	return courses, nil
+// }
 
 type GetCourses struct{}
 
@@ -330,4 +330,3 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	}
 	return homework.(models.Homework).ID, nil
 }
-
