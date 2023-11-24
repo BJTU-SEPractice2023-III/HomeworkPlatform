@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -86,7 +87,12 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 		if submission==nil{
 			return nil,errors.New("未提交作业")
 		}
-		return submission, nil
+		var maps MyMap
+		maps.UserID = id.(uint)
+		maps.Score = submission.Score
+		maps.UserName = "yourself"
+		log.Println(maps)
+		return maps, nil
 	} else {
 		submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
 		if err2 != nil {

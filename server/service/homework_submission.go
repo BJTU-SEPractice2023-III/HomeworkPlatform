@@ -88,6 +88,7 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	}
 	for _, value := range homework.HomeworkSubmissions {
 		if value.UserID == userid.(uint) {
+			value.GetFiles()
 			return value, nil
 		}
 	}

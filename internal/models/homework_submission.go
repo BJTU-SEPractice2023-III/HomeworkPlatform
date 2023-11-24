@@ -33,13 +33,15 @@ type HomeworkSubmission struct {
 }
 
 func (homeworksubmission *HomeworkSubmission) GetFiles() {
-	root := fmt.Sprintf("./data/homeworkassign/%d/", homeworksubmission.ID)
+	root := fmt.Sprintf("./data/homework_submission/%d/", homeworksubmission.ID)
+	log.Println(root)
 	files, err := ioutil.ReadDir(root)
 	if err == nil {
 		for _, file := range files {
 			if file.IsDir() {
 				continue
 			}
+			log.Printf("获得文件%s",file.Name())
 			homeworksubmission.FilePaths = append(homeworksubmission.FilePaths, filepath.Join(root, file.Name()))
 		}
 	}
