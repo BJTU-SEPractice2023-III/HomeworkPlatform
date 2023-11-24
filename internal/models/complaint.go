@@ -18,6 +18,13 @@ type Complaint struct {
 	Reason               string `form:"reason"`
 }
 
+func GetComplaintByHomeworkIdAndUserId(homeworkId uint, userId uint) (*Complaint, error) {
+	log.Printf("正在查找<Complaint>(homeworkId = %d,userId = %d)...", homeworkId, userId)
+	var complaint Complaint
+	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&complaint)
+	return &complaint, res.Error
+}
+
 func CreateTeacherComplaint(submissionId uint, homeworkId uint, CourseID uint, reason string) error {
 	log.Printf("正在创建<Complaint>(SubmissionId = %d)...", submissionId)
 	homeworkSubmission := GetHomeWorkSubmissionByID(submissionId)

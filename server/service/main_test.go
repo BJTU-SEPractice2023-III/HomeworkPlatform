@@ -91,7 +91,6 @@ func CreateData() {
 		Content:    "kksk",
 	})
 
-	//submission
 	models.AddHomeworkSubmission(&models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 5,
@@ -102,6 +101,17 @@ func CreateData() {
 		HomeworkID: 5,
 		Content:    "kksk",
 	})
+
+	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+		UserID:     77,
+		HomeworkID: 5,
+		Content:    "kksk",
+	})
+
+	models.CreateComment(1, 5, 2)
+
+	models.CreateTeacherComplaint(1, 4, 2, "123")
+	models.CreateTeacherComplaint(2, 4, 2, "123")
 }
 
 func TestMain(m *testing.M) {

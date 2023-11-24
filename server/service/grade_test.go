@@ -51,26 +51,35 @@ func TestGetGradeListsByHomeworkIDService(t *testing.T) {
 		HomeworkId uint
 		ExpextCode int
 	}{
-		{"正确获得", 3, 200},
-		{"无权限", 1, 400},
+		{"老师正确获得", 3, 200},
 		{"作业号不存在", 1999, 400},
+		{"学生正确获得", 3, 200},
 	}
 	//登录拿到json
 	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
+			if testcase.Case == "学生正确获得" {
+				data := map[string]interface{}{"username": "xyh", "password": "123"}
+				jsonData, _ := json.Marshal(data)
+				w := httptest.NewRecorder()
+				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+				req.Header.Set("Content-Type", "application/json")
+				Router.ServeHTTP(w, req)
+				Authorization = GetAuthorziation(w)
+			} else {
+				data := map[string]interface{}{"username": "xeh", "password": "123"}
+				jsonData, _ := json.Marshal(data)
+				w := httptest.NewRecorder()
+				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
+				req.Header.Set("Content-Type", "application/json")
+				Router.ServeHTTP(w, req)
+				Authorization = GetAuthorziation(w)
+			}
 
-			data := map[string]interface{}{"username": "xeh", "password": "123"}
-			jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-			req.Header.Set("Content-Type", "application/json")
-			Router.ServeHTTP(w, req)
-			Authorization = GetAuthorziation(w)
-
-			w = httptest.NewRecorder()
-			req, _ = http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.HomeworkId))+"/byhomeworkid", nil)
+			req, _ := http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.HomeworkId)), nil)
 			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)

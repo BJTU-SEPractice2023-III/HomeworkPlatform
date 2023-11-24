@@ -162,8 +162,8 @@ func InitRouter() *gin.Engine {
 
 				grade := auth.Group("grade")
 				{
-					// // GET api/v1/grade/:id/bysubmissionid 	| 根据作业提交号获得单个成绩
-					// grade.GET(":id/bysubmissionid", service.HandlerBindUri(&service.GetGradeBySubmissionIDService{}))
+					// GET api/v1/grade/:id/bysubmissionid 	| 根据作业提交号获得单个成绩
+					grade.GET(":id/bysubmissionid", service.HandlerBindUri(&service.GetGradeBySubmissionIDService{}))
 					// GET api/v1/grade/:id  	| 根据作业号获得指定作业的成绩,其中老师一次获得全部,学生获得自己的
 					grade.GET(":id", service.HandlerBindUri(&service.GetGradeListsByHomeworkIDService{}))
 					// PUT api/v1/grade/:id						| 老师修改成绩

@@ -66,7 +66,7 @@ type GetGradeListsByHomeworkIDService struct {
 }
 
 type MyMap struct {
-	UserID   uint   `form:"useId"`
+	UserID   uint   `form:"userId"`
 	UserName string `form:"userName"`
 	Score    int    `form:"score"`
 }
