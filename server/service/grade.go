@@ -65,9 +65,9 @@ type GetGradeListsByHomeworkIDService struct {
 }
 
 type MyMap struct {
-	UserID   uint   `form:"userid"`
-	UserName string `form:"username"`
-	Score    int    `form:"Score"`
+	UserID   uint   `form:"userId"`
+	UserName string `form:"userName"`
+	Score    int    `form:"score"`
 }
 
 func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) {

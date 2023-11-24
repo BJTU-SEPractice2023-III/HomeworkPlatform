@@ -117,6 +117,9 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
+	if submission == nil {
+		return nil, errors.New("作业未提交")
+	}
 	comments, err := models.GetCommentBySubmissionID(submission.ID)
 	if err != nil {
 		return nil, err

@@ -26,14 +26,24 @@ func (service *CreateComplaint) Handle(c *gin.Context) (any, error) {
 	}
 	log.Printf("正在创建Complaint<homeworkId:%d,reason:%s>", service.HomeworkID, service.Reason)
 	id, _ := c.Get("ID")
-
+	if service.Reason == "" {
+		return nil, errors.New("原因不能为空")
+	}
 	homework_submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
 	if homework_submission == nil {
 		return nil, errors.New("没有找到该提交")
 	}
+	log.Printf("作业的用户为id%d", homework_submission.UserID)
+	if homework_submission.UserID != id.(uint) {
+		return nil, errors.New("这不是您的作业")
+	}
 	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
+	}
+	complaint, _ := models.GetComplaintByHomeworkIdAndUserId(homework.ID, id.(uint))
+	if complaint != nil && complaint.ID != 0 {
+		return nil, errors.New("未查询")
 	}
 	err = models.CreateTeacherComplaint(
 		homework_submission.ID,
@@ -72,11 +82,14 @@ func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("修改reason为:%s", service.Reason)
+	if service.Reason == "" {
+		return nil, errors.New("原因不能为空")
+	}
 	complain, err := models.GetComplaintById(service.ComplaintId)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("修改reason为:%s", service.Reason)
 	complain.Reason = service.Reason
 	err = complain.Save()
 	return nil, err
@@ -115,7 +128,7 @@ func (service *GetComplaint) Handle(c *gin.Context) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		return complaints,nil
+		return complaints, nil
 	} else {
 		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
 		if submission == nil {

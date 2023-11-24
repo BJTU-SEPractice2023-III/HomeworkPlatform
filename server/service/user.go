@@ -125,6 +125,8 @@ type GetUserNotifications struct {
 }
 
 type Notifications struct {
+	Type string `json:"type"`
+
 	TeachingHomeworkListsToFinish  []models.Homework `json:"homeworkInProgress"`
 	TeachingHomeworkListsToComment []models.Homework `json:"commentInProgress"`
 

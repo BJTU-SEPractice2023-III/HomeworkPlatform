@@ -57,17 +57,17 @@
 				
 				<option value="file0">homework_platform/server/service/admin.go (89.5%)</option>
 				
-				<option value="file1">homework_platform/server/service/comment.go (83.6%)</option>
+				<option value="file1">homework_platform/server/service/comment.go (82.6%)</option>
 				
-				<option value="file2">homework_platform/server/service/complaint.go (0.0%)</option>
+				<option value="file2">homework_platform/server/service/complaint.go (82.4%)</option>
 				
 				<option value="file3">homework_platform/server/service/course.go (69.3%)</option>
 				
 				<option value="file4">homework_platform/server/service/file.go (92.9%)</option>
 				
-				<option value="file5">homework_platform/server/service/grade.go (84.8%)</option>
+				<option value="file5">homework_platform/server/service/grade.go (83.7%)</option>
 				
-				<option value="file6">homework_platform/server/service/homework.go (69.2%)</option>
+				<option value="file6">homework_platform/server/service/homework.go (65.7%)</option>
 				
 				<option value="file7">homework_platform/server/service/homework_submission.go (78.8%)</option>
 				
@@ -261,7 +261,10 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) <span cl
         }</span>
         <span class="cov8" title="1">id, _ := c.Get("ID")
         submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-        comments, err := models.GetCommentBySubmissionID(submission.ID)
+        if submission == nil </span><span class="cov0" title="0">{
+                return nil, errors.New("作业未提交")
+        }</span>
+        <span class="cov8" title="1">comments, err := models.GetCommentBySubmissionID(submission.ID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
@@ -284,29 +287,39 @@ type CreateComplaint struct {
         HomeworkID uint   `uri:"id" binding:"required"`
 }
 
-func (service *CreateComplaint) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *CreateComplaint) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         //绑定id
         err := c.ShouldBindUri(service)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
         //绑定reason
-        <span class="cov0" title="0">err = c.ShouldBind(service)
+        <span class="cov8" title="1">err = c.ShouldBind(service)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">log.Printf("正在创建Complaint&lt;homeworkId:%d,reason:%s&gt;", service.HomeworkID, service.Reason)
+        <span class="cov8" title="1">log.Printf("正在创建Complaint&lt;homeworkId:%d,reason:%s&gt;", service.HomeworkID, service.Reason)
         id, _ := c.Get("ID")
-
-        homework_submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-        if homework_submission == nil </span><span class="cov0" title="0">{
+        if service.Reason == "" </span><span class="cov8" title="1">{
+                return nil, errors.New("原因不能为空")
+        }</span>
+        <span class="cov8" title="1">homework_submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
+        if homework_submission == nil </span><span class="cov8" title="1">{
                 return nil, errors.New("没有找到该提交")
         }</span>
-        <span class="cov0" title="0">homework, err := models.GetHomeworkByID(service.HomeworkID)
+        <span class="cov8" title="1">log.Printf("作业的用户为id%d", homework_submission.UserID)
+        if homework_submission.UserID != id.(uint) </span><span class="cov0" title="0">{
+                return nil, errors.New("这不是您的作业")
+        }</span>
+        <span class="cov8" title="1">homework, err := models.GetHomeworkByID(service.HomeworkID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">err = models.CreateTeacherComplaint(
+        <span class="cov8" title="1">complaint, _ := models.GetComplaintByHomeworkIdAndUserId(homework.ID, id.(uint))
+        if complaint != nil &amp;&amp; complaint.ID != 0 </span><span class="cov8" title="1">{
+                return nil, errors.New("未查询")
+        }</span>
+        <span class="cov8" title="1">err = models.CreateTeacherComplaint(
                 homework_submission.ID,
                 homework_submission.HomeworkID,
                 homework.CourseID,
@@ -319,12 +332,12 @@ type DeleteComplaint struct {
         ComplaintId uint `uri:"id" binding:"required"`
 }
 
-func (service *DeleteComplaint) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *DeleteComplaint) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         err := models.DeleteComplaint(service.ComplaintId)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">return nil, nil</span>
+        <span class="cov8" title="1">return nil, nil</span>
 }
 
 type UpdateComplaint struct {
@@ -332,23 +345,26 @@ type UpdateComplaint struct {
         Reason      string `form:"reason"`
 }
 
-func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         //绑定id
         err := c.ShouldBindUri(service)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
         //绑定reason
-        <span class="cov0" title="0">err = c.ShouldBind(service)
+        <span class="cov8" title="1">err = c.ShouldBind(service)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">log.Printf("修改reason为:%s", service.Reason)
-        complain, err := models.GetComplaintById(service.ComplaintId)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if service.Reason == "" </span><span class="cov8" title="1">{
+                return nil, errors.New("原因不能为空")
+        }</span>
+        <span class="cov8" title="1">complain, err := models.GetComplaintById(service.ComplaintId)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">complain.Reason = service.Reason
+        <span class="cov8" title="1">log.Printf("修改reason为:%s", service.Reason)
+        complain.Reason = service.Reason
         err = complain.Save()
         return nil, err</span>
 }
@@ -357,12 +373,12 @@ type SolveComplaint struct {
         ComplaintId uint `uri:"id" binding:"required"`
 }
 
-func (service *SolveComplaint) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *SolveComplaint) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         complaint, err := models.GetComplaintById(service.ComplaintId)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">complaint.Solved = true
+        <span class="cov8" title="1">complaint.Solved = true
         err = complaint.Save()
         return nil, err</span>
 }
@@ -371,32 +387,32 @@ type GetComplaint struct {
         HomeworkID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetComplaint) Handle(c *gin.Context) (any, error) <span class="cov0" title="0">{
+func (service *GetComplaint) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
         id, _ := c.Get("ID")
         homework, err := models.GetHomeworkByID(service.HomeworkID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">course, err := models.GetCourseByID(homework.CourseID)
+        <span class="cov8" title="1">course, err := models.GetCourseByID(homework.CourseID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">if course.TeacherID == id </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if course.TeacherID == id </span><span class="cov8" title="1">{
                 complaints, err := models.GetComplaintByHomeworkID(service.HomeworkID)
                 if err != nil </span><span class="cov0" title="0">{
                         return nil, err
                 }</span>
-                <span class="cov0" title="0">return complaints,nil</span>
-        } else<span class="cov0" title="0"> {
+                <span class="cov8" title="1">return complaints, nil</span>
+        } else<span class="cov8" title="1"> {
                 submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
                 if submission == nil </span><span class="cov0" title="0">{
                         return nil, errors.New("未提交作业")
                 }</span>
-                <span class="cov0" title="0">complaint, err := models.GetComplaintBySubmissionID(submission.ID)
+                <span class="cov8" title="1">complaint, err := models.GetComplaintBySubmissionID(submission.ID)
                 if err != nil </span><span class="cov0" title="0">{
                         return nil, err
                 }</span>
-                <span class="cov0" title="0">return complaint, nil</span>
+                <span class="cov8" title="1">return complaint, nil</span>
         }
 }
 </pre>
@@ -841,9 +857,9 @@ type GetGradeListsByHomeworkIDService struct {
 }
 
 type MyMap struct {
-        UserID   uint   `form:"userid"`
-        UserName string `form:"username"`
-        Score    int    `form:"Score"`
+        UserID   uint   `form:"userId"`
+        UserName string `form:"userName"`
+        Score    int    `form:"score"`
 }
 
 func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, error) <span class="cov8" title="1">{
@@ -857,21 +873,27 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
         }</span>
         <span class="cov8" title="1">id, _ := c.Get("ID")
         if id.(uint) != course.TeacherID </span><span class="cov8" title="1">{
-                return nil, errors.New("您无权限查询")
-        }</span>
-        <span class="cov8" title="1">submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
-        if err2 != nil </span><span class="cov0" title="0">{
-                return nil, err2
-        }</span>
-        <span class="cov8" title="1">var maps []MyMap
-        for _, submission := range submissions </span><span class="cov8" title="1">{
-                user, err := models.GetUserByID(submission.UserID)
-                if err != nil </span><span class="cov0" title="0">{
-                        return nil, err
+                //学生自己查
+                submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
+                if submission==nil</span><span class="cov0" title="0">{
+                        return nil,errors.New("未提交作业")
                 }</span>
-                <span class="cov8" title="1">maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})</span>
+                <span class="cov8" title="1">return submission, nil</span>
+        } else<span class="cov8" title="1"> {
+                submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+                if err2 != nil </span><span class="cov0" title="0">{
+                        return nil, err2
+                }</span>
+                <span class="cov8" title="1">var maps []MyMap
+                for _, submission := range submissions </span><span class="cov8" title="1">{
+                        user, err := models.GetUserByID(submission.UserID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return nil, err
+                        }</span>
+                        <span class="cov8" title="1">maps = append(maps, MyMap{UserID: user.ID, UserName: user.Username, Score: submission.Score})</span>
+                }
+                <span class="cov8" title="1">return maps, nil</span>
         }
-        <span class="cov8" title="1">return maps, nil</span>
 }
 </pre>
 		
@@ -907,6 +929,28 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) <span class="cov
                         filePath := filepath.Join(path, file.Name())
                         homework.FilePaths = append(homework.FilePaths, filePath)
                 }</span>
+        }
+
+        <span class="cov8" title="1">course, err := models.GetCourseByID(homework.CourseID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">id := c.GetUint("ID")
+        if id != course.TeacherID </span><span class="cov0" title="0">{
+                studentHomework := StudentHomework{
+                        Homework:  homework,
+                        Submitted: false,
+                        Score:     -1,
+                }
+
+                homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
+                if homeworkSubmission != nil </span><span class="cov0" title="0">{
+                        studentHomework.Submitted = true
+                        studentHomework.Score = homeworkSubmission.Score
+                }</span>
+
+                <span class="cov0" title="0">return studentHomework, nil</span>
         }
         <span class="cov8" title="1">return homework, nil</span>
 }
@@ -1497,6 +1541,8 @@ type GetUserNotifications struct {
 }
 
 type Notifications struct {
+        Type string `json:"type"`
+
         TeachingHomeworkListsToFinish  []models.Homework `json:"homeworkInProgress"`
         TeachingHomeworkListsToComment []models.Homework `json:"commentInProgress"`
 
