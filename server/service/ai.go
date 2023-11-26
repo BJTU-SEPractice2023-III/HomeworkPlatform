@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"homework_platform/internal/utils"
+	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"os"
 	"time"
 
@@ -50,7 +53,6 @@ func (s *GPTService) Handle(c *gin.Context) (any, error) {
 
 // TODO:许一涵的TOKEN,就先放在这了
 var (
-	hostUrl   = "wss://spark-api.xf-yun.com/v3.1/chat" //这里调模型是v几,然后调整utils里面的general字段
 	appid     = "fbc7bd6f"
 	apiSecret = "ZWI4N2Q5M2NlZDQ3YzFmMzM4YmY0MGVk"
 	apiKey    = "f81f4915c4d8fddaafe5a5755fcc0708"
@@ -61,11 +63,12 @@ type SparkService struct {
 }
 
 func (s *SparkService) Handle(c *gin.Context) (any, error) {
+	hostUrl := "wss://spark-api.xf-yun.com/v3.1/chat" //这里调模型是v几,然后调整utils里面的general字段
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}
 	//握手并建立websocket 连接
-	conn, resp, err := d.Dial(utils.AssembleAuthUrl1(hostUrl, apiKey, apiSecret), nil)
+	conn, resp, err := d.Dial(utils.AssembleAuthUrl(hostUrl, apiKey, apiSecret), nil)
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != 101 {
@@ -104,6 +107,114 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 		if code != 0 {
 			fmt.Println(data["payload"])
 			return nil, errors.New("连接失败")
+		}
+		status := choices["status"].(float64)
+		fmt.Println(status)
+		text := choices["text"].([]interface{})
+		content := text[0].(map[string]interface{})["content"].(string)
+		if status != 2 {
+			answer += content
+		} else {
+			fmt.Println("收到最终结果")
+			answer += content
+			usage := payload["usage"].(map[string]interface{})
+			temp := usage["text"].(map[string]interface{})
+			totalTokens := temp["total_tokens"].(float64)
+			fmt.Println("total_tokens:", totalTokens)
+			conn.Close()
+			break
+		}
+
+	}
+	//输出返回结果
+	fmt.Println(answer)
+	return answer, nil
+}
+
+type SparkImageService struct {
+	Content string               `form:"content"`
+	Files   multipart.FileHeader `form:"file"`
+}
+
+func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
+	hostUrl := "wss://spark-api.cn-huabei-1.xf-yun.com/v2.1/image"
+	if c.ContentType() != "multipart/form-data" {
+		return nil, errors.New("not supported content-type")
+	}
+
+	var err error
+	// 从 Form 获取其他数据
+	err = c.ShouldBind(s)
+	if err != nil {
+		return nil, err
+	}
+
+	d := websocket.Dialer{
+		HandshakeTimeout: 5 * time.Second,
+	}
+	//握手并建立websocket 连接
+	conn, resp, err := d.Dial(utils.AssembleAuthUrl(hostUrl, apiKey, apiSecret), nil)
+	if err != nil {
+		return nil, err
+	} else if resp.StatusCode != 101 {
+		return nil, errors.New("连接失败")
+	}
+
+	file, err := s.Files.Open()
+	if err != nil {
+		fmt.Println("无法打开文件：", err)
+		return nil, err
+	}
+	defer file.Close()
+	image, err := ioutil.ReadAll(file)
+	log.Println("content为" + s.Content)
+	messages := []utils.ImageMessage{
+		{Role: "user", Content: base64.StdEncoding.EncodeToString(image), ContentType: "image"}, // 首条必须是图片
+		{Role: "user", Content: s.Content, ContentType: "text"},
+	}
+
+	data := map[string]interface{}{
+		"header": map[string]interface{}{
+			"app_id": appid,
+		},
+		"parameter": map[string]interface{}{
+			"chat": map[string]interface{}{
+				"domain": "general",
+			},
+		},
+		"payload": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+			"message": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+				"text": messages, // 根据实际情况修改返回的数据结构和字段名
+			},
+		},
+	}
+	conn.WriteJSON(data)
+
+	var answer = ""
+	//获取返回的数据
+	for {
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Println("read message error:", err)
+			break
+		}
+
+		var data map[string]interface{}
+		err1 := json.Unmarshal(msg, &data)
+		if err1 != nil {
+			fmt.Println("Error parsing JSON:", err)
+			return nil, err
+		}
+		fmt.Println(string(msg))
+		//解析数据
+		payload := data["payload"].(map[string]interface{})
+		choices := payload["choices"].(map[string]interface{})
+		header := data["header"].(map[string]interface{})
+		code := header["code"].(float64)
+
+		if code != 0 {
+			fmt.Println(data["payload"])
+			return nil, errors.New(data["payload"].(string))
 		}
 		status := choices["status"].(float64)
 		fmt.Println(status)

@@ -184,8 +184,10 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/ai/gpt	| 询问G哥
 					ai.POST("gpt", service.Handler(&service.GPTService{}))
-					// POST api/v1/spark
+					// POST api/v1/ai/spark
 					ai.POST("spark", service.Handler(&service.SparkService{}))
+					// POST api/v1/ai/spark/image
+					ai.POST("spark/image", service.Handler(&service.SparkImageService{}))
 				}
 			}
 		}
@@ -270,7 +272,7 @@ func InitRouter() *gin.Engine {
 			{
 				grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
 				grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
-				grade.POST("update", service.Handler(&service.UpdateGradeService{}))                    // POST api/grade/update
+				grade.POST("update", service.HandlerNoBind(&service.UpdateGradeService{}))                    // POST api/grade/update
 			}
 		}
 	}

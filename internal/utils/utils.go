@@ -155,7 +155,7 @@ func GenParams1(appid, question string) map[string]interface{} { // 根据实际
 }
 
 // 创建鉴权url  apikey 即 hmac username
-func AssembleAuthUrl1(hosturl string, apiKey, apiSecret string) string {
+func AssembleAuthUrl(hosturl string, apiKey, apiSecret string) string {
 	ul, err := url.Parse(hosturl)
 	if err != nil {
 		fmt.Println(err)
@@ -207,4 +207,10 @@ func ReadResp(resp *http.Response) string {
 type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
+}
+
+type ImageMessage struct {
+	Role        string `json:"role"`
+	Content     string `json:"content"`
+	ContentType string `json:"content_type"`
 }
