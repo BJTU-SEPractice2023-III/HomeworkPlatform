@@ -23,7 +23,7 @@ func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
 	var err error
 
 	if user, err = models.GetUserByUsername(service.Username); err == gorm.ErrRecordNotFound {
-		return nil, errors.New("not exist")
+		return nil, err
 	}
 
 	if !user.CheckPassword(service.Password) {

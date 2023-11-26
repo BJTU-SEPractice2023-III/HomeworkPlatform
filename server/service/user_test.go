@@ -39,14 +39,6 @@ func TestRegister(t *testing.T) {
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("创建用户testcast转json %s,%s,需要的code为%d,但是实际code为%d", testcase.username, testcase.password, testcase.ExpextCode, w.Code)
 			}
-
-			// 获取响应结果
-			// body, err := io.ReadAll(resp.Body)
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// response := string(body)
-			// fmt.Println("Response:", response)
 		})
 	}
 }
@@ -172,12 +164,8 @@ func TestGetUserCoursesService(t *testing.T) {
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			// data := map[string]interface{}{"signature": testcase.Signature}
-			// jsonData, _ := json.Marshal(data)
-
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/users/"+strconv.Itoa(int(testcase.UserId))+"/courses", nil)
-			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {

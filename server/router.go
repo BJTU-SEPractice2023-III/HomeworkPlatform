@@ -146,12 +146,6 @@ func InitRouter() *gin.Engine {
 					notice.GET(":id", service.HandlerBindUri(&service.GetComplaint{}))
 				}
 
-				// submissions := auth.Group("submissions") // *——****8*&￥*（#&&#￥@#￥**￥*******
-				// {
-				// 	// GET 	  api/v1/homeworks/byhomeworkid/:homeworkid 	|	根据作业id和用户id获取作业信息
-				// 	submissios.GET(":id/", service.HandlerBindUri(&service.GetHomeworkSubmission{}))
-				// }
-
 				comment := auth.Group("comment")
 				{
 					// GET api/v1/comment/:id 		| 获得作业信息
@@ -184,6 +178,14 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/file/:path	| 获得文件
 					file.GET("*path", service.Handler(&service.GetFileService{}))
+				}
+
+				ai := auth.Group("ai")
+				{
+					// POST api/v1/ai/gpt	| 询问G哥
+					ai.POST("gpt", service.Handler(&service.GPTService{}))
+					// POST api/v1/spark
+					ai.POST("spark", service.Handler(&service.SparkService{}))
 				}
 			}
 		}

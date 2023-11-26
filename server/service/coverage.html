@@ -65,11 +65,11 @@
 				
 				<option value="file4">homework_platform/server/service/file.go (92.9%)</option>
 				
-				<option value="file5">homework_platform/server/service/grade.go (83.7%)</option>
+				<option value="file5">homework_platform/server/service/grade.go (85.2%)</option>
 				
 				<option value="file6">homework_platform/server/service/homework.go (65.7%)</option>
 				
-				<option value="file7">homework_platform/server/service/homework_submission.go (78.8%)</option>
+				<option value="file7">homework_platform/server/service/homework_submission.go (79.0%)</option>
 				
 				<option value="file8">homework_platform/server/service/service.go (84.6%)</option>
 				
@@ -795,6 +795,7 @@ func (service *GetFileService) Handle(c *gin.Context) (any, error) <span class="
 import (
         "errors"
         "homework_platform/internal/models"
+        "log"
 
         "github.com/gin-gonic/gin"
 )
@@ -878,7 +879,12 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
                 if submission==nil</span><span class="cov0" title="0">{
                         return nil,errors.New("未提交作业")
                 }</span>
-                <span class="cov8" title="1">return submission, nil</span>
+                <span class="cov8" title="1">var maps MyMap
+                maps.UserID = id.(uint)
+                maps.Score = submission.Score
+                maps.UserName = "yourself"
+                log.Println(maps)
+                return maps, nil</span>
         } else<span class="cov8" title="1"> {
                 submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
                 if err2 != nil </span><span class="cov0" title="0">{
@@ -1265,6 +1271,7 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) <span 
         }</span>
         <span class="cov8" title="1">for _, value := range homework.HomeworkSubmissions </span><span class="cov8" title="1">{
                 if value.UserID == userid.(uint) </span><span class="cov8" title="1">{
+                        value.GetFiles()
                         return value, nil
                 }</span>
         }
