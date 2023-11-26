@@ -138,7 +138,7 @@ func GenParams1(appid, question string) map[string]interface{} { // 根据实际
 		},
 		"parameter": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"chat": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
-				"domain":      "general",    // 根据实际情况修改返回的数据结构和字段名
+				"domain":      "generalv3",    // 根据实际情况修改返回的数据结构和字段名
 				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
 				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
 				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名

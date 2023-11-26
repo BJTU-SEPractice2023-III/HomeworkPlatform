@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/utils"
+	"log"
 	"os"
 	"time"
 
@@ -49,7 +50,7 @@ func (s *GPTService) Handle(c *gin.Context) (any, error) {
 
 // TODO:许一涵的TOKEN,就先放在这了
 var (
-	hostUrl   = "wss://aichat.xf-yun.com/v1.1/chat"
+	hostUrl   = "wss://spark-api.xf-yun.com/v3.1/chat" //这里调模型是v几,然后调整utils里面的general字段
 	appid     = "fbc7bd6f"
 	apiSecret = "ZWI4N2Q5M2NlZDQ3YzFmMzM4YmY0MGVk"
 	apiKey    = "f81f4915c4d8fddaafe5a5755fcc0708"
@@ -68,6 +69,7 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != 101 {
+		log.Printf("崩溃!")
 		panic(utils.ReadResp(resp) + err.Error())
 	}
 
