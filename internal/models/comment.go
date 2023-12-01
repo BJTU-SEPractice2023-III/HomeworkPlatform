@@ -123,7 +123,7 @@ func AssignComment(HomeworkID uint) error {
 	}
 
 	// 分配作业
-	submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
+	submissionLists, err := GetSubmissionsByHomeworkID(HomeworkID)
 	if err != nil {
 		log.Println("no")
 		return err

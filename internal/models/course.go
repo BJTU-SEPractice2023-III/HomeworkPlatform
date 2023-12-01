@@ -4,12 +4,11 @@ import (
 	"errors"
 	"log"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Course struct {
-	gorm.Model
+	// gorm.Model
+	ID        uint   `json:"id" gorm:"primaryKey"`
 	Name        string    `json:"name"`
 	BeginDate   time.Time `json:"beginDate"`
 	EndDate     time.Time `json:"endDate"`
@@ -40,9 +39,9 @@ func (course Course) GetHomeworkLists() ([]Homework, error) {
 		return nil, res.Error
 	}
 	homeworks := course.Homeworks
-	for i := 0; i < len(homeworks); i++ {
-		homeworks[i].GetFiles()
-	}
+	// for i := 0; i < len(homeworks); i++ {
+	// 	homeworks[i].GetFiles()
+	// }
 	return homeworks, nil
 }
 

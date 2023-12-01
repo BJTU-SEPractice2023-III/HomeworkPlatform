@@ -59,11 +59,18 @@ func CreateData() {
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 
 	//保证作业1是可以提交的
-	models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
+	homework1_id, _ := models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework1, _ := models.GetHomeworkByID(homework1_id)
+	_ = homework1
+	homework2_id, _ := models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework2, _ := models.GetHomeworkByID(homework2_id)
+	_ = homework2
+	homework3_id, _ := models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework3, _ := models.GetHomeworkByID(homework3_id)
+	homework4_id, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework4, _ := models.GetHomeworkByID(homework4_id)
+	homework5_id, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
+	homework5, _ := models.GetHomeworkByID(homework5_id)
 
 	models.SelectCourse(10, 2)
 	models.SelectCourse(8, 1)
@@ -76,7 +83,7 @@ func CreateData() {
 	models.SelectCourse(3, 2)
 	models.SelectCourse(3, 3)
 
-	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+	homework3.AddSubmission(models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 3,
 		Content:    "kksk",
@@ -85,24 +92,24 @@ func CreateData() {
 	submission.Score = 20
 	models.DB.Save(&submission)
 
-	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+	homework4.AddSubmission(models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 4,
 		Content:    "kksk",
 	})
 
-	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+	homework5.AddSubmission(models.HomeworkSubmission{
 		UserID:     1,
 		HomeworkID: 5,
 		Content:    "kksk",
 	})
-	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+	homework5.AddSubmission(models.HomeworkSubmission{
 		UserID:     10,
 		HomeworkID: 5,
 		Content:    "kksk",
 	})
 
-	models.AddHomeworkSubmission(&models.HomeworkSubmission{
+	homework5.AddSubmission(models.HomeworkSubmission{
 		UserID:     77,
 		HomeworkID: 5,
 		Content:    "kksk",
@@ -126,12 +133,7 @@ func TestMain(m *testing.M) {
 	}
 	bootstrap.Config = &config.Config{JWTSigningString: "moorxJ", SQLDSN: "123"}
 
-	models.DB.AutoMigrate(&models.User{})
-	models.DB.AutoMigrate(&models.Course{})
-	models.DB.AutoMigrate(&models.Homework{})
-	models.DB.AutoMigrate(&models.HomeworkSubmission{})
-	models.DB.AutoMigrate(&models.Comment{})
-	models.DB.AutoMigrate(&models.Complaint{})
+	models.Migrate()
 
 	CreateData()
 	Router = server.InitRouter()

@@ -36,10 +36,33 @@ type User struct {
 	// Also check comment.go
 	// Check: https://gorm.io/docs/has_many.html
 	Comments []Comment `json:"-" gorm:"constraint:OnDelete:CASCADE"`
+	Files    []File    `json:"-" gorm:"constraint:OnDelete:CASCADE"`
 
 	Complaints []Complaint `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
 	// 算法设计,根据置信度的比率来打分和,在根据均值的偏差计算置信度
 	DegreeOfConfidence float64 `json:"-" gorm:"default:300"`
+}
+
+func (user *User) UploadFile(name string, size uint, path string) (uint, error) {
+	file := File {
+		Name: name,
+		Size: size,
+		Path: path,
+	}
+	err := DB.Model(user).Association("Files").Append(&file)
+	if err != nil {
+		return 0, err
+	}
+	return file.ID, nil
+}
+
+func (user *User) GetFiles() ([]File, error) {
+	var files []File
+	err := DB.Model(user).Association("Files").Find(&files)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
 }
 
 func (user *User) CheckPassword(password string) bool {

@@ -59,9 +59,10 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 			Content:    s.Content,
 			UserID:     id.(uint),
 		}
-		res := models.AddHomeworkSubmission(&homworksubmission)
-		if !res {
-			return nil, errors.New("提交失败")
+		// res := models.AddHomeworkSubmission(&homworksubmission)
+		_, err := homework.AddSubmission(homworksubmission)
+		if err != nil {
+			return nil, err
 		}
 		for _, f := range s.Files {
 			log.Println(f.Filename)
@@ -82,7 +83,7 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	userid, _ := c.Get("ID")
 	log.Printf("用户id为%d", userid.(uint))
 	log.Printf("homeworkid为%d", service.HomeworkId)
-	homework, err := models.GetHomeworkByIDWithSubmissionLists(service.HomeworkId)
+	homework, err := models.GetHomeworkByID(service.HomeworkId)
 	if err != nil {
 		return "该作业号不存在", nil
 	}

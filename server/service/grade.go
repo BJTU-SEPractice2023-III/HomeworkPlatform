@@ -84,8 +84,8 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	if id.(uint) != course.TeacherID {
 		//学生自己查
 		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-		if submission==nil{
-			return nil,errors.New("未提交作业")
+		if submission == nil {
+			return nil, errors.New("未提交作业")
 		}
 		var maps MyMap
 		maps.UserID = id.(uint)
@@ -94,7 +94,7 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 		log.Println(maps)
 		return maps, nil
 	} else {
-		submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+		submissions, err2 := models.GetSubmissionsByHomeworkID(service.HomeworkID)
 		if err2 != nil {
 			return nil, err2
 		}

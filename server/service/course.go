@@ -310,7 +310,7 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
 	// 创建课程
-	homework, err2 := models.CreateHomework(
+	homeworkId, err2 := models.CreateHomework(
 		s.CourseID,
 		s.Name,
 		s.Description,
@@ -324,9 +324,9 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	// 保存课程文件
 	for _, f := range s.Files {
 		log.Println(f.Filename)
-		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homework.(models.Homework).ID, f.Filename)
+		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homeworkId, f.Filename)
 		// 上传文件到指定的目录
 		c.SaveUploadedFile(f, dst)
 	}
-	return homework.(models.Homework).ID, nil
+	return homeworkId, nil
 }
