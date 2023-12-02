@@ -65,6 +65,7 @@ func (course Course) CreateHomework(name string, description string, begindate t
 }
 
 // GetCourseByID gets course by id
+// Tested
 func GetCourseByID(id uint) (Course, error) {
 	logPrefix := fmt.Sprintf("[models/course]: GetCourseByID(id: %d)", id)
 	log.Printf("%s: 正在查找...", logPrefix)

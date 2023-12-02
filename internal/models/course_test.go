@@ -7,6 +7,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetCourseById(t *testing.T) {
+	deleteData()
+	assert := assert.New(t)
+
+	user, _ := CreateUser("username", "password")
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(0, 0, 7), "desc")
+	res, err := GetCourseByID(course.ID)
+	assert.Nil(err)
+	assert.Equal(course.ID, res.ID)
+	assert.Equal(course.Name, res.Name)
+	assert.Equal(course.Description, res.Description)
+}
+
 func TestCourseGetHomeworks(t *testing.T) {
 	deleteData()
 	assert := assert.New(t)
