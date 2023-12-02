@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"strings"
+	"time"
 )
 
 type User struct {
@@ -132,6 +133,43 @@ func (user *User) ChangePassword(password string) error {
 		return errors.New("密码不能为空")
 	}
 	if err := DB.Model(&user).Updates(User{Password: utils.EncodePassword(password, utils.RandStringRunes(16))}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateCourse creates a course
+// Tested in course_test.go
+func (user *User) CreateCourse(name string, begindate time.Time, enddate time.Time, description string) (*Course, error) {
+	logPrefix := fmt.Sprintf("[models/user]: (*User<id: %d>).CreateCourse(nam: %s)", user.ID, name)
+
+	log.Printf("%s: 正在创建...", logPrefix)
+	course := Course{
+		Name:        name,
+		BeginDate:   begindate,
+		EndDate:     enddate,
+		Description: description,
+		TeacherID:   user.ID,
+	}
+	if err := DB.Create(&course).Error; err != nil {
+		return nil, err
+	}
+
+	return &course, nil
+}
+
+// SelectCourse selects a course
+// Tested in course_test.go
+func (user *User) SelectCourse(courseId uint) error {
+	course, err := GetCourseByID(courseId)
+	if err != nil {
+		return err
+	}
+	res := course.GetStudentsByID(user.ID)
+	if res {
+		return errors.New("无法重复选课")
+	}
+	if err = DB.Model(user).Association("LearningCourses").Append(&course); err != nil {
 		return err
 	}
 	return nil

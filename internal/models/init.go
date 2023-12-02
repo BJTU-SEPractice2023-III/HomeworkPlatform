@@ -98,7 +98,7 @@ func generateData() {
 	tjw, _ := CreateUser("tjw", "tjw")
 	xb, _ := CreateUser("xb", "xb")
 
-	arknights_id, _ := CreateCourse(
+	arknights, _ := tjw.CreateCourse(
 		"明日方舟",
 		time.Date(2019, 5, 1, 3, 59, 0, 0, time.Local), time.Now().Add(24*time.Hour),
 		`《明日方舟》（Arknights）是由鹰角网络所开发的一款策略塔防手机游戏，也是鹰角网络开发的第一款游戏。游戏在2017年9月8日发布概念预告，经历三次删档测试[5]，2019年5月1日全平台公开测试[6]。
@@ -114,15 +114,13 @@ func generateData() {
 		游戏设定在一个天灾肆虐的世界中，经由天灾席卷过后的土地上出现了一种矿石——源石。源石蕴含的能量使文明迅速发展，但同时过多与源石接触也使部分人患上了不治之症——“矿石病”。感染者理论死亡率100%，且死亡时会发生二次扩散，导致感染者被世界各国政府大规模隔离和驱逐，并引发了感染者和非感染者之间的紧张关系。[10]
 		
 		玩家扮演失忆后的“博士”，指挥着医疗机构“罗德岛”。罗德岛的目的是寻找治疗矿石病的方法，同时保护自己免受“整合运动”等威胁。整合运动是一支受感染的无政府主义军队，一心要推翻泰拉各国政府，以报复对感染者的迫害。玩家将与罗德岛的干员一同面对天灾，在各个势力间游走，发掘不为人知的内幕。[9]`,
-		tjw.ID,
 	)
 
-	SelectCourse(xyh.ID, arknights_id)
-	SelectCourse(xb.ID, arknights_id)
+	xyh.SelectCourse(arknights.ID)
+	xb.SelectCourse(arknights.ID)
 
 	/* contingency_contract_pyrolysis_id, _ := */
-	CreateHomework(
-		arknights_id,
+	arknights.CreateHomework(
 		"危机合约#1 灼燃作战",
 		`罗德岛成立之初，物质与商业资源的匮乏带来了无数的危机，在这片充满危险的大地上立足成了一种奢望。
 		而“危机合约”的存在，为罗德岛这样的企业提供了赖以生存的机会。
@@ -144,24 +142,21 @@ func generateData() {
 		time.Date(2023, 12, 5, 3, 59, 0, 0, time.Local),
 		time.Date(2023, 12, 10, 3, 59, 0, 0, time.Local),
 	)
-	CreateHomework(
-		arknights_id,
+	arknights.CreateHomework(
 		"tjw快给我写前端（作业进行中）",
 		"狠狠地写",
 		time.Now(),
 		time.Now().Add(7*24*time.Hour),
 		time.Now().Add(14*24*time.Hour),
 	)
-	CreateHomework(
-		arknights_id,
+	arknights.CreateHomework(
 		"tjw快给我写前端（作业已截止，正在互评）",
 		"狠狠地写",
 		time.Now().Add(-7*24*time.Hour),
 		time.Now(),
 		time.Now().Add(7*24*time.Hour),
 	)
-	CreateHomework(
-		arknights_id,
+	arknights.CreateHomework(
 		"tjw快给我写前端（作业已截止，互评已截止）",
 		"狠狠地写",
 		time.Now().Add(-14*24*time.Hour),

@@ -39,44 +39,49 @@ func GetAuthorziation(w *httptest.ResponseRecorder) string {
 }
 
 func CreateData() {
-	models.CreateUser("xyh", "123") //1
+	user1, _ := models.CreateUser("xyh", "123") // 1
 	models.UpgradeToAdmin(1)
-	models.CreateUser("xeh", "123") //2
-	models.CreateUser("xsh", "123") //3
-	models.CreateUser("tjw", "123") //4
+	user2, _ := models.CreateUser("xeh", "123") // 2
+	user3, _ := models.CreateUser("xsh", "123") // 3
+	user4, _ := models.CreateUser("tjw", "123") // 4
 
-	models.CreateUser("xb", "123")         //5
-	models.CreateUser("xbb", "123")        //6
-	models.CreateUser("xbbb", "123")       //7
-	models.CreateUser("xbbbb", "123")      //8
-	models.CreateUser("deleteUser", "123") //9
-	models.CreateUser("10", "123")
+	user5, _ := models.CreateUser("xb", "123")         // 5
+	_ = user5
+	user6, _ := models.CreateUser("xbb", "123")        // 6
+	user7, _ := models.CreateUser("xbbb", "123")       // 7
+	_ = user7
+	user8, _ := models.CreateUser("xbbbb", "123")      // 8
+	user9, _ := models.CreateUser("deleteUser", "123") // 9
+	_ = user9
+	user10, _ := models.CreateUser("10", "123")         // 10
 
-	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
-	models.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
-	models.CreateCourse("c#", time.Now(), time.Now().AddDate(0, 1, 1), "c++", 2)
-	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
-	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
+	course1, _ := user1.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++")
+	course2, _ := user2.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++")
+	course3, _ := user2.CreateCourse("c#", time.Now(), time.Now().AddDate(0, 1, 1), "c++")
+	course4, _ := user1.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++")
+	_ = course4
+	course5, _ := user1.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++")
+	_ = course5
 
 	//保证作业1是可以提交的
-	homework1, _ := models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework1, _ := course1.CreateHomework("c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	_ = homework1
-	homework2, _ := models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework2, _ := course1.CreateHomework("c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	_ = homework2
-	homework3, _ := models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework4, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework5, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
+	homework3, _ := course2.CreateHomework("c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework4, _ := course2.CreateHomework("c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework5, _ := course2.CreateHomework("c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
 
-	models.SelectCourse(10, 2)
-	models.SelectCourse(8, 1)
-	models.SelectCourse(6, 1)
-	models.SelectCourse(4, 2)
-	models.SelectCourse(4, 3)
-	models.SelectCourse(1, 3)
-	models.SelectCourse(1, 2)
-	models.SelectCourse(3, 1)
-	models.SelectCourse(3, 2)
-	models.SelectCourse(3, 3)
+	user10.SelectCourse(course2.ID)
+	user8.SelectCourse(course1.ID)
+	user6.SelectCourse(course1.ID)
+	user4.SelectCourse(course2.ID)
+	user4.SelectCourse(course3.ID)
+	user1.SelectCourse(course3.ID)
+	user1.SelectCourse(course2.ID)
+	user3.SelectCourse(course1.ID)
+	user3.SelectCourse(course2.ID)
+	user3.SelectCourse(course3.ID)
 
 	homework3.AddSubmission(models.HomeworkSubmission{
 		UserID:     1,

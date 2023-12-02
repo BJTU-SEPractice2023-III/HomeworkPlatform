@@ -13,7 +13,7 @@ func TestCreateHomework(t *testing.T) {
 	assert := assert.New(t)
 
 	user, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc")
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -22,7 +22,6 @@ func TestCreateHomework(t *testing.T) {
 
 	// INFO: 成功
 	homeworkData = Homework{
-		CourseID:       courseId,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
@@ -30,8 +29,7 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 
-	homework, _ = CreateHomework(
-		homeworkData.CourseID,
+	homework, _ = course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -42,43 +40,22 @@ func TestCreateHomework(t *testing.T) {
 	res, err := GetHomeworkByID(homework.ID)
 	assert.Nil(err)
 	assert.Equal(homework.ID, res.ID)
-	assert.Equal(homeworkData.CourseID, res.CourseID)
+	assert.Equal(course.ID, res.CourseID)
 	assert.Equal(homeworkData.Name, res.Name)
 	assert.Equal(homeworkData.Description, res.Description)
 	assert.Equal(homeworkData.BeginDate, res.BeginDate)
 	assert.Equal(homeworkData.EndDate, res.EndDate)
 	assert.Equal(homeworkData.CommentEndDate, res.CommentEndDate)
 
-	// INFO: 失败：不存在的 CourseID
-	homeworkData = Homework{
-		CourseID:       0,
-		Name:           "homework",
-		Description:    "desc",
-		BeginDate:      date,
-		EndDate:        date.AddDate(0, 0, 7),
-		CommentEndDate: date.AddDate(0, 0, 14),
-	}
-	_, err = CreateHomework(
-		homeworkData.CourseID,
-		homeworkData.Name,
-		homeworkData.Description,
-		homeworkData.BeginDate,
-		homeworkData.EndDate,
-		homeworkData.CommentEndDate,
-	)
-	assert.Error(err)
-
 	// INFO: 失败：结束时间早于开始时间
 	homeworkData = Homework{
-		CourseID:       0,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
 		EndDate:        date.AddDate(0, 0, -7),
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
-	_, err = CreateHomework(
-		homeworkData.CourseID,
+	_, err = course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -89,15 +66,13 @@ func TestCreateHomework(t *testing.T) {
 
 	// INFO: 失败：评论结束时间早于作业结束时间
 	homeworkData = Homework{
-		CourseID:       0,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
 		EndDate:        date.AddDate(0, 0, 77),
 		CommentEndDate: date,
 	}
-	_, err = CreateHomework(
-		homeworkData.CourseID,
+	_, err = course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -115,8 +90,7 @@ func TestCreateHomework(t *testing.T) {
 		EndDate:        date.AddDate(0, 0, 77),
 		CommentEndDate: date,
 	}
-	_, err = CreateHomework(
-		homeworkData.CourseID,
+	_, err = course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -134,8 +108,7 @@ func TestCreateHomework(t *testing.T) {
 		EndDate:        date.AddDate(0, 0, 77),
 		CommentEndDate: date,
 	}
-	_, err = CreateHomework(
-		homeworkData.CourseID,
+	_, err = course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -150,7 +123,7 @@ func TestGetHomeworkById(t *testing.T) {
 	assert := assert.New(t)
 
 	user, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc")
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -158,7 +131,7 @@ func TestGetHomeworkById(t *testing.T) {
 
 	// INFO: 成功
 	homeworkData = Homework{
-		CourseID:       courseId,
+		CourseID:       course.ID,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
@@ -166,8 +139,7 @@ func TestGetHomeworkById(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 
-	homework, _ := CreateHomework(
-		homeworkData.CourseID,
+	homework, _ := course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -191,7 +163,7 @@ func TestDeleteHomeworkById(t *testing.T) {
 	assert := assert.New(t)
 
 	user, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc")
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -199,7 +171,7 @@ func TestDeleteHomeworkById(t *testing.T) {
 
 	// INFO: 成功
 	homeworkData = Homework{
-		CourseID:       courseId,
+		CourseID:       course.ID,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
@@ -207,8 +179,7 @@ func TestDeleteHomeworkById(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 
-	homework, _ := CreateHomework(
-		homeworkData.CourseID,
+	homework, _ := course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -228,7 +199,7 @@ func TestHomeworkAttachment(t *testing.T) {
 	assert := assert.New(t)
 
 	user, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc")
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -236,7 +207,7 @@ func TestHomeworkAttachment(t *testing.T) {
 
 	// INFO: 成功
 	homeworkData = Homework{
-		CourseID:       courseId,
+		CourseID:       course.ID,
 		Name:           "homework",
 		Description:    "desc",
 		BeginDate:      date,
@@ -244,8 +215,7 @@ func TestHomeworkAttachment(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 
-	homework, _ := CreateHomework(
-		homeworkData.CourseID,
+	homework, _ := course.CreateHomework(
 		homeworkData.Name,
 		homeworkData.Description,
 		homeworkData.BeginDate,
@@ -272,3 +242,4 @@ func TestHomeworkAttachment(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(homework.Files[0], *attachment)
 }
+

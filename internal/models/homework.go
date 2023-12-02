@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -26,44 +25,44 @@ type Homework struct {
 }
 
 // Tested
-func CreateHomework(courseId uint, name string, description string,
-	begindate time.Time, endtime time.Time, commentendate time.Time) (*Homework, error) {
-	logPrefix := fmt.Sprintf("[models/homework]: CreateHomework<courseId: %d, name: %s>", courseId, name)
+// func CreateHomework(courseId uint, name string, description string,
+// 	begindate time.Time, endtime time.Time, commentendate time.Time) (*Homework, error) {
+// 	logPrefix := fmt.Sprintf("[models/homework]: CreateHomework<courseId: %d, name: %s>", courseId, name)
 
-	log.Printf("%s: 正在创建...", logPrefix)
-	if begindate.After(endtime) {
-		log.Printf("%s: 结束时间不可早于开始时间\n", logPrefix)
-		return nil, errors.New("结束时间不可早于开始时间")
-	}
-	if endtime.After(commentendate) {
-		log.Printf("%s: 评论结束时间不可早于作业结束时间\n", logPrefix)
-		return nil, errors.New("评论结束时间不可早于作业结束时间")
-	}
-	if name == "" {
-		log.Printf("%s: 名称不可为空\n", logPrefix)
-		return nil, errors.New("名称不可为空")
-	}
-	if description == "" {
-		log.Printf("%s: 内容不可为空\n", logPrefix)
-		return nil, errors.New("内容不可为空")
-	}
+// 	log.Printf("%s: 正在创建...", logPrefix)
+// 	if begindate.After(endtime) {
+// 		log.Printf("%s: 结束时间不可早于开始时间\n", logPrefix)
+// 		return nil, errors.New("结束时间不可早于开始时间")
+// 	}
+// 	if endtime.After(commentendate) {
+// 		log.Printf("%s: 评论结束时间不可早于作业结束时间\n", logPrefix)
+// 		return nil, errors.New("评论结束时间不可早于作业结束时间")
+// 	}
+// 	if name == "" {
+// 		log.Printf("%s: 名称不可为空\n", logPrefix)
+// 		return nil, errors.New("名称不可为空")
+// 	}
+// 	if description == "" {
+// 		log.Printf("%s: 内容不可为空\n", logPrefix)
+// 		return nil, errors.New("内容不可为空")
+// 	}
 
-	homework := Homework{
-		CourseID:       courseId,
-		Name:           name,
-		Description:    description,
-		BeginDate:      begindate,
-		EndDate:        endtime,
-		CommentEndDate: commentendate,
-	}
-	res := DB.Create(&homework)
-	if res.Error != nil {
-		log.Printf("%s: 创建失败(%s)\n", logPrefix, res.Error)
-		return nil, res.Error
-	}
-	log.Printf("%s: 创建成功(id = %d)\n", logPrefix, homework.ID)
-	return &homework, nil
-}
+// 	homework := Homework{
+// 		CourseID:       courseId,
+// 		Name:           name,
+// 		Description:    description,
+// 		BeginDate:      begindate,
+// 		EndDate:        endtime,
+// 		CommentEndDate: commentendate,
+// 	}
+// 	res := DB.Create(&homework)
+// 	if res.Error != nil {
+// 		log.Printf("%s: 创建失败(%s)\n", logPrefix, res.Error)
+// 		return nil, res.Error
+// 	}
+// 	log.Printf("%s: 创建成功(id = %d)\n", logPrefix, homework.ID)
+// 	return &homework, nil
+// }
 
 // Tested
 func DeleteHomeworkById(id uint) error {

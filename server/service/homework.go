@@ -72,21 +72,21 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
+
+	id := c.GetUint("ID")
 	if course.TeacherID != id {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
-	//CourseID
-	homework, err2 := models.CreateHomework(
-		service.CourseID,
+
+	homework, err := course.CreateHomework(
 		service.Name,
 		service.Description,
 		service.BeginDate,
 		service.EndDate,
 		service.CommentEndDate,
 	)
-	if err2 != nil {
-		return nil, errors.New("创建失败")
+	if err != nil {
+		return nil, err
 	}
 	for _, f := range service.Files {
 		file, err := models.CreateFileFromFileHeaderAndContext(f, c)
@@ -113,7 +113,7 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 	// if course.TeacherID != id {
 	// 	return nil, errors.New("不能查看不是您的课程的作业")
 	// }
-	homeworks, err2 := course.GetHomeworkLists()
+	homeworks, err2 := course.GetHomeworks()
 	if err2 != nil {
 		return nil, err2
 	}

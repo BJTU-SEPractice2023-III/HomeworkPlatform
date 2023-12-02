@@ -21,15 +21,17 @@ type CreateCourse struct {
 }
 
 func (service *CreateCourse) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+
 	if service.BeginDate.After(service.EndDate) {
 		return nil, errors.New("开始时间晚于结束时间")
 	}
-	if service.Name == "" {
-		return nil, errors.New("课程名不能为空")
-	}
-	id, err := models.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description, id.(uint))
-	return id, err
+	course, err := user.CreateCourse(service.Name, service.BeginDate, service.EndDate, service.Description)
+	return course.ID, err
 }
 
 type UpdateCourseDescription struct {
@@ -158,13 +160,15 @@ type SelectCourseService struct {
 }
 
 func (service *SelectCourseService) Handle(c *gin.Context) (any, error) {
-	course, err := models.GetCourseByID(service.CourseID)
+	userId := c.GetUint("ID")
+	user, err := models.GetUserByID(userId)
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	res := course.SelectCourse(id.(uint))
-	return nil, res
+	if err = user.SelectCourse(service.CourseID); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 // type GetTeachingCourse struct {
@@ -230,7 +234,7 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	homeworks, err := course.GetHomeworkLists()
+	homeworks, err := course.GetHomeworks()
 	if err != nil {
 		return nil, err
 	}
@@ -310,15 +314,14 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
 	// 创建课程
-	homework, err2 := models.CreateHomework(
-		s.CourseID,
+	homework, err := course.CreateHomework(
 		s.Name,
 		s.Description,
 		s.BeginDate,
 		s.EndDate,
 		s.CommentEndDate,
 	)
-	if err2 != nil {
+	if err != nil {
 		return nil, errors.New("创建失败")
 	}
 	for _, f := range s.Files {

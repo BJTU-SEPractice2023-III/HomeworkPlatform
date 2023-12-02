@@ -38,10 +38,8 @@ func TestCreateFile(t *testing.T) {
 	assert.Nil(err)
 	fmt.Println(files)
 
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
-	// course, _ := GetCourseByID(courseId)
-
-	homework, _ := CreateHomework(courseId, "homework", "desc", time.Now(), time.Now().AddDate(0, 0, 7), time.Now().AddDate(0, 0, 14))
+	course, _ := user.CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc")
+	homework, _ := course.CreateHomework("homework", "desc", time.Now(), time.Now().AddDate(0, 0, 7), time.Now().AddDate(0, 0, 14))
 
 	// INFO: Attach type - homeworks
 	fileData = File{
@@ -68,8 +66,7 @@ func TestCreateFile(t *testing.T) {
 
 	// INFO: Attach tupe - homework_submissions
 	student, _ := CreateUser("student", "password")
-
-	SelectCourse(student.ID, courseId)
+	student.SelectCourse(course.ID)
 
 	homeworkSubmissionData := HomeworkSubmission{
 		HomeworkID: homework.ID,
