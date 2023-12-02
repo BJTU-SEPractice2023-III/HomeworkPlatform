@@ -80,21 +80,21 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	if id.(uint) != course.TeacherID {
+	id := c.GetUint("ID")
+	if id != course.TeacherID {
 		//学生自己查
-		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-		if submission == nil {
+		submission, err := homework.GetSubmissionByUserId(id)
+		if submission == nil || err != nil{
 			return nil, errors.New("未提交作业")
 		}
 		var maps MyMap
-		maps.UserID = id.(uint)
+		maps.UserID = id
 		maps.Score = submission.Score
 		maps.UserName = "yourself"
 		log.Println(maps)
 		return maps, nil
 	} else {
-		submissions, err2 := models.GetSubmissionsByHomeworkID(service.HomeworkID)
+		submissions, err2 := homework.GetSubmissions()
 		if err2 != nil {
 			return nil, err2
 		}

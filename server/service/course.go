@@ -249,8 +249,8 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 				Score:     -1,
 			}
 
-			homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
-			if homeworkSubmission != nil {
+			homeworkSubmission, err := homework.GetSubmissionByUserId(id)
+			if homeworkSubmission != nil || err != nil{
 				studentHomework.Submitted = true
 				studentHomework.Score = homeworkSubmission.Score
 			}

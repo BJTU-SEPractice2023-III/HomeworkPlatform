@@ -35,7 +35,7 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
 	time := time.Now()
 	homework, err := models.GetHomeworkByID(uint(s.HomeworkID))
 	if err != nil {
@@ -48,16 +48,16 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("正在检查该用户有没有选课%d", id.(uint))
-	if !course.FindStudents(id.(uint)) {
+	log.Printf("正在检查该用户有没有选课%d", id)
+	if !course.FindStudents(id) {
 		return nil, errors.New("请先选择这门课")
 	}
-	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
-	if homworksubmission == nil {
+	homworksubmission, err := homework.GetSubmissionByUserId(id)
+	if homworksubmission == nil || err != nil {
 		homworksubmission := models.HomeworkSubmission{
 			HomeworkID: uint(s.HomeworkID),
 			Content:    s.Content,
-			UserID:     id.(uint),
+			UserID:     id,
 		}
 		// res := models.AddHomeworkSubmission(&homworksubmission)
 		_, err := homework.AddSubmission(homworksubmission)
@@ -120,7 +120,7 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	}
 	log.Println(s)
 
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
 	time := time.Now()
 	homework, err := models.GetHomeworkByID(uint(s.HomeworkID))
 	if err != nil {
@@ -133,11 +133,11 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !course.FindStudents(id.(uint)) {
+	if !course.FindStudents(id) {
 		return nil, errors.New("请先选择这门课")
 	}
-	homworksubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(uint(s.HomeworkID), id.(uint))
-	if homworksubmission != nil {
+	homworksubmission, err := homework.GetSubmissionByUserId(id)
+	if homworksubmission != nil || err != nil {
 		homworksubmission.Content = s.Content
 		homworksubmission.UpdateSelf()
 		os.RemoveAll(fmt.Sprintf("./data/homework_submission/%d", homworksubmission.ID))

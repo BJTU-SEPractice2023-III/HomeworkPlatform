@@ -79,7 +79,7 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("评阅未开始")
 	}
 
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
 	if id == course.TeacherID {
 		commentList, err := models.GetCommentsByHomeworkId(service.HomeworkID)
 		if err != nil {
@@ -88,7 +88,7 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 		return commentList, nil
 	}
 
-	commentList, err := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
+	commentList, err := homework.GetCommentsByUserId(id)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +118,10 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 	if homework.EndDate.After(time.Now()) {
 		return nil, errors.New("评阅未开始")
 	}
-	id, _ := c.Get("ID")
-	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-	if submission == nil {
-		return nil, errors.New("作业未提交")
+	id := c.GetUint("ID")
+	submission, err := homework.GetSubmissionByUserId(id)
+	if err != nil {
+		return nil, err
 	}
 	comments, err := models.GetCommentBySubmissionID(submission.ID)
 	if err != nil {

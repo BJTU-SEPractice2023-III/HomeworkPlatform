@@ -69,7 +69,7 @@ func InitDB() {
 	}
 
 	// 创建初始管理员账户
-	addDefaultUser()
+	// addDefaultUser()
 }
 
 func deleteData() {
@@ -172,6 +172,7 @@ func addDefaultUser() {
 	if err == gorm.ErrRecordNotFound {
 		defaultUser := &User{}
 
+		defaultUser.ID = 1
 		defaultUser.Username = "Admin"
 		defaultUser.Password = utils.EncodePassword(password, utils.RandStringRunes(16))
 		defaultUser.IsAdmin = true

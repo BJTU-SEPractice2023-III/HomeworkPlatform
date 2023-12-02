@@ -167,26 +167,26 @@ func AddHomeworkSubmission(work *HomeworkSubmission) bool {
 	return res.Error == nil
 }
 
-func GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
-	var submission *HomeworkSubmission
-	if err := DB.Where("user_id = ? AND homework_id = ?", userID, homeworkID).First(&submission).Error; err != nil {
-		return nil
-	}
+// func GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
+// 	var submission *HomeworkSubmission
+// 	if err := DB.Where("user_id = ? AND homework_id = ?", userID, homeworkID).First(&submission).Error; err != nil {
+// 		return nil
+// 	}
 
-	if submission.ID != 0 {
-		return submission
-	} else {
-		return nil
-	}
-}
+// 	if submission.ID != 0 {
+// 		return submission
+// 	} else {
+// 		return nil
+// 	}
+// }
 
-func GetSubmissionsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
-	var submission []HomeworkSubmission
-	if err := DB.Where("homework_id = ?", id).Find(&submission).Error; err != nil {
-		return nil, err
-	}
-	for i := 0; i < len(submission); i++ {
-		submission[i].GetFiles()
-	}
-	return submission, nil
-}
+// func GetSubmissionsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
+// 	var submission []HomeworkSubmission
+// 	if err := DB.Where("homework_id = ?", id).Find(&submission).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	for i := 0; i < len(submission); i++ {
+// 		submission[i].GetFiles()
+// 	}
+// 	return submission, nil
+// }

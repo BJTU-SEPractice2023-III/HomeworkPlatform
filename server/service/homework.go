@@ -22,16 +22,6 @@ func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 
-	// path := fmt.Sprintf("./data/homeworkassign/%d", service.ID)
-	// files, err := os.ReadDir(path)
-	// homework.FilePaths = make([]string, 0)
-	// if err == nil {
-	// 	for _, file := range files {
-	// 		filePath := filepath.Join(path, file.Name())
-	// 		homework.FilePaths = append(homework.FilePaths, filePath)
-	// 	}
-	// }
-
 	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
@@ -47,8 +37,8 @@ func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
 			Score:     -1,
 		}
 
-		homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
-		if homeworkSubmission != nil {
+		homeworkSubmission, err := homework.GetSubmissionByUserId(id)
+		if err == nil {
 			studentHomework.Submitted = true
 			studentHomework.Score = homeworkSubmission.Score
 		}

@@ -117,6 +117,34 @@ func (homework *Homework) AddSubmission(submission HomeworkSubmission) (uint, er
 	return submission.ID, nil
 }
 
+// GetSubmissionByUserId gets the submission from a user
+func (homework *Homework) GetSubmissionByUserId(userId uint) (*HomeworkSubmission, error) {
+	var submission HomeworkSubmission
+	if err := DB.Where("homework_id = ? AND user_id = ?", homework.ID, userId).First(&submission).Error; err != nil {
+		return nil, err
+	}
+	return &submission, nil
+}
+
+// GetSubmissions gets all submissions of a homework
+func (homework *Homework) GetSubmissions() ([]HomeworkSubmission, error) {
+	var submission []HomeworkSubmission
+	if err := DB.Model(homework).Preload("Files").Association("HomeworkSubmissions").Find(&submission); err != nil {
+		return nil, err
+	}
+	return submission, nil
+}
+
+
+// GetCommentByUserId gets the comment of a user
+func (homework *Homework) GetCommentsByUserId(userId uint) ([]Comment, error) {
+	var comments []Comment
+	if err := DB.Where("homework_id = ? AND user_id = ?", homework.ID, userId).Find(&comments).Error; err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
+
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time, commentendate time.Time) bool {
 	log.Printf("正在修改homework<id:%d>的详细信息", homework.ID)
 	if beginDate.After(endDate) {

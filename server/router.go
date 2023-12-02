@@ -40,6 +40,16 @@ func InitRouter() *gin.Engine {
 		v2 := api.Group("v2")
 		{
 			v2.GET("file/:id", service.HandlerBindUri(&service.DownloadFileById{}))
+
+			auth := v2.Group("")
+			auth.Use(middlewares.JWTAuth())
+			{
+				users := auth.Group("users")
+				{
+
+					users.GET(":id/notifications", service.HandlerBindUri(&user_service.GetNotifications{}))
+				}
+			}
 		}
 
 		v1 := api.Group("v1")

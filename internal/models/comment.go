@@ -75,15 +75,15 @@ func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid
 	return comment, nil
 }
 
-func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
-	var comment []Comment
-	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
-	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return comment, nil
-}
+// func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
+// 	var comment []Comment
+// 	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
+// 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
+// 	if res.Error != nil {
+// 		return nil, res.Error
+// 	}
+// 	return comment, nil
+// }
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
 	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
@@ -108,7 +108,7 @@ func AssignComment(HomeworkID uint) error {
 	}
 
 	// 分配作业
-	submissionLists, err := GetSubmissionsByHomeworkID(HomeworkID)
+	submissionLists, err := homework.GetSubmissions()
 	if err != nil {
 		log.Println("no")
 		return err
