@@ -44,10 +44,10 @@ func InitRouter() *gin.Engine {
 			auth := v2.Group("")
 			auth.Use(middlewares.JWTAuth())
 			{
-				users := auth.Group("users")
+				auth.GET("notifications", service.HandlerBindUri(&user_service.GetNotifications{}))
+				// users := auth.Group("users")
 				{
 
-					users.GET(":id/notifications", service.HandlerBindUri(&user_service.GetNotifications{}))
 				}
 			}
 		}

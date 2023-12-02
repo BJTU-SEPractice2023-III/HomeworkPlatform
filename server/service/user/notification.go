@@ -22,12 +22,11 @@ type Notification struct {
 	NotificationData any  `json:"notificationData"`
 }
 
-type GetNotifications struct {
-	UserId uint `uri:"id" binding:"required"`
-}
+type GetNotifications struct{}
 
 func (service *GetNotifications) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByID(service.UserId)
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
 	if err != nil {
 		return nil, err
 	}
