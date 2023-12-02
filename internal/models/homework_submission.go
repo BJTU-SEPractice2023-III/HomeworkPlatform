@@ -1,12 +1,9 @@
 package models
 
 import (
-	"fmt"
 	"homework_platform/internal/bootstrap"
 	"log"
 	"math"
-	"os"
-	"path/filepath"
 	"time"
 
 	"gorm.io/gorm"
@@ -38,7 +35,6 @@ func GetHomeworkSubmissionByID(homewroksubmissionid uint) (*HomeworkSubmission, 
 	if err := DB.Model(&homewroksubmission).Preload("Files").First(&homewroksubmission, homewroksubmissionid).Error; err != nil {
 		return nil, err
 	}
-	homewroksubmission.GetFiles()
 	return &homewroksubmission, nil
 }
 
@@ -57,21 +53,6 @@ func (homeworkSubmission *HomeworkSubmission) GetAttachments() ([]File, error) {
 		return nil, err
 	}
 	return files, nil
-}
-
-func (homeworksubmission *HomeworkSubmission) GetFiles() {
-	root := fmt.Sprintf("./data/homework_submission/%d/", homeworksubmission.ID)
-	log.Println(root)
-	files, err := os.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			log.Printf("获得文件%s", file.Name())
-			homeworksubmission.FilePaths = append(homeworksubmission.FilePaths, filepath.Join(root, file.Name()))
-		}
-	}
 }
 
 func GetHomeWorkSubmissionsByHomeworkID(homeworkID uint) []HomeworkSubmission {
