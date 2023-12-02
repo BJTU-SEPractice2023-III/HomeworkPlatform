@@ -114,7 +114,7 @@ func InitRouter() *gin.Engine {
 				homeworks := auth.Group("homeworks")
 				{
 					// GET    api/v1/homeworks/:id               | 获取指定 id 作业的信息
-					homeworks.GET(":id", service.HandlerBindUri(&service.GetHomework{}))
+					homeworks.GET(":id", service.HandlerBindUri(&service.GetHomeworkById{}))
 					// PUT    api/v1/homeworks/:id               | 更新指定 id 作业的信息
 					homeworks.PUT(":id", service.HandlerNoBind(&service.UpdateHomework{}))
 					// DELETE api/v1/homeworks/:id               | 删除指定 id 作业
@@ -240,11 +240,10 @@ func InitRouter() *gin.Engine {
 			//homework
 			homewrok := auth.Group("homework")
 			{
-				homewrok.POST("assign", service.Handler(&service.AssignHomeworkService{})) // POST api/homework/assign
 				homewrok.POST("homeworklists", service.Handler(&service.HomeworkLists{}))  // POST api/homework/homeworklists
 				homewrok.POST("delete", service.Handler(&service.DeleteHomework{}))        // POST api/homework/delete
 				// GET api/homework/:id | Get homework detail
-				homewrok.GET(":id", service.HandlerWithBindType(&service.GetHomework{}, service.BindUri))
+				homewrok.GET(":id", service.HandlerWithBindType(&service.GetHomeworkById{}, service.BindUri))
 				homewrok.POST("update", service.Handler(&service.UpdateHomework{})) // POST api/homework/update
 				// homewrok.GET("information", service.Handler(&service.HomeworkDetail{}))     // GET api/homework/information
 			}
@@ -272,7 +271,7 @@ func InitRouter() *gin.Engine {
 			{
 				grade.GET("bysubmissionid", service.Handler(&service.GetGradeBySubmissionIDService{}))  // GET api/grade/bysubmissionid
 				grade.GET("byhomeworkid", service.Handler(&service.GetGradeListsByHomeworkIDService{})) // GET api/grade/byhomeworkid
-				grade.POST("update", service.HandlerNoBind(&service.UpdateGradeService{}))                    // POST api/grade/update
+				grade.POST("update", service.HandlerNoBind(&service.UpdateGradeService{}))              // POST api/grade/update
 			}
 		}
 	}

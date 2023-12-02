@@ -7,30 +7,30 @@ import (
 	"log"
 	"mime/multipart"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-type GetHomework struct {
+type GetHomeworkById struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetHomework) Handle(c *gin.Context) (any, error) {
-	homework, err2 := models.GetHomeworkByID(uint(service.ID))
-	if err2 != nil {
-		return nil, errors.New("没有找到该作业")
+func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
+	homework, err := models.GetHomeworkByID(uint(service.ID))
+	if err != nil {
+		return nil, err
 	}
-	path := fmt.Sprintf("./data/homeworkassign/%d", service.ID)
-	files, err := os.ReadDir(path)
-	homework.FilePaths = make([]string, 0)
-	if err == nil {
-		for _, file := range files {
-			filePath := filepath.Join(path, file.Name())
-			homework.FilePaths = append(homework.FilePaths, filePath)
-		}
-	}
+
+	// path := fmt.Sprintf("./data/homeworkassign/%d", service.ID)
+	// files, err := os.ReadDir(path)
+	// homework.FilePaths = make([]string, 0)
+	// if err == nil {
+	// 	for _, file := range files {
+	// 		filePath := filepath.Join(path, file.Name())
+	// 		homework.FilePaths = append(homework.FilePaths, filePath)
+	// 	}
+	// }
 
 	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
@@ -38,9 +38,11 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) {
 	}
 
 	id := c.GetUint("ID")
-	if id != course.TeacherID {
+	if id == course.TeacherID {
+		return *homework, nil
+	} else {
 		studentHomework := StudentHomework{
-			Homework:  homework,
+			Homework:  *homework,
 			Submitted: false,
 			Score:     -1,
 		}
@@ -53,7 +55,6 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) {
 
 		return studentHomework, nil
 	}
-	return homework, nil
 }
 
 type AssignHomeworkService struct {
@@ -76,7 +77,7 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
 	//CourseID
-	homeworkId, err2 := models.CreateHomework(
+	homework, err2 := models.CreateHomework(
 		service.CourseID,
 		service.Name,
 		service.Description,
@@ -88,13 +89,15 @@ func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("创建失败")
 	}
 	for _, f := range service.Files {
-		log.Println(f.Filename)
-		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homeworkId, f.Filename)
-		// 上传文件到指定的目录
-		c.SaveUploadedFile(f, dst)
+		file, err := models.CreateFileFromFileHeaderAndContext(f, c)
+		if err != nil {
+			// TODO: err handle
+		} else {
+			file.Attach(homework.ID, models.TargetTypeHomework)
+		}
 	}
 
-	return homeworkId, nil
+	return homework.ID, nil
 }
 
 type HomeworkLists struct {

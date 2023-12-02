@@ -12,8 +12,8 @@ func TestCreateHomework(t *testing.T) {
 	deleteData()
 	assert := assert.New(t)
 
-	userId, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", userId)
+	user, _ := CreateUser("username", "password")
+	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -59,12 +59,12 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 	_, err = CreateHomework(
-		homework.CourseID,
-		homework.Name,
-		homework.Description,
-		homework.BeginDate,
-		homework.EndDate,
-		homework.CommentEndDate,
+		homeworkData.CourseID,
+		homeworkData.Name,
+		homeworkData.Description,
+		homeworkData.BeginDate,
+		homeworkData.EndDate,
+		homeworkData.CommentEndDate,
 	)
 	assert.Error(err)
 
@@ -78,12 +78,12 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date.AddDate(0, 0, 14),
 	}
 	_, err = CreateHomework(
-		homework.CourseID,
-		homework.Name,
-		homework.Description,
-		homework.BeginDate,
-		homework.EndDate,
-		homework.CommentEndDate,
+		homeworkData.CourseID,
+		homeworkData.Name,
+		homeworkData.Description,
+		homeworkData.BeginDate,
+		homeworkData.EndDate,
+		homeworkData.CommentEndDate,
 	)
 	assert.Error(err)
 
@@ -97,12 +97,12 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date,
 	}
 	_, err = CreateHomework(
-		homework.CourseID,
-		homework.Name,
-		homework.Description,
-		homework.BeginDate,
-		homework.EndDate,
-		homework.CommentEndDate,
+		homeworkData.CourseID,
+		homeworkData.Name,
+		homeworkData.Description,
+		homeworkData.BeginDate,
+		homeworkData.EndDate,
+		homeworkData.CommentEndDate,
 	)
 	assert.Error(err)
 
@@ -116,12 +116,12 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date,
 	}
 	_, err = CreateHomework(
-		homework.CourseID,
-		homework.Name,
-		homework.Description,
-		homework.BeginDate,
-		homework.EndDate,
-		homework.CommentEndDate,
+		homeworkData.CourseID,
+		homeworkData.Name,
+		homeworkData.Description,
+		homeworkData.BeginDate,
+		homeworkData.EndDate,
+		homeworkData.CommentEndDate,
 	)
 	assert.Error(err)
 
@@ -135,12 +135,12 @@ func TestCreateHomework(t *testing.T) {
 		CommentEndDate: date,
 	}
 	_, err = CreateHomework(
-		homework.CourseID,
-		homework.Name,
-		homework.Description,
-		homework.BeginDate,
-		homework.EndDate,
-		homework.CommentEndDate,
+		homeworkData.CourseID,
+		homeworkData.Name,
+		homeworkData.Description,
+		homeworkData.BeginDate,
+		homeworkData.EndDate,
+		homeworkData.CommentEndDate,
 	)
 	assert.Error(err)
 }
@@ -149,8 +149,8 @@ func TestGetHomeworkById(t *testing.T) {
 	deleteData()
 	assert := assert.New(t)
 
-	userId, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", userId)
+	user, _ := CreateUser("username", "password")
+	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -190,8 +190,8 @@ func TestDeleteHomeworkById(t *testing.T) {
 	deleteData()
 	assert := assert.New(t)
 
-	userId, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", userId)
+	user, _ := CreateUser("username", "password")
+	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -227,8 +227,8 @@ func TestHomeworkAttachment(t *testing.T) {
 	deleteData()
 	assert := assert.New(t)
 
-	userId, _ := CreateUser("username", "password")
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", userId)
+	user, _ := CreateUser("username", "password")
+	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
 
 	date := time.Date(2023, 12, 1, 22, 40, 0, 0, time.UTC)
 	var homeworkData Homework
@@ -254,13 +254,13 @@ func TestHomeworkAttachment(t *testing.T) {
 	)
 
 	file := File{
-		UserID: userId,
+		UserID: user.ID,
 		Name:   "name3",
 		Size:   3,
 		Path:   "./data/2/testfile3",
 	}
 
-	attachment, err := homework.AddAttachment(file.UserID, file.Name, file.Size, file.Path)
+	attachment, err := homework.addAttachment(&file)
 	assert.Nil(err)
 	assert.Equal(file.UserID, attachment.UserID)
 	assert.Equal(file.Name, attachment.Name)

@@ -18,7 +18,7 @@ import (
 var DB *gorm.DB
 
 func sqliteDB(dsn string, config *gorm.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(dsn), config)
+	db, err := gorm.Open(sqlite.Open(dsn+"?_pragma=foreign_keys(1)"), config)
 	if err != nil {
 		return nil, err
 	}
@@ -28,9 +28,9 @@ func sqliteDB(dsn string, config *gorm.Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
-		return nil, err
-	}
+	// if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
+	// 	return nil, err
+	// }
 
 	return db, nil
 }
@@ -94,9 +94,9 @@ func Migrate() {
 }
 
 func generateData() {
-	xyh_id, _ := CreateUser("xyh", "xyh")
-	tjw_id, _ := CreateUser("tjw", "tjw")
-	xb_id, _ := CreateUser("xb", "xb")
+	xyh, _ := CreateUser("xyh", "xyh")
+	tjw, _ := CreateUser("tjw", "tjw")
+	xb, _ := CreateUser("xb", "xb")
 
 	arknights_id, _ := CreateCourse(
 		"明日方舟",
@@ -114,11 +114,11 @@ func generateData() {
 		游戏设定在一个天灾肆虐的世界中，经由天灾席卷过后的土地上出现了一种矿石——源石。源石蕴含的能量使文明迅速发展，但同时过多与源石接触也使部分人患上了不治之症——“矿石病”。感染者理论死亡率100%，且死亡时会发生二次扩散，导致感染者被世界各国政府大规模隔离和驱逐，并引发了感染者和非感染者之间的紧张关系。[10]
 		
 		玩家扮演失忆后的“博士”，指挥着医疗机构“罗德岛”。罗德岛的目的是寻找治疗矿石病的方法，同时保护自己免受“整合运动”等威胁。整合运动是一支受感染的无政府主义军队，一心要推翻泰拉各国政府，以报复对感染者的迫害。玩家将与罗德岛的干员一同面对天灾，在各个势力间游走，发掘不为人知的内幕。[9]`,
-		tjw_id,
+		tjw.ID,
 	)
 
-	SelectCourse(xyh_id, arknights_id)
-	SelectCourse(xb_id, arknights_id)
+	SelectCourse(xyh.ID, arknights_id)
+	SelectCourse(xb.ID, arknights_id)
 
 	/* contingency_contract_pyrolysis_id, _ := */
 	CreateHomework(

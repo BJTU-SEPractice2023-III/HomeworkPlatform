@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 
 	// "homework_platform/internal/utils"
 
@@ -12,25 +13,19 @@ import (
 type GetUsersService struct{}
 
 func (service *GetUsersService) Handle(c *gin.Context) (any, error) {
-	return models.GetUserList()
+	return models.GetUsers()
 }
 
+// DeleteUserService deletes a `User` with `ID`
 type DeleteUserService struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-func (service *DeleteUserService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByID(service.ID)
-	if err != nil {
-		return nil, errors.New("用户不存在")
+func (service *DeleteUserService) Handle(c *gin.Context) (res any, err error) {
+	if err = models.DeleteUserById(service.ID); err != nil {
+		log.Printf("删除失败(%s)", err)
 	}
-	result := user.DeleteSelf()
-	if !result {
-		return nil, errors.New("删除失败")
-	}
-	res := make(map[string]any)
-	res["msg"] = "删除成功"
-	return res, nil
+	return
 }
 
 type UserUpdateService struct { //管理员修改密码
@@ -43,8 +38,7 @@ func (service *UserUpdateService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, errors.New("该用户不存在")
 	}
-	result := user.ChangePassword(service.Password)
-	if !result {
+	if err := user.ChangePassword(service.Password); err != nil {
 		return nil, errors.New("修改失败")
 	}
 	res := make(map[string]any)

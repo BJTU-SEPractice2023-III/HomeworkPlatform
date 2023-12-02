@@ -1,8 +1,6 @@
 package models
 
 import (
-	// "errors"
-	"homework_platform/internal/bootstrap"
 	"log"
 	"math/rand"
 	"time"
@@ -89,19 +87,6 @@ func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comme
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
 	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
-	if bootstrap.Sqlite {
-		_, err := GetUserByID(UserID)
-		if err != nil {
-			log.Printf("用户<user_id:%d>不存在", UserID)
-			return false
-		}
-		res := GetHomeWorkSubmissionByID(HomeworkSubmissionID)
-		if res == nil {
-			log.Printf("作业提交<submission:id:%d>不存在", HomeworkSubmissionID)
-			return false
-		}
-	}
-
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,

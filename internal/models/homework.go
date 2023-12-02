@@ -10,7 +10,7 @@ import (
 
 type Homework struct {
 	gorm.Model
-	CourseID       uint      `json:"courseId" gorm:"type:int(20)"`
+	CourseID       uint      `json:"courseId"`
 	Name           string    `json:"name" gorm:"type:varchar(255)"`
 	Description    string    `json:"description"`
 	BeginDate      time.Time `json:"beginDate"`
@@ -21,7 +21,7 @@ type Homework struct {
 	// Also check homework_submission.go
 	// Check: https://gorm.io/docs/has_many.html
 	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
-	FilePaths           []string             `json:"file_paths" gorm:"-"`
+	// FilePaths           []string             `json:"file_paths" gorm:"-"`
 	Files               []File               `json:"-" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
@@ -96,23 +96,17 @@ func GetHomeworkByID(id uint) (*Homework, error) {
 }
 
 // Tested
-func (homework *Homework) AddAttachment(userId uint, name string, size uint, path string) (*File, error) {
-	file := File {
-		UserID: userId,
-		Name: name,
-		Size: size,
-		Path: path,
-	}
-	err := DB.Model(homework).Association("Files").Append(&file)
+func (homework *Homework) addAttachment(file *File) (*File, error) {
+	err := DB.Model(homework).Association("Files").Append(file)
 	if err != nil {
 		return nil, err
 	}
-	return &file, nil
+	return file, nil
 }
 
 // TODO: split the argument into each fields
 func (homework *Homework) AddSubmission(submission HomeworkSubmission) (uint, error) {
-	logPrefix := fmt.Sprintf("[models/homework]: homework<id: %d>.AddSubmission<userId: %d>", homework.ID, submission.UserID)
+	logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, submission.UserID)
 
 	log.Printf("%s: 正在创建...", logPrefix)
 	res := DB.Create(&submission)

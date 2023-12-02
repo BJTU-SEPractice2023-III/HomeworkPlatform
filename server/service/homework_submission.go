@@ -157,7 +157,7 @@ type GetSubmissionService struct {
 }
 
 func (s *GetSubmissionService) Handle(c *gin.Context) (any, error) {
-	submit := models.GetHomeWorkSubmissionByID(s.HomeworkID)
+	submit, _ := models.GetHomeworkSubmissionByID(s.HomeworkID)
 	submit.GetFiles()
 	return submit, nil
 }

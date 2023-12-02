@@ -32,7 +32,7 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	if service.Comment == "" {
 		return nil, errors.New("评论为空")
 	}
-	homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	homewroksubmission, _ := models.GetHomeworkSubmissionByID(service.HomeworkSubmissionID)
 	homework, res1 := models.GetHomeworkByID(homewroksubmission.HomeworkID)
 	if res1 != nil {
 		return nil, res1
@@ -92,12 +92,15 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	var homework_submission []models.HomeworkSubmission
+	var homeworkSubmissions []models.HomeworkSubmission
 	for _, comment := range commentList {
-		homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
+		homeworkSubmission, err := models.GetHomeworkSubmissionByID(comment.HomeworkSubmissionID)
+		if err == nil {
+			homeworkSubmissions = append(homeworkSubmissions, *homeworkSubmission)
+		}
 	}
 	m := make(map[string]any)
-	m["homework_submission"] = homework_submission
+	m["homework_submission"] = homeworkSubmissions
 	m["comment_lists"] = commentList
 	log.Printf("%x", len(commentList))
 	return m, nil

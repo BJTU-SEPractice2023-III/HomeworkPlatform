@@ -59,18 +59,13 @@ func CreateData() {
 	models.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++", 1)
 
 	//保证作业1是可以提交的
-	homework1_id, _ := models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework1, _ := models.GetHomeworkByID(homework1_id)
+	homework1, _ := models.CreateHomework(1, "c++1", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	_ = homework1
-	homework2_id, _ := models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework2, _ := models.GetHomeworkByID(homework2_id)
+	homework2, _ := models.CreateHomework(1, "c++2", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
 	_ = homework2
-	homework3_id, _ := models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework3, _ := models.GetHomeworkByID(homework3_id)
-	homework4_id, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
-	homework4, _ := models.GetHomeworkByID(homework4_id)
-	homework5_id, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
-	homework5, _ := models.GetHomeworkByID(homework5_id)
+	homework3, _ := models.CreateHomework(2, "c++3", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework4, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2))
+	homework5, _ := models.CreateHomework(2, "c++4", "lkksk", time.Now().AddDate(0, 0, -5), time.Now().AddDate(0, 0, -1), time.Now().AddDate(0, 0, 2))
 
 	models.SelectCourse(10, 2)
 	models.SelectCourse(8, 1)
@@ -88,7 +83,7 @@ func CreateData() {
 		HomeworkID: 3,
 		Content:    "kksk",
 	})
-	submission := models.GetHomeWorkSubmissionByID(1)
+	submission, _ := models.GetHomeworkSubmissionByID(1)
 	submission.Score = 20
 	models.DB.Save(&submission)
 

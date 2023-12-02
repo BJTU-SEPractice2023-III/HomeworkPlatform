@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"homework_platform/internal/utils"
 	"log"
@@ -10,7 +11,7 @@ import (
 )
 
 type File struct {
-	ID        uint   `json:"id" gorm:"primaryKey"`
+	ID   uint   `json:"id" gorm:"primaryKey"`
 	Name string `json:"name"`
 	// Size in Bytes
 	Size           uint   `json:"size"`
@@ -27,9 +28,9 @@ func createFile(userId uint, name string, size uint, path string) (*File, error)
 	log.Printf("%s: 正在创建...", logPrefix)
 	file := File{
 		UserID: userId,
-		Name: name,
-		Size: size,
-		Path: path,
+		Name:   name,
+		Size:   size,
+		Path:   path,
 	}
 	res := DB.Create(&file)
 	if res.Error != nil {
@@ -40,15 +41,18 @@ func createFile(userId uint, name string, size uint, path string) (*File, error)
 	return &file, nil
 }
 
+// CreateFileFromFileHeaderAndContext save the file to filesystem,
+// and create a file record based on c.GetUint("id")
+// ! Not tested yet, test it with router
 func CreateFileFromFileHeaderAndContext(fileHeader *multipart.FileHeader, c *gin.Context) (*File, error) {
 	logPrefix := "[models/file]: CreateFileFromFileHeaderAndContext"
 
 	id := c.GetUint("ID")
 	file := File{
 		UserID: id,
-		Name: fileHeader.Filename,
-		Size: uint(fileHeader.Size),
-		Path: fmt.Sprintf("./data/%d/%s-%s", id, utils.GetTimeStamp(), fileHeader.Filename),
+		Name:   fileHeader.Filename,
+		Size:   uint(fileHeader.Size),
+		Path:   fmt.Sprintf("./data/%d/%s-%s", id, utils.GetTimeStamp(), fileHeader.Filename),
 	}
 	log.Printf("%s: 正在保存文件到文件系统(path: %s)...", logPrefix, file.Path)
 	if err := c.SaveUploadedFile(fileHeader, file.Path); err != nil {
@@ -84,5 +88,36 @@ func DeleteFileById(id uint) error {
 		return res.Error
 	}
 	log.Printf("%s: 删除成功(id = %d)\n", logPrefix, id)
+	return nil
+}
+
+const (
+	TargetTypeHomework = iota
+	TargetTypeHomeworkSubmission
+)
+
+// Attach to homework or homeworkSubmission
+func (file *File) Attach(id uint, targetType uint) error {
+	if targetType == TargetTypeHomework {
+		homework, err := GetHomeworkByID(id)
+		if err != nil {
+			return err
+		}
+		_, err = homework.addAttachment(file)
+		if err != nil {
+			return err
+		}
+	} else if targetType == TargetTypeHomeworkSubmission {
+		homeworkSubmission, err := GetHomeworkSubmissionByID(id)
+		if err != nil {
+			return err
+		}
+		_, err = homeworkSubmission.addAttachment(file)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Unknown attach type")
+	}
 	return nil
 }

@@ -33,28 +33,21 @@ type HomeworkSubmission struct {
 	Files      []File      `json:"-" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
-func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
+func GetHomeworkSubmissionByID(homewroksubmissionid uint) (*HomeworkSubmission, error) {
 	var homewroksubmission HomeworkSubmission
-	res := DB.First(&homewroksubmission, homewroksubmissionid)
-	if res.Error != nil {
-		return nil
+	if err := DB.Model(&homewroksubmission).Preload("Files").First(&homewroksubmission, homewroksubmissionid).Error; err != nil {
+		return nil, err
 	}
 	homewroksubmission.GetFiles()
-	return &homewroksubmission
+	return &homewroksubmission, nil
 }
 
-func (homeworkSubmission *HomeworkSubmission) AddAttachment(userId uint, name string, size uint, path string) (uint, error) {
-	file := File{
-		UserID: userId,
-		Name:   name,
-		Size:   size,
-		Path:   path,
-	}
-	err := DB.Model(homeworkSubmission).Association("Files").Append(&file)
+func (homeworkSubmission *HomeworkSubmission) addAttachment(file *File) (*File, error) {
+	err := DB.Model(homeworkSubmission).Association("Files").Append(file)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return file.ID, nil
+	return file, nil
 }
 
 func (homeworkSubmission *HomeworkSubmission) GetAttachments() ([]File, error) {

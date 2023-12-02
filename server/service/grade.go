@@ -13,7 +13,7 @@ type GetGradeBySubmissionIDService struct {
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
-	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionByID(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
@@ -38,7 +38,7 @@ func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效成绩")
 	}
-	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionByID(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}

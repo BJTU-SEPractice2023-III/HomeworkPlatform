@@ -11,27 +11,25 @@ import (
 func TestCreateFile(t *testing.T) {
 	assert := assert.New(t)
 
-	var file *File
 	var files []File
 	var err error
 
-	userId, _ := CreateUser("teacher", "password")
-	user, _ := GetUserByID(userId)
-	
+	user, _ := CreateUser("teacher", "password")
+
 	// INFO: No Attach
-	fileData := File {
-		UserID: userId,
-		Name: "name",
-		Size: 1,
-		Path: "./data/1/testfile",
+	fileData := File{
+		UserID: user.ID,
+		Name:   "name",
+		Size:   1,
+		Path:   "./data/1/testfile",
 	}
-	// fileId, err := createFile(file.UserID, file.Name, file.Size, file.Path)
-	fileId, err := user.UploadFile(fileData.Name, fileData.Size, fileData.Path)
+	file, err := createFile(fileData.UserID, fileData.Name, fileData.Size, fileData.Path)
+	// fileId, err := user.UploadFile(fileData.Name, fileData.Size, fileData.Path)
 	assert.Nil(err)
 
-	res, err := GetFileByID(fileId)
+	res, err := GetFileByID(file.ID)
 	assert.Nil(err)
-	assert.Equal(fileId, res.ID)
+	assert.Equal(file.ID, res.ID)
 	assert.Equal(fileData.Name, res.Name)
 	assert.Equal(fileData.Size, res.Size)
 	assert.Equal(fileData.Path, res.Path)
@@ -40,19 +38,19 @@ func TestCreateFile(t *testing.T) {
 	assert.Nil(err)
 	fmt.Println(files)
 
-	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", userId)
+	courseId, _ := CreateCourse("course", time.Now(), time.Now().AddDate(1, 0, 0), "desc", user.ID)
 	// course, _ := GetCourseByID(courseId)
 
 	homework, _ := CreateHomework(courseId, "homework", "desc", time.Now(), time.Now().AddDate(0, 0, 7), time.Now().AddDate(0, 0, 14))
 
 	// INFO: Attach type - homeworks
-	fileData = File {
-		UserID: userId,
-		Name: "name2",
-		Size: 2,
-		Path: "./data/1/testfile2",
+	fileData = File{
+		UserID: user.ID,
+		Name:   "name2",
+		Size:   2,
+		Path:   "./data/1/testfile2",
 	}
-	file, err = homework.AddAttachment(fileData.UserID, fileData.Name, fileData.Size, fileData.Path)
+	file, err = homework.addAttachment(&fileData)
 	assert.Nil(err)
 	res, err = GetFileByID(file.ID)
 	assert.Nil(err)
@@ -69,31 +67,30 @@ func TestCreateFile(t *testing.T) {
 	}
 
 	// INFO: Attach tupe - homework_submissions
-	studentId, _ := CreateUser("student", "password")
-	student, _ := GetUserByID(studentId)	
+	student, _ := CreateUser("student", "password")
 
-	SelectCourse(studentId, courseId)
+	SelectCourse(student.ID, courseId)
 
-	homeworkSubmissionData := HomeworkSubmission {
+	homeworkSubmissionData := HomeworkSubmission{
 		HomeworkID: homework.ID,
-		UserID: studentId,
-		Content: "content",
+		UserID:     student.ID,
+		Content:    "content",
 	}
 	submissionId, _ := homework.AddSubmission(homeworkSubmissionData)
-	homeworkSubmission := GetHomeWorkSubmissionByID(submissionId)
+	homeworkSubmission, _ := GetHomeworkSubmissionByID(submissionId)
 
-	fileData = File {
-		UserID: studentId,
-		Name: "name3",
-		Size: 3,
-		Path: "./data/2/testfile3",
+	fileData = File{
+		UserID: student.ID,
+		Name:   "name3",
+		Size:   3,
+		Path:   "./data/2/testfile3",
 	}
 
-	fileId, err = homeworkSubmission.AddAttachment(fileData.UserID, fileData.Name, fileData.Size, fileData.Path)
+	file, err = homeworkSubmission.addAttachment(&fileData)
 	assert.Nil(err)
-	res, err = GetFileByID(fileId)
+	res, err = GetFileByID(file.ID)
 	assert.Nil(err)
-	assert.Equal(fileId, res.ID)
+	assert.Equal(file.ID, res.ID)
 	assert.Equal(fileData.UserID, res.UserID)
 	assert.Equal(fileData.Name, res.Name)
 	assert.Equal(fileData.Size, res.Size)
