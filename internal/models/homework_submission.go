@@ -28,9 +28,9 @@ type HomeworkSubmission struct {
 	// Regular fields
 	Content    string      `json:"content"`
 	Score      int         `json:"score" gorm:"default:-1"` // -1表示不是最终结果
-	Comments   []Comment   `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
-	Complaints []Complaint `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
-	Files      []File      `json:"-" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
+	Comments   []Comment   `josn:"comments" gorm:"constraint:OnDelete:CASCADE"`
+	Complaints []Complaint `josn:"complaints" gorm:"constraint:OnDelete:CASCADE"`
+	Files      []File      `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
 func GetHomeworkSubmissionByID(homewroksubmissionid uint) (*HomeworkSubmission, error) {

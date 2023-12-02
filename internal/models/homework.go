@@ -2,9 +2,9 @@ package models
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"time"
-	"gorm.io/gorm"
 )
 
 type Homework struct {
@@ -19,50 +19,10 @@ type Homework struct {
 	// A homework has many submissions
 	// Also check homework_submission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
+	HomeworkSubmissions []HomeworkSubmission `json:"submissions" gorm:"constraint:OnDelete:CASCADE"`
 	// FilePaths           []string             `json:"file_paths" gorm:"-"`
-	Files               []File               `json:"-" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
+	Files []File `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
-
-// Tested
-// func CreateHomework(courseId uint, name string, description string,
-// 	begindate time.Time, endtime time.Time, commentendate time.Time) (*Homework, error) {
-// 	logPrefix := fmt.Sprintf("[models/homework]: CreateHomework<courseId: %d, name: %s>", courseId, name)
-
-// 	log.Printf("%s: 正在创建...", logPrefix)
-// 	if begindate.After(endtime) {
-// 		log.Printf("%s: 结束时间不可早于开始时间\n", logPrefix)
-// 		return nil, errors.New("结束时间不可早于开始时间")
-// 	}
-// 	if endtime.After(commentendate) {
-// 		log.Printf("%s: 评论结束时间不可早于作业结束时间\n", logPrefix)
-// 		return nil, errors.New("评论结束时间不可早于作业结束时间")
-// 	}
-// 	if name == "" {
-// 		log.Printf("%s: 名称不可为空\n", logPrefix)
-// 		return nil, errors.New("名称不可为空")
-// 	}
-// 	if description == "" {
-// 		log.Printf("%s: 内容不可为空\n", logPrefix)
-// 		return nil, errors.New("内容不可为空")
-// 	}
-
-// 	homework := Homework{
-// 		CourseID:       courseId,
-// 		Name:           name,
-// 		Description:    description,
-// 		BeginDate:      begindate,
-// 		EndDate:        endtime,
-// 		CommentEndDate: commentendate,
-// 	}
-// 	res := DB.Create(&homework)
-// 	if res.Error != nil {
-// 		log.Printf("%s: 创建失败(%s)\n", logPrefix, res.Error)
-// 		return nil, res.Error
-// 	}
-// 	log.Printf("%s: 创建成功(id = %d)\n", logPrefix, homework.ID)
-// 	return &homework, nil
-// }
 
 // Tested
 func DeleteHomeworkById(id uint) error {
@@ -84,7 +44,7 @@ func GetHomeworkByID(id uint) (*Homework, error) {
 
 	log.Printf("%s: 正在查找...", logPrefix)
 	var homework Homework
-	res := DB.Preload("HomeworkSubmissions").Preload("Files").First(&homework, id)
+	res := DB.Model(&homework).Preload("HomeworkSubmissions").Preload("Files").First(&homework, id)
 	if res.Error != nil {
 		log.Printf("%s: 查找失败: %s", logPrefix, res.Error)
 		return &homework, res.Error
@@ -104,23 +64,28 @@ func (homework *Homework) addAttachment(file *File) (*File, error) {
 }
 
 // TODO: split the argument into each fields
-func (homework *Homework) AddSubmission(submission HomeworkSubmission) (uint, error) {
-	logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, submission.UserID)
+func (homework *Homework) AddSubmission(userId uint, content string) (*HomeworkSubmission, error) {
+	logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, userId)
+
+	submission := HomeworkSubmission{
+		HomeworkID: homework.ID,
+		UserID:     userId,
+		Content:    content,
+	}
 
 	log.Printf("%s: 正在创建...", logPrefix)
-	res := DB.Create(&submission)
-	if res.Error != nil {
-		log.Printf("%s: 创建失败(%s)", logPrefix, res.Error)
-		return 0, res.Error
+	if err := DB.Create(&submission).Error; err != nil {
+		log.Printf("%s: 创建失败(%s)", logPrefix, err)
+		return nil, err
 	}
 	log.Printf("%s: 创建成功(id = %d)", logPrefix, submission.ID)
-	return submission.ID, nil
+	return &submission, nil
 }
 
 // GetSubmissionByUserId gets the submission from a user
 func (homework *Homework) GetSubmissionByUserId(userId uint) (*HomeworkSubmission, error) {
 	var submission HomeworkSubmission
-	if err := DB.Where("homework_id = ? AND user_id = ?", homework.ID, userId).First(&submission).Error; err != nil {
+	if err := DB.Model(&submission).Preload("Files").Where("homework_id = ? AND user_id = ?", homework.ID, userId).First(&submission).Error; err != nil {
 		return nil, err
 	}
 	return &submission, nil
@@ -134,7 +99,6 @@ func (homework *Homework) GetSubmissions() ([]HomeworkSubmission, error) {
 	}
 	return submission, nil
 }
-
 
 // GetCommentByUserId gets the comment of a user
 func (homework *Homework) GetCommentsByUserId(userId uint) ([]Comment, error) {

@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"homework_platform/internal/bootstrap"
 	"homework_platform/internal/utils"
 	"log"
+	"os"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -119,8 +121,7 @@ func generateData() {
 	xyh.SelectCourse(arknights.ID)
 	xb.SelectCourse(arknights.ID)
 
-	/* contingency_contract_pyrolysis_id, _ := */
-	arknights.CreateHomework(
+	contingency_contract_pyrolysis, _ := arknights.CreateHomework(
 		"危机合约#1 灼燃作战",
 		`罗德岛成立之初，物质与商业资源的匮乏带来了无数的危机，在这片充满危险的大地上立足成了一种奢望。
 		而“危机合约”的存在，为罗德岛这样的企业提供了赖以生存的机会。
@@ -142,6 +143,19 @@ func generateData() {
 		time.Date(2023, 12, 5, 3, 59, 0, 0, time.Local),
 		time.Date(2023, 12, 10, 3, 59, 0, 0, time.Local),
 	)
+
+	filepath := fmt.Sprintf("./data/%d/%s-%s", tjw.ID, utils.GetTimeStamp(), "危机合约.txt")
+	err := os.MkdirAll(fmt.Sprintf("./data/%d", tjw.ID), 0777)
+	if err != nil {
+		log.Println(err)
+	}
+	err = os.WriteFile(filepath, []byte("我超，好难"), 0666)
+	if err != nil {
+		log.Println(err)
+	}
+	file, _ := createFile(tjw.ID, "危机合约.txt", 666, filepath)
+	file.Attach(contingency_contract_pyrolysis.ID, TargetTypeHomework)
+
 	arknights.CreateHomework(
 		"tjw快给我写前端（作业进行中）",
 		"狠狠地写",
@@ -165,24 +179,24 @@ func generateData() {
 	)
 }
 
-func addDefaultUser() {
-	_, err := GetUserByID(1)
-	password := utils.RandStringRunes(8)
+// func addDefaultUser() {
+// 	_, err := GetUserByID(1)
+// 	password := utils.RandStringRunes(8)
 
-	if err == gorm.ErrRecordNotFound {
-		defaultUser := &User{}
+// 	if err == gorm.ErrRecordNotFound {
+// 		defaultUser := &User{}
 
-		defaultUser.ID = 1
-		defaultUser.Username = "Admin"
-		defaultUser.Password = utils.EncodePassword(password, utils.RandStringRunes(16))
-		defaultUser.IsAdmin = true
+// 		defaultUser.ID = 1
+// 		defaultUser.Username = "Admin"
+// 		defaultUser.Password = utils.EncodePassword(password, utils.RandStringRunes(16))
+// 		defaultUser.IsAdmin = true
 
-		if err := DB.Create(&defaultUser).Error; err != nil {
-			log.Panicf("创建初始管理员账户失败: %s\n", err)
-		}
+// 		if err := DB.Create(&defaultUser).Error; err != nil {
+// 			log.Panicf("创建初始管理员账户失败: %s\n", err)
+// 		}
 
-		log.Println("初始管理员账户创建完成")
-		log.Printf("用户名: %s\n", "Admin")
-		log.Printf("密码: %s\n", password)
-	}
-}
+// 		log.Println("初始管理员账户创建完成")
+// 		log.Printf("用户名: %s\n", "Admin")
+// 		log.Printf("密码: %s\n", password)
+// 	}
+// }

@@ -83,37 +83,15 @@ func CreateData() {
 	user3.SelectCourse(course2.ID)
 	user3.SelectCourse(course3.ID)
 
-	homework3.AddSubmission(models.HomeworkSubmission{
-		UserID:     1,
-		HomeworkID: 3,
-		Content:    "kksk",
-	})
+	homework3.AddSubmission(user1.ID, "kksk")
 	submission, _ := models.GetHomeworkSubmissionByID(1)
 	submission.Score = 20
 	models.DB.Save(&submission)
 
-	homework4.AddSubmission(models.HomeworkSubmission{
-		UserID:     1,
-		HomeworkID: 4,
-		Content:    "kksk",
-	})
+	homework4.AddSubmission(user1.ID, "kksk")
 
-	homework5.AddSubmission(models.HomeworkSubmission{
-		UserID:     1,
-		HomeworkID: 5,
-		Content:    "kksk",
-	})
-	homework5.AddSubmission(models.HomeworkSubmission{
-		UserID:     10,
-		HomeworkID: 5,
-		Content:    "kksk",
-	})
-
-	homework5.AddSubmission(models.HomeworkSubmission{
-		UserID:     77,
-		HomeworkID: 5,
-		Content:    "kksk",
-	})
+	homework5.AddSubmission(user1.ID, "kksk")
+	homework5.AddSubmission(user10.ID, "kksk")
 
 	models.CreateComment(1, 5, 2)
 

@@ -54,21 +54,17 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	}
 	homworksubmission, err := homework.GetSubmissionByUserId(id)
 	if homworksubmission == nil || err != nil {
-		homworksubmission := models.HomeworkSubmission{
-			HomeworkID: uint(s.HomeworkID),
-			Content:    s.Content,
-			UserID:     id,
-		}
-		// res := models.AddHomeworkSubmission(&homworksubmission)
-		_, err := homework.AddSubmission(homworksubmission)
+		submission, err := homework.AddSubmission(id, s.Content)
 		if err != nil {
 			return nil, err
 		}
 		for _, f := range s.Files {
-			log.Println(f.Filename)
-			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
-			// 上传文件到指定的目录
-			c.SaveUploadedFile(f, dst)
+			file, err := models.CreateFileFromFileHeaderAndContext(f, c)
+			if err != nil {
+				// TODO: err handle
+			} else {
+				file.Attach(submission.ID, models.TargetTypeHomeworkSubmission)
+			}
 		}
 		return nil, nil
 	}
@@ -80,20 +76,18 @@ type GetHomeworkSubmission struct {
 }
 
 func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
-	userid, _ := c.Get("ID")
-	log.Printf("用户id为%d", userid.(uint))
-	log.Printf("homeworkid为%d", service.HomeworkId)
+	userId := c.GetUint("ID")
+	// log.Printf("用户id为%d", userId)
+	// log.Printf("homeworkid为%d", service.HomeworkId)
 	homework, err := models.GetHomeworkByID(service.HomeworkId)
 	if err != nil {
 		return "该作业号不存在", nil
 	}
-	for _, value := range homework.HomeworkSubmissions {
-		if value.UserID == userid.(uint) {
-			value.GetFiles()
-			return value, nil
-		}
+	submission, err := homework.GetSubmissionByUserId(userId)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("该用户未提交作业")
+	return *submission, nil
 }
 
 type UpdateSubmission struct {
