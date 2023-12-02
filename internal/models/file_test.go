@@ -68,13 +68,7 @@ func TestCreateFile(t *testing.T) {
 	student, _ := CreateUser("student", "password")
 	student.SelectCourse(course.ID)
 
-	homeworkSubmissionData := HomeworkSubmission{
-		HomeworkID: homework.ID,
-		UserID:     student.ID,
-		Content:    "content",
-	}
-	submissionId, _ := homework.AddSubmission(homeworkSubmissionData)
-	homeworkSubmission, _ := GetHomeworkSubmissionByID(submissionId)
+	submission, _ := homework.AddSubmission(student.ID, "content")
 
 	fileData = File{
 		UserID: student.ID,
@@ -83,7 +77,7 @@ func TestCreateFile(t *testing.T) {
 		Path:   "./data/2/testfile3",
 	}
 
-	file, err = homeworkSubmission.addAttachment(&fileData)
+	file, err = submission.addAttachment(&fileData)
 	assert.Nil(err)
 	res, err = GetFileByID(file.ID)
 	assert.Nil(err)
@@ -93,7 +87,7 @@ func TestCreateFile(t *testing.T) {
 	assert.Equal(fileData.Size, res.Size)
 	assert.Equal(fileData.Path, res.Path)
 
-	files, err = homeworkSubmission.GetAttachments()
+	files, err = submission.GetAttachments()
 	assert.Nil(err)
 	assert.Equal(len(files), 1)
 	assert.Equal(files[0].ID, uint(3))
