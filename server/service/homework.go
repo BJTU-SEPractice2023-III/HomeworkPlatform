@@ -47,7 +47,7 @@ func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
 	}
 }
 
-type AssignHomeworkService struct {
+type CreateHomework struct {
 	CourseID       uint                    `form:"courseId"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
@@ -57,7 +57,7 @@ type AssignHomeworkService struct {
 	Files          []*multipart.FileHeader `form:"files"`
 }
 
-func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
+func (service *CreateHomework) Handle(c *gin.Context) (any, error) {
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
@@ -110,12 +110,12 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 	return homeworks, nil
 }
 
-type DeleteHomework struct {
-	HomeworkID uint `uri:"id" bind:"required"`
+type DeleteHomeworkById struct {
+	ID uint `uri:"id" bind:"required"`
 }
 
-func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
-	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
+func (service *DeleteHomeworkById) Handle(c *gin.Context) (any, error) {
+	homework, err2 := models.GetHomeworkByID(uint(service.ID))
 	if err2 != nil {
 		return nil, err2
 	}
@@ -130,7 +130,7 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 	if err := models.DeleteHomeworkById(homework.ID); err != nil {
 		return nil, err
 	}
-	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", course.ID, service.HomeworkID)
+	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", course.ID, service.ID)
 	os.RemoveAll(dirPath)
 
 	return nil, nil

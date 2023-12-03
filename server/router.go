@@ -130,7 +130,7 @@ func InitRouter() *gin.Engine {
 					// PUT    api/v1/homeworks/:id               | 更新指定 id 作业的信息
 					homeworks.PUT(":id", service.HandlerWithBindType(&service.UpdateHomework{}, service.Bind|service.BindUri))
 					// DELETE api/v1/homeworks/:id               | 删除指定 id 作业
-					homeworks.DELETE(":id", service.HandlerBindUri(&service.DeleteHomework{}))
+					homeworks.DELETE(":id", service.HandlerBindUri(&service.DeleteHomeworkById{}))
 					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
 					homeworks.POST(":id/submits", service.HandlerWithBindType(&service.SubmitHomework{}, service.Bind|service.BindUri))
 

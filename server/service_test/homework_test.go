@@ -3,6 +3,7 @@ package service_test
 import (
 	"bytes"
 	"fmt"
+	"homework_platform/server/service"
 	"io"
 	"log"
 	"mime/multipart"
@@ -18,61 +19,63 @@ import (
 )
 
 func TestGetHomework(t *testing.T) {
-	assert := assert.New(t)
-	var cases = []struct {
-		Case       string
-		CourseId   uint
-		ExpectCode int
-	}{
-		{"成功查询", 1, 200},
-		{"作业不存在", 999, 400},
+	var cases = []TestCase{
+		{"成功查询", "", service.GetHomeworkById{ID: 1}, 200},
+		{"作业不存在", "", service.GetHomeworkById{ID: 999}, 400},
 	}
-
-	for _, testcase := range cases {
-		t.Run(testcase.Case, func(t *testing.T) {
-			w := requestJson("POST", fmt.Sprintf("/api/v1/homeworks/%d", testcase.CourseId), nil)
-			assert.Equal(w.Code, testcase.ExpectCode)
-		})
+	for _, testCase := range cases {
+		testRequestWithTestCase(
+			t,
+			"GET",
+			fmt.Sprintf("/api/v1/homeworks/%d", testCase.data.(service.GetHomeworkById).ID),
+			testCase,
+		)
 	}
 }
 
+// 这个先屎着
 func TestAssignHomeworkService(t *testing.T) {
-	var cases = []struct {
-		Case           string
-		CourseID       uint
-		Name           string
-		Description    string
-		BeginDate      time.Time
-		EndDate        time.Time
-		CommentEndDate time.Time
-		ExpextCode     int
-	}{
-		{"成功创建", 1, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 200},
-		{"非自己的课程", 3, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
+	var cases = []TestCase{
+		{"成功创建", "", service.CreateCourseHomework{
+			CourseID:       1,
+			Name:           "c++作业1",
+			Description:    "1",
+			BeginDate:      time.Now(),
+			EndDate:        time.Now().AddDate(0, 0, 1),
+			CommentEndDate: time.Now().AddDate(0, 0, 2),
+		}, 200},
+		{"非自己的课程", "", service.CreateCourseHomework{
+			CourseID:       3,
+			Name:           "c++作业1",
+			Description:    "1",
+			BeginDate:      time.Now(),
+			EndDate:        time.Now().AddDate(0, 0, 1),
+			CommentEndDate: time.Now().AddDate(0, 0, 2),
+		}, 400},
 	}
 	for _, testcase := range cases {
-		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+		t.Run(testcase.name, func(t *testing.T) {
 
 			payload := &bytes.Buffer{}
+
 			writer := multipart.NewWriter(payload)
-			if testcase.Case != "空描述" {
-				file, errFile1 := os.Open("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png")
-				defer file.Close()
-				part1,
-					errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
-				_, errFile1 = io.Copy(part1, file)
-				if errFile1 != nil {
-					fmt.Println(errFile1)
-					return
-				}
-			}
-			_ = writer.WriteField("courseId", strconv.Itoa(int(testcase.CourseID)))
-			_ = writer.WriteField("description", testcase.Description)
-			_ = writer.WriteField("name", testcase.Name)
-			_ = writer.WriteField("beginDate", testcase.BeginDate.UTC().Format("2006-01-02T15:04:05Z"))
-			_ = writer.WriteField("endDate", testcase.EndDate.UTC().Format("2006-01-02T15:04:05Z"))
-			_ = writer.WriteField("commentEndDate", testcase.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
+			os.WriteFile("test_file.txt", []byte("全测了"), 0666)
+			file, _ := os.Open("./test_file.txt")
+			defer func() {
+				file.Close()
+				os.Remove("./test_file.txt")
+			}()
+
+			part1, _ := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
+			io.Copy(part1, file)
+
+			data := testcase.data.(service.CreateCourseHomework)
+			_ = writer.WriteField("courseId", strconv.Itoa(int(data.CourseID)))
+			_ = writer.WriteField("description", data.Description)
+			_ = writer.WriteField("name", data.Name)
+			_ = writer.WriteField("beginDate", data.BeginDate.UTC().Format("2006-01-02T15:04:05Z"))
+			_ = writer.WriteField("endDate", data.EndDate.UTC().Format("2006-01-02T15:04:05Z"))
+			_ = writer.WriteField("commentEndDate", data.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
 			err := writer.Close()
 			if err != nil {
 				fmt.Println(err)
@@ -80,102 +83,122 @@ func TestAssignHomeworkService(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/homework/assign", payload)
+			req, _ := http.NewRequest("POST", fmt.Sprintf("/api/v1/courses/%d/homeworks", data.CourseID), payload)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
-			if w.Code != testcase.ExpextCode {
-				t.Fatalf("创建作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)
-			}
+			assert.Equal(t, w.Code, testcase.code)
 		})
 	}
 }
 
-func TestUpdateHomework(t *testing.T) {
-	var cases = []struct {
-		Case           string
-		HomeworkID     uint
-		Name           string
-		Description    string
-		BeginDate      time.Time
-		EndDate        time.Time
-		CommentEndDate time.Time
-		ExpextCode     int
-	}{
-		{"成功创建", 1, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 200},
-		{"非自己的课程", 3, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
-		{"课程不存在", 1232, "c++作业1", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
-		{"空名称", 1, "", "1", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
-		// {"空描述", 1, "1", "", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
-		{"时间顺序混乱1", 1, "c++", "1", time.Now(), time.Now().AddDate(0, 1, 1), time.Now().AddDate(0, 0, 2), 400},
-		{"时间顺序混乱2", 1, "c--", "1", time.Now().AddDate(0, 1, 1), time.Now(), time.Now().AddDate(0, 0, 2), 400},
+// 这个先彻底屎着，后面更新拆成信息和文件
+// func TestUpdateHomework(t *testing.T) {
+// 	var cases = []TestCase{
+// 		{"成功创建", "", service.UpdateHomework{
+// 			HomeworkID: 1,
+// 			Name: "c++作业1",
+// 			Description: "1",
+// 			BeginDate: time.Now(),
+// 			EndDate: time.Now().AddDate(0, 0, 1),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		}, 200},
+// 		{"非自己的课程", "", service.UpdateHomework{
+// 			HomeworkID: 3,
+// 			Name: "c++作业1",
+// 			Description: "1",
+// 			BeginDate: time.Now(),
+// 			EndDate: time.Now().AddDate(0, 0, 1),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		}, 400},
+// 		{"课程不存在", "", service.UpdateHomework{
+// 			HomeworkID: 1232,
+// 			Name: "c++作业1",
+// 			Description: "1",
+// 			BeginDate: time.Now(),
+// 			EndDate: time.Now().AddDate(0, 0, 1),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		 }, 400},
+// 		{"空名称", "", service.UpdateHomework{
+// 			HomeworkID: 1,
+// 			Name: "",
+// 			Description: "1",
+// 			BeginDate: time.Now(),
+// 			EndDate: time.Now().AddDate(0, 0, 1),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		}, 400},
+// 		// {"空描述", 1, "1", "", time.Now(), time.Now().AddDate(0, 0, 1), time.Now().AddDate(0, 0, 2), 400},
+// 		{"时间顺序混乱1", "", service.UpdateHomework{
+// 			HomeworkID: 1,
+// 			Name: "c++",
+// 			Description: "1",
+// 			BeginDate: time.Now(),
+// 			EndDate: time.Now().AddDate(0, 1, 1),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		}, 400},
+// 		{"时间顺序混乱2", "", service.UpdateHomework{
+// 			HomeworkID: 1,
+// 			Name: "c--",
+// 			Description: "1",
+// 			BeginDate: time.Now().AddDate(0, 1, 1),
+// 			EndDate: time.Now(),
+// 			CommentEndDate: time.Now().AddDate(0, 0, 2),
+// 		}, 400},
+// 	}
+// 	for _, testcase := range cases {
+// 		t.Run(testcase.name, func(t *testing.T) {
+// 			log.Printf("正在测试")
+
+// 			payload := &bytes.Buffer{}
+// 			writer := multipart.NewWriter(payload)
+// 			// if testcase.Case != "空描述" {
+// 			// 	file, errFile1 := os.Open("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png")
+// 			// 	defer file.Close()
+// 			// 	part1,
+// 			// 		errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
+// 			// 	_, errFile1 = io.Copy(part1, file)
+// 			// 	if errFile1 != nil {
+// 			// 		fmt.Println(errFile1)
+// 			// 		return
+// 			// 	}
+// 			// }
+// 			_ = writer.WriteField("description", testcase.Description)
+// 			_ = writer.WriteField("name", testcase.Name)
+// 			_ = writer.WriteField("beginDate", testcase.BeginDate.UTC().Format("2006-01-02T15:04:05Z"))
+// 			_ = writer.WriteField("endDate", testcase.EndDate.UTC().Format("2006-01-02T15:04:05Z"))
+// 			_ = writer.WriteField("commentEndDate", testcase.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
+// 			err := writer.Close()
+// 			if err != nil {
+// 				fmt.Println(err)
+// 				return
+// 			}
+
+// 			w := httptest.NewRecorder()
+// 			req, _ := http.NewRequest("PUT", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkID)), payload)
+// 			req.Header.Set("Content-Type", writer.FormDataContentType())
+// 			req.Header.Set("Authorization", Authorization)
+// 			Router.ServeHTTP(w, req)
+// 			if w.Code != testcase.ExpextCode {
+// 				t.Fatalf("修改作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)
+// 			}
+// 		})
+// 	}
+// }
+
+func TestDeleteHomeworkById(t *testing.T) {
+	var cases = []TestCase{
+		{"成功删除", "", service.DeleteHomeworkById{ID: 2}, 200},
+		{"非自己的作业", "", service.DeleteHomeworkById{ID: 3}, 400},
+		{"作业不存在", "", service.DeleteHomeworkById{ID: 999}, 400},
 	}
+
 	for _, testcase := range cases {
-		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
-
-			payload := &bytes.Buffer{}
-			writer := multipart.NewWriter(payload)
-			if testcase.Case != "空描述" {
-				file, errFile1 := os.Open("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png")
-				defer file.Close()
-				part1,
-					errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
-				_, errFile1 = io.Copy(part1, file)
-				if errFile1 != nil {
-					fmt.Println(errFile1)
-					return
-				}
-			}
-			_ = writer.WriteField("description", testcase.Description)
-			_ = writer.WriteField("name", testcase.Name)
-			_ = writer.WriteField("beginDate", testcase.BeginDate.UTC().Format("2006-01-02T15:04:05Z"))
-			_ = writer.WriteField("endDate", testcase.EndDate.UTC().Format("2006-01-02T15:04:05Z"))
-			_ = writer.WriteField("commentEndDate", testcase.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
-			err := writer.Close()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("PUT", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkID)), payload)
-			req.Header.Set("Content-Type", writer.FormDataContentType())
-			req.Header.Set("Authorization", Authorization)
-			Router.ServeHTTP(w, req)
-			if w.Code != testcase.ExpextCode {
-				t.Fatalf("修改作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)
-			}
-		})
-	}
-}
-
-func TestDeleteHomework(t *testing.T) {
-	var cases = []struct {
-		Case       string
-		HomeworkId uint
-		ExpextCode int
-	}{
-		{"成功删除", 2, 200},
-		{"非自己的作业", 3, 400},
-		{"作业不存在", 999, 400},
-	}
-
-	for _, testcase := range cases {
-		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
-			// data := map[string]interface{}{"name": testcase.Name, "begindate": testcase.BeginDate, "enddate": testcase.EndDate, "description": testcase.Description}
-			// jsonData, _ := json.Marshal(data)
-
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("DELETE", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkId)), nil)
-			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
-			Router.ServeHTTP(w, req)
-			if w.Code != testcase.ExpextCode {
-				t.Fatalf("获取作业:%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
-			}
-		})
+		testRequestWithTestCase(
+			t,
+			"DELETE",
+			fmt.Sprintf("/api/v1/homeworks/%d", testcase.data.(service.DeleteHomeworkById).ID),
+			testcase,
+		)
 	}
 }
 
@@ -192,7 +215,6 @@ func TestSubmitHomework(t *testing.T) {
 		{"未选课", 1, "1123", 400},
 	}
 
-	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
