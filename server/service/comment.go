@@ -37,7 +37,7 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	// comment是预先分配好的,所以不需要自我创建
 	comment, err := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
 	if err == nil {
-		res := comment.(models.Comment).UpdateSelf(service.Comment, service.Score)
+		res := comment.UpdateSelf(service.Comment, service.Score)
 		num, len := models.GetCommentNum(service.HomeworkSubmissionID)
 		if num == len {
 			homewroksubmission.CalculateGrade()

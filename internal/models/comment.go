@@ -66,11 +66,11 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 	return comments, nil
 }
 
-func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (any, error) {
+func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (Comment, error) {
 	var comment Comment
 	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
 	if res.Error != nil {
-		return nil, res.Error
+		return comment, res.Error
 	}
 	return comment, nil
 }

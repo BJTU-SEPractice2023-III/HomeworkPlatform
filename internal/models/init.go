@@ -177,6 +177,26 @@ func generateData() {
 		time.Now().Add(-7*24*time.Hour),
 		time.Now(),
 	)
+	ongoing, _ := GetHomeworkByID(1)
+	ending, _ := GetHomeworkByID(2)
+	commenting, _ := GetHomeworkByID(3)
+
+	ongoing.AddSubmission(1, "xyh提交")
+	ongoing.AddSubmission(3, "xb提交")
+
+	ending.AddSubmission(1, "xyh提交")
+	ending.AddSubmission(3, "xb提交")
+
+	commenting.AddSubmission(1, "xyh提交")
+	commenting.AddSubmission(3, "xb提交")
+
+	AssignComment(3)
+	xyh_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(1, 6)
+	xyh_to_comment.UpdateSelf("xyh的批阅", 99)
+
+	xb_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(3, 5)
+	xb_to_comment.UpdateSelf("xb的批阅", 99)
+
 }
 
 // func addDefaultUser() {
