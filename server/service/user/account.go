@@ -50,6 +50,9 @@ type UserselfupdateService struct {
 }
 
 func (service *UserselfupdateService) Handle(c *gin.Context) (any, error) {
+	if service.NewPassword == "" {
+		return nil, errors.New("密码不能为空")
+	}
 	user, err := models.GetUserByUsername(service.UserName)
 	if err != nil {
 		return nil, errors.New("该用户不存在")
@@ -59,6 +62,7 @@ func (service *UserselfupdateService) Handle(c *gin.Context) (any, error) {
 	if !passwordCheck {
 		return nil, errors.New("密码错误")
 	}
+	log.Printf("用户的新密码为%s", service.NewPassword)
 	// 修改密码
 	if err := user.ChangePassword(service.NewPassword); err != nil {
 		return nil, err
