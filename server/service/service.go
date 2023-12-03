@@ -37,20 +37,20 @@ func HandlerWithBindType(s Service, bindType int) gin.HandlerFunc {
 		// Binding using an auto-selected binding engine
 		// "application/json" --> JSON binding
 		// "application/xml"  --> XML binding
-		if bindType&Bind != 0 {
-			if err = c.ShouldBind(s); err != nil {
-				log.Printf("[Handler]: Failed to bind: %v\n", err)
-				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
-			}
-		}
 		if bindType&BindUri != 0 {
 			if err = c.ShouldBindUri(s); err != nil {
 				log.Printf("[Handler]: Failed to bind: %v\n", err)
 				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			}
 		}
+		if bindType&Bind != 0 {
+			if err = c.ShouldBind(s); err != nil {
+				log.Printf("[Handler]: Failed to bind: %v\n", err)
+				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
+			}
+		}
 
-		res, err := s.Handle(c) //调用实现了接口s的结构体对代码进行处理
+		res, err := s.Handle(c)
 		if err != nil {
 			log.Println(err.Error())
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
