@@ -26,28 +26,16 @@ func TestGetGradeBySubmissionIDService(t *testing.T) {
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			if testcase.Case == "老师正确获得" {
-				data := map[string]interface{}{"username": "xeh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			} else {
-				data := map[string]interface{}{"username": "xyh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			}
-
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkId))+"/comments", nil)
 			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
+			if testcase.Case == "老师正确获得" {
+				authorization := GetAuthorziation("xeh", "123")
+				req.Header.Set("Authorization", authorization)
+			} else {
+				req.Header.Set("Authorization", Authorization)
+			}
+
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得评论列表:%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
@@ -68,16 +56,8 @@ func TestGetMyCommentService(t *testing.T) {
 	}
 	//登录拿到json
 
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
-	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/v1/homeworks/5/comments", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/homeworks/5/comments", nil)
 	// req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", Authorization)
 	Router.ServeHTTP(w, req)
@@ -112,18 +92,8 @@ func TestCommentService(t *testing.T) {
 		{"小于0的分", 4, "kksk", -1, 400},
 		{"大于100的分", 4, "kksk", 101, 400},
 	}
-	//登录拿到json
-
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
-	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/v1/homeworks/5/comments", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/homeworks/5/comments", nil)
 	// req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", Authorization)
 	Router.ServeHTTP(w, req)

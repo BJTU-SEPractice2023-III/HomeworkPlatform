@@ -10,12 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserLoginService struct {
+type Login struct {
 	Username string `form:"username"`
 	Password string `form:"password"`
 }
 
-func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
+func (service *Login) Handle(c *gin.Context) (any, error) {
 	log.Printf("[UserLoginService]: %v, %v\n", service.Username, service.Password)
 	var user models.User
 	var err error
@@ -76,21 +76,27 @@ func (service *GetUserService) Handle(c *gin.Context) (any, error) {
 	return models.GetUserByID(service.ID)
 }
 
-type UserRegisterService struct {
+type Register struct {
 	Username string `form:"username"` // 用户名
 	Password string `form:"password"` // 密码
 }
 
-func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
+func (service *Register) Handle(c *gin.Context) (any, error) {
+	if len(service.Username) == 0 {
+		return nil, errors.New("用户名不能为空")
+	}
+	if len(service.Password) == 0 {
+		return nil, errors.New("密码不能为空")
+	}
 	_, err := models.CreateUser(service.Username, service.Password)
 	return nil, err
 }
 
-type GetUserCoursesService struct {
+type GetUserCourses struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetUserCoursesService) Handle(c *gin.Context) (any, error) {
+func (service *GetUserCourses) Handle(c *gin.Context) (any, error) {
 	user, err := models.GetUserByID(service.ID)
 	if err != nil {
 		return nil, err

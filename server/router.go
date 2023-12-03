@@ -55,29 +55,29 @@ func InitRouter() *gin.Engine {
 			{
 				// TODO: Restful?
 				// POST api/v1/user/login | 登录获取 jwt
-				user.POST("login", service.HandlerBind(&user_service.UserLoginService{}))
+				user.POST("login", service.HandlerBind(&user_service.Login{}))
 				// POST api/v1/user       | 注册用户
-				user.POST("", service.HandlerBind(&user_service.UserRegisterService{}))
+				user.POST("", service.HandlerBind(&user_service.Register{}))
 				// PUT api/v1/users       | 更新用户信息
 				user.PUT("", service.HandlerBind(&user_service.UserselfupdateService{}))
 			}
 
 			// Admin required
 			// api/v1/admin
-			admin := v1.Group("admin")
-			admin.Use(middlewares.AdminCheck())
-			{
-				// api/v1/admin/users
-				users := admin.Group("users")
-				{
-					// GET    api/v1/admin/users     | 获取所有用户列表
-					users.GET("", service.HandlerBind(&service.GetUsersService{}))
-					// PUT   api/v1/admin/users     | 修改密码
-					users.PUT("", service.HandlerBind(&service.UserUpdateService{}))
-					// DELETE api/v1/admin/users/:id | 删除用户
-					users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
-				}
-			}
+			// admin := v1.Group("admin")
+			// admin.Use(middlewares.AdminCheck())
+			// {
+			// 	// api/v1/admin/users
+			// 	users := admin.Group("users")
+			// 	{
+			// 		// GET    api/v1/admin/users     | 获取所有用户列表
+			// 		users.GET("", service.HandlerBind(&service.GetUsersService{}))
+			// 		// PUT   api/v1/admin/users     | 修改密码
+			// 		users.PUT("", service.HandlerBind(&service.UserUpdateService{}))
+			// 		// DELETE api/v1/admin/users/:id | 删除用户
+			// 		users.DELETE(":id", service.HandlerWithBindType(&service.DeleteUserService{}, service.BindUri))
+			// 	}
+			// }
 
 			// Login required
 			auth := v1.Group("")
@@ -91,7 +91,7 @@ func InitRouter() *gin.Engine {
 					// PUT api/v1/users/signature 			| 更新用户的签名
 					users.PUT("signature", service.HandlerBind(&user_service.UpdateSignature{}))
 					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
-					users.GET(":id/courses", service.HandlerBindUri(&user_service.GetUserCoursesService{}))
+					users.GET(":id/courses", service.HandlerBindUri(&user_service.GetUserCourses{}))
 					// GET api/v1/users/:id/notifications	| 获得指定 id 用户的提示信息
 					// ! deprecated: use GET api/v2/nitifications
 					users.GET(":id/notifications", service.HandlerBindUri(&user_service.GetUserNotifications{}))

@@ -30,16 +30,6 @@ func TestCreateCourse(t *testing.T) {
 		{"开始时间晚于结束", "c++", time.Now().Add(time.Minute), time.Now(), "c++课程", 400},
 		{"空描述", "c++", time.Now(), time.Now().Add(time.Minute), "", 200},
 	}
-
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -59,18 +49,8 @@ func TestCreateCourse(t *testing.T) {
 }
 
 func TestGetCourses(t *testing.T) {
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
-
-	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/v1/courses", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/courses", nil)
 	req.Header.Set("Authorization", Authorization)
 	Router.ServeHTTP(w, req)
 	responseBody := w.Body.Bytes()
@@ -90,15 +70,6 @@ func TestUpdateCourseDescription(t *testing.T) {
 		{"课程号不存在", 99, "kksk", 400},
 	}
 
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -132,29 +103,15 @@ func TestDeleteCourse(t *testing.T) {
 	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			if testcase.Case == "权限不足" {
-				data := map[string]interface{}{"username": "xeh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-				log.Printf("Authorization为:%s", Authorization)
-			} else {
-				data := map[string]interface{}{"username": "xyh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-				log.Printf("Authorization为:%s", Authorization)
-			}
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("DELETE", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID)), nil)
 			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
+			if testcase.Case == "权限不足" {
+				authorization := GetAuthorziation("xeh", "123")
+				req.Header.Set("Authorization", authorization)
+			} else {
+				req.Header.Set("Authorization", Authorization)
+			}
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("删除课程:%d,需要的code为%d,但是实际code为%d", testcase.CourseID, testcase.ExpextCode, w.Code)
@@ -173,14 +130,6 @@ func TestGetCourse(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
 	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
@@ -216,14 +165,6 @@ func TestCreateCourseHomework(t *testing.T) {
 		{"时间顺序混乱1", 1, "c++", "1", time.Now(), time.Now().AddDate(0, 1, 1), time.Now().AddDate(0, 0, 2), 400},
 		{"时间顺序混乱2", 1, "c--", "1", time.Now().AddDate(0, 1, 1), time.Now(), time.Now().AddDate(0, 0, 2), 400},
 	}
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
 	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
@@ -274,14 +215,6 @@ func TestGetCourseHomeworks(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
 	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
@@ -309,14 +242,6 @@ func TestGetCourseStudents(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
 	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
@@ -344,14 +269,7 @@ func TestAddCourseStudentService(t *testing.T) {
 		{"重复添加", 1, 400},
 	}
 
-	//登录拿到json
-	data := map[string]interface{}{"username": "tjw", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
+	authorization := GetAuthorziation("tjw", "123")
 	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
@@ -359,7 +277,7 @@ func TestAddCourseStudentService(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("POST", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID))+"/students", nil)
 			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
+			req.Header.Set("Authorization", authorization)
 			Router.ServeHTTP(w, req)
 			log.Print(w.Body)
 			if w.Code != testcase.ExpextCode {

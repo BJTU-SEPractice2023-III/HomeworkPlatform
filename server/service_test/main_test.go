@@ -1,22 +1,29 @@
 package service_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"homework_platform/internal/bootstrap"
 	"homework_platform/internal/config"
 	"homework_platform/internal/models"
 	"homework_platform/server"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/glebarez/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/stretchr/testify/assert"
 )
 
 var Router *gin.Engine
+
+type TestCase struct {
+	name string
+	authorization string
+	data any
+	code int
+}
 
 type ResponseData struct {
 	Token string `json:"token"`
@@ -27,14 +34,18 @@ var responseData struct {
 	Data ResponseData `json:"data"`
 }
 
-func GetAuthorziation(w *httptest.ResponseRecorder) string {
-	responseBody := w.Body.Bytes()
+var Authorization string
 
+func GetAuthorziation(username string, password string) string {
+	data := map[string]interface{}{"username": username, "password": password}
+	w := requestJson("POST", "/api/v1/user/login", data)
+
+	responseBody := w.Body.Bytes()
 	err := json.Unmarshal(responseBody, &responseData)
 	if err != nil {
 		panic(err)
 	}
-	// 访问数据
+
 	return responseData.Data.Token
 }
 
@@ -99,22 +110,53 @@ func CreateData() {
 	models.CreateTeacherComplaint(2, 4, 2, "123")
 }
 
-func TestMain(m *testing.M) {
-	bootstrap.Sqlite = true
-	var err error
-	models.DB, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	bootstrap.Sqlite = true
+func requestJson(method string, url string, data any) *httptest.ResponseRecorder {
+	jsonData, err := json.Marshal(data)
 	if err != nil {
-		panic(err)
+		panic("josn.Marshal error")
 	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(method, url, bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", Authorization)
+	Router.ServeHTTP(w, req)
+
+	return w
+}
+
+func testRequestWithTestCases(t *testing.T, method string, url string, cases []TestCase) {
+	for _, testCase := range cases {
+		testRequestWithTestCase(t, method, url, testCase)
+	}
+}
+
+func testRequestWithTestCase(t *testing.T, method string, url string, testCase TestCase) {
+	t.Run(testCase.name, func(t *testing.T) {
+		if len(testCase.authorization) != 0 {
+			old := Authorization
+			Authorization = testCase.authorization
+			w := requestJson(method, url, testCase.data)
+			assert.Equal(t, w.Code, testCase.code)
+			Authorization = old
+		} else {
+			w := requestJson(method, url, testCase.data)
+			assert.Equal(t, w.Code, testCase.code)
+		}
+	})
+}
+
+func TestMain(m *testing.M) {
+	bootstrap.Test = true
+	models.InitDB()
 	bootstrap.Config = &config.Config{JWTSigningString: "moorxJ", SQLDSN: "123"}
 
 	models.Migrate()
 
 	CreateData()
 	Router = server.InitRouter()
+
+	Authorization = GetAuthorziation("xyh", "123")
 	// api.Run(":8888")
 	m.Run()
 }

@@ -1,8 +1,6 @@
 package service_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -19,17 +17,6 @@ func TestGetFileService(t *testing.T) {
 		{"文件不存在", "data/homework_submission/1/1biey2uhu0g8uc3iioyrcfofo.png.png123", 400},
 		{"错误的访问", "/homework_submission/1/1biey2uhu0g8uc3iioyrcfofo.png.png123", 400},
 	}
-	//登录拿到json
-
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
-
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
