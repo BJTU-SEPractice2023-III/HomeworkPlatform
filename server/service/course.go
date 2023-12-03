@@ -41,16 +41,6 @@ type UpdateCourseDescription struct {
 
 func (service *UpdateCourseDescription) Handle(c *gin.Context) (any, error) {
 	var err error
-	// 从 Uri 获取 CourseID
-	err = c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	// 从 Form 获取其他数据
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err

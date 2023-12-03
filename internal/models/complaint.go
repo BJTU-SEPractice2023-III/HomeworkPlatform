@@ -27,7 +27,7 @@ func GetComplaintByHomeworkIdAndUserId(homeworkId uint, userId uint) (*Complaint
 
 func CreateTeacherComplaint(submissionId uint, homeworkId uint, CourseID uint, reason string) error {
 	log.Printf("正在创建<Complaint>(SubmissionId = %d)...", submissionId)
-	homeworkSubmission, err := GetHomeworkSubmissionByID(submissionId)
+	homeworkSubmission, err := GetHomeworkSubmissionById(submissionId)
 	if err != nil {
 		return err
 	}

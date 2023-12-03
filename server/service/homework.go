@@ -148,17 +148,6 @@ type UpdateHomework struct {
 
 func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 	var err error
-	// 从 Uri 获取 CourseID
-	err = c.ShouldBindUri(s)
-	if err != nil {
-		return nil, err
-	}
-	// 从 Form 获取其他数据
-	err = c.ShouldBind(s)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(s)
 	if s.Name == "" {
 		return nil, errors.New("名称不能为空")
 	}

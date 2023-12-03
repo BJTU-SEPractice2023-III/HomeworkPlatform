@@ -13,7 +13,7 @@ type GetGradeBySubmissionIDService struct {
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
-	submission, _ := models.GetHomeworkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
@@ -26,19 +26,10 @@ type UpdateGradeService struct {
 }
 
 func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效成绩")
 	}
-	submission, _ := models.GetHomeworkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
@@ -84,7 +75,7 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	if id != course.TeacherID {
 		//学生自己查
 		submission, err := homework.GetSubmissionByUserId(id)
-		if submission == nil || err != nil{
+		if submission == nil || err != nil {
 			return nil, errors.New("未提交作业")
 		}
 		var maps MyMap

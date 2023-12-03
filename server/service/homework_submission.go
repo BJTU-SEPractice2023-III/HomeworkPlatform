@@ -23,18 +23,6 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("not supported content-type")
 	}
 
-	var err error
-	// 从 Uri 获取 HomeworkID
-	err = c.ShouldBindUri(s)
-	if err != nil {
-		return nil, err
-	}
-	// 从 Form 获取其他数据
-	err = c.ShouldBind(s)
-	if err != nil {
-		return nil, err
-	}
-
 	id := c.GetUint("ID")
 	time := time.Now()
 	homework, err := models.GetHomeworkByID(uint(s.HomeworkID))
@@ -71,11 +59,11 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	return nil, errors.New("不可重复提交")
 }
 
-type GetHomeworkSubmission struct {
+type GetHomeworkUserSubmission struct {
 	HomeworkId uint `uri:"id" binding:"required"`
 }
 
-func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
+func (service *GetHomeworkUserSubmission) Handle(c *gin.Context) (any, error) {
 	userId := c.GetUint("ID")
 	// log.Printf("用户id为%d", userId)
 	// log.Printf("homeworkid为%d", service.HomeworkId)
@@ -90,29 +78,16 @@ func (service *GetHomeworkSubmission) Handle(c *gin.Context) (any, error) {
 	return *submission, nil
 }
 
-type UpdateSubmission struct {
+type UpdateUserSubmission struct {
 	HomeworkID uint                    `uri:"id" bind:"required"`
 	Content    string                  `form:"content"`
 	Files      []*multipart.FileHeader `form:"files"`
 }
 
-func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
+func (s *UpdateUserSubmission) Handle(c *gin.Context) (any, error) {
 	if c.ContentType() != "multipart/form-data" {
 		return nil, errors.New("not supported content-type")
 	}
-
-	var err error
-	// 从 Uri 获取 HomeworkID
-	err = c.ShouldBindUri(s)
-	if err != nil {
-		return nil, err
-	}
-	// 从 Form 获取其他数据
-	err = c.ShouldBind(s)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(s)
 
 	id := c.GetUint("ID")
 	time := time.Now()
@@ -146,11 +121,10 @@ func (s *UpdateSubmission) Handle(c *gin.Context) (any, error) {
 	return nil, errors.New("请先提交作业")
 }
 
-type GetSubmissionService struct {
+type GetSubmissionByIdService struct {
 	HomeworkID uint `uri:"id" bind:"required"`
 }
 
-func (s *GetSubmissionService) Handle(c *gin.Context) (any, error) {
-	submit, _ := models.GetHomeworkSubmissionByID(s.HomeworkID)
-	return submit, nil
+func (s *GetSubmissionByIdService) Handle(c *gin.Context) (any, error) {
+	return models.GetHomeworkSubmissionById(s.HomeworkID)
 }

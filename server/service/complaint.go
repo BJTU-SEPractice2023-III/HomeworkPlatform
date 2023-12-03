@@ -14,17 +14,6 @@ type CreateComplaint struct {
 }
 
 func (service *CreateComplaint) Handle(c *gin.Context) (any, error) {
-	//绑定id
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
-
 	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
@@ -75,16 +64,6 @@ type UpdateComplaint struct {
 }
 
 func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) {
-	//绑定id
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
 	if service.Reason == "" {
 		return nil, errors.New("原因不能为空")
 	}

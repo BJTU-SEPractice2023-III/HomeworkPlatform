@@ -45,15 +45,15 @@ func CreateData() {
 	user3, _ := models.CreateUser("xsh", "123") // 3
 	user4, _ := models.CreateUser("tjw", "123") // 4
 
-	user5, _ := models.CreateUser("xb", "123")         // 5
+	user5, _ := models.CreateUser("xb", "123") // 5
 	_ = user5
-	user6, _ := models.CreateUser("xbb", "123")        // 6
-	user7, _ := models.CreateUser("xbbb", "123")       // 7
+	user6, _ := models.CreateUser("xbb", "123")  // 6
+	user7, _ := models.CreateUser("xbbb", "123") // 7
 	_ = user7
 	user8, _ := models.CreateUser("xbbbb", "123")      // 8
 	user9, _ := models.CreateUser("deleteUser", "123") // 9
 	_ = user9
-	user10, _ := models.CreateUser("10", "123")         // 10
+	user10, _ := models.CreateUser("10", "123") // 10
 
 	course1, _ := user1.CreateCourse("c++", time.Now(), time.Now().AddDate(0, 0, 1), "c++")
 	course2, _ := user2.CreateCourse("c3+", time.Now(), time.Now().AddDate(0, 1, 1), "c++")
@@ -84,7 +84,7 @@ func CreateData() {
 	user3.SelectCourse(course3.ID)
 
 	homework3.AddSubmission(user1.ID, "kksk")
-	submission, _ := models.GetHomeworkSubmissionByID(1)
+	submission, _ := models.GetHomeworkSubmissionById(1)
 	submission.Score = 20
 	models.DB.Save(&submission)
 

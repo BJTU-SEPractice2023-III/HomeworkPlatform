@@ -30,7 +30,7 @@ type HomeworkSubmission struct {
 	Files      []File      `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
-func GetHomeworkSubmissionByID(homewroksubmissionid uint) (*HomeworkSubmission, error) {
+func GetHomeworkSubmissionById(homewroksubmissionid uint) (*HomeworkSubmission, error) {
 	var homewroksubmission HomeworkSubmission
 	if err := DB.Model(&homewroksubmission).Preload("Files").First(&homewroksubmission, homewroksubmissionid).Error; err != nil {
 		return nil, err

@@ -10,3 +10,5 @@ dist/
 *.db
 data
 .DS_Store
+coverage.html
+coverage.out

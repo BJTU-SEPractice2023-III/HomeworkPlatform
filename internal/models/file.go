@@ -108,7 +108,7 @@ func (file *File) Attach(id uint, targetType uint) error {
 			return err
 		}
 	} else if targetType == TargetTypeHomeworkSubmission {
-		homeworkSubmission, err := GetHomeworkSubmissionByID(id)
+		homeworkSubmission, err := GetHomeworkSubmissionById(id)
 		if err != nil {
 			return err
 		}

@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/utils"
-	"io/ioutil"
+	"io"
 	"log"
 	"mime/multipart"
 	"os"
@@ -166,7 +166,7 @@ func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	defer file.Close()
-	image, err := ioutil.ReadAll(file)
+	image, err := io.ReadAll(file)
 	log.Println("content为" + s.Content)
 	messages := []utils.ImageMessage{
 		{Role: "user", Content: base64.StdEncoding.EncodeToString(image), ContentType: "image"}, // 首条必须是图片
