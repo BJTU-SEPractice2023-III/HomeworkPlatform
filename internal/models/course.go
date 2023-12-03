@@ -13,7 +13,7 @@ type Course struct {
 	Name        string    `json:"name" gorm:"not null"`
 	BeginDate   time.Time `json:"beginDate"`
 	EndDate     time.Time `json:"endDate"`
-	Description string    `json:"description" gorm: "not null"`
+	Description string    `json:"description" gorm:"not null"`
 
 	// A teacher has many course
 	// Also check user.go
