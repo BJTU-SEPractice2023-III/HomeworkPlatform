@@ -68,6 +68,10 @@ func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("原因不能为空")
 	}
 	complain, err := models.GetComplaintById(service.ComplaintId)
+	id, _ := c.Get("ID")
+	if complain.UserID != id.(uint) {
+		return nil, errors.New("这不是您的申诉")
+	}
 	if err != nil {
 		return nil, err
 	}

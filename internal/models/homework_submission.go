@@ -38,6 +38,15 @@ func GetHomeworkSubmissionById(homewroksubmissionid uint) (*HomeworkSubmission, 
 	return &homewroksubmission, nil
 }
 
+func (homeworkSubmission *HomeworkSubmission) GetCommentByUserId(userId uint) (Comment, error) {
+	var comment Comment
+	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworkSubmission.ID, userId).First(&comment)
+	if res.Error != nil {
+		return comment, res.Error
+	}
+	return comment, nil
+}
+
 func (homeworkSubmission *HomeworkSubmission) addAttachment(file *File) (*File, error) {
 	err := DB.Model(homeworkSubmission).Association("Files").Append(file)
 	if err != nil {

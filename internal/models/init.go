@@ -177,9 +177,10 @@ func generateData() {
 		time.Now().Add(-7*24*time.Hour),
 		time.Now(),
 	)
-	ongoing, _ := GetHomeworkByID(1)
-	ending, _ := GetHomeworkByID(2)
-	commenting, _ := GetHomeworkByID(3)
+
+	ongoing, _ := GetHomeworkByID(2)
+	ending, _ := GetHomeworkByID(3)
+	commenting, _ := GetHomeworkByID(4)
 
 	ongoing.AddSubmission(1, "xyh提交")
 	ongoing.AddSubmission(3, "xb提交")
@@ -187,16 +188,24 @@ func generateData() {
 	ending.AddSubmission(1, "xyh提交")
 	ending.AddSubmission(3, "xb提交")
 
-	commenting.AddSubmission(1, "xyh提交")
-	commenting.AddSubmission(3, "xb提交")
+	xyh_3, _ := commenting.AddSubmission(1, "xyh提交")
+	xb_3, _ := commenting.AddSubmission(3, "xb提交")
 
-	AssignComment(3)
-	xyh_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(1, 6)
+	AssignComment(4)
+	xyh_to_comment, _ := xb_3.GetCommentByUserId(1)
 	xyh_to_comment.UpdateSelf("xyh的批阅", 99)
 
-	xb_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(3, 5)
+	xb_to_comment, _ := xyh_3.GetCommentByUserId(3)
 	xb_to_comment.UpdateSelf("xb的批阅", 99)
 
+	course2, _ := tjw.CreateCourse("课程2", time.Date(2019, 5, 1, 3, 59, 0, 0, time.Local), time.Now().Add(24*time.Hour), "kksk")
+	course2.CreateHomework(
+		"123",
+		"321",
+		time.Date(2023, 11, 21, 16, 0, 0, 0, time.Local),
+		time.Date(2023, 12, 5, 3, 59, 0, 0, time.Local),
+		time.Date(2023, 12, 10, 3, 59, 0, 0, time.Local),
+	)
 }
 
 // func addDefaultUser() {

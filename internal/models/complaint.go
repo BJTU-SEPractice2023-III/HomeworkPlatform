@@ -40,7 +40,7 @@ func CreateTeacherComplaint(submissionId uint, homeworkId uint, CourseID uint, r
 		HomeworkID: homeworkId,
 		CourseID:   CourseID,
 		Reason:     reason,
-		UserID:     homeworkSubmission.ID,
+		UserID:     homeworkSubmission.UserID,
 		TeacherID:  course.TeacherID,
 	}
 	complaint.Solved = false
@@ -75,7 +75,7 @@ func GetComplaintById(Id uint) (Complaint, error) {
 	log.Printf("正在查找<Complaint>(ID = %d)...", Id)
 	var complaint Complaint
 
-	res := DB.Where("homework_submission_id=?", Id).First(&complaint)
+	res := DB.Where("id=?", Id).First(&complaint)
 	if res.Error != nil {
 		log.Printf("查找失败: %s", res.Error)
 		return complaint, res.Error
