@@ -66,14 +66,14 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 	return comments, nil
 }
 
-func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (Comment, error) {
-	var comment Comment
-	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
-	if res.Error != nil {
-		return comment, res.Error
-	}
-	return comment, nil
-}
+// func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (Comment, error) {
+// 	var comment Comment
+// 	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
+// 	if res.Error != nil {
+// 		return comment, res.Error
+// 	}
+// 	return comment, nil
+// }
 
 // func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
 // 	var comment []Comment

@@ -188,14 +188,14 @@ func generateData() {
 	ending.AddSubmission(1, "xyh提交")
 	ending.AddSubmission(3, "xb提交")
 
-	commenting.AddSubmission(1, "xyh提交")
-	commenting.AddSubmission(3, "xb提交")
+	xyh_3, _ := commenting.AddSubmission(1, "xyh提交")
+	xb_3, _ := commenting.AddSubmission(3, "xb提交")
 
 	AssignComment(4)
-	xyh_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(1, 6)
+	xyh_to_comment, _ := xb_3.GetCommentByUserId(1)
 	xyh_to_comment.UpdateSelf("xyh的批阅", 99)
 
-	xb_to_comment, _ := GetCommentByUserIDAndHomeworkSubmissionID(3, 5)
+	xb_to_comment, _ := xyh_3.GetCommentByUserId(3)
 	xb_to_comment.UpdateSelf("xb的批阅", 99)
 
 	course2, _ := tjw.CreateCourse("课程2", time.Date(2019, 5, 1, 3, 59, 0, 0, time.Local), time.Now().Add(24*time.Hour), "kksk")
