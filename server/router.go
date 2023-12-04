@@ -194,6 +194,8 @@ func InitRouter() *gin.Engine {
 				{
 					// POST api/v1/ai/gpt	| 询问G哥
 					ai.POST("gpt", service.HandlerBind(&service.GPTService{}))
+					// POST api/v1/ai/spark | 连接 SSE
+					ai.GET("spark", service.HandlerNoBind(&service.ConnectSpark{}))
 					// POST api/v1/ai/spark
 					ai.POST("spark", service.HandlerBind(&service.SparkService{}))
 					// POST api/v1/ai/spark/image

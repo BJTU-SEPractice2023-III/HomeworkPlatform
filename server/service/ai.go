@@ -58,6 +58,41 @@ var (
 	apiKey    = "f81f4915c4d8fddaafe5a5755fcc0708"
 )
 
+var sseChanMap = make(map[uint]*chan string)
+
+func addSSEChan(id uint, ch *chan string) {
+	sseChanMap[id] = ch
+}
+
+func removeSSEChan(id uint) {
+	sseChanMap[id] = nil
+}
+
+type ConnectSpark struct{}
+
+func (s *ConnectSpark) Handle(c *gin.Context) (any, error) {
+	log.Println("ServerConsole")
+	c.Writer.Header().Set("Content-Type", "text/event-stream")
+	c.Writer.Header().Set("Cache-Control", "no-cache")
+
+	id := c.GetUint("ID")
+	messageChan := make(chan string)
+	addSSEChan(id, &messageChan)
+	log.Printf("[service/ai]: %d connected", id)
+	defer removeSSEChan(id)
+
+	c.Stream(func(w io.Writer) bool {
+		if message, ok := <-*sseChanMap[id]; ok {
+			c.SSEvent("message", message)
+			return true
+		}
+		return false
+	})
+
+	log.Printf("[service/ai]: %d disconnected", id)
+	return nil, nil
+}
+
 type SparkService struct {
 	Context string `form:"context"`
 }
@@ -67,23 +102,20 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}
-	//握手并建立websocket 连接
+
+	// 握手并建立websocket 连接
 	conn, resp, err := d.Dial(utils.AssembleAuthUrl(hostUrl, apiKey, apiSecret), nil)
-	if err != nil {
+	if err != nil || resp.StatusCode != 101 {
 		return nil, err
-	} else if resp.StatusCode != 101 {
-		log.Printf("崩溃!")
-		panic(utils.ReadResp(resp) + err.Error())
 	}
+	defer conn.Close()
 
-	go func() {
-		data := utils.GenParams1(appid, s.Context)
-		conn.WriteJSON(data)
+	// 生成参数并发送请求
+	data := utils.GenParams1(appid, s.Context)
+	conn.WriteJSON(data)
 
-	}()
-
-	var answer = ""
-	//获取返回的数据
+	// 获取返回的数据
+	id := c.GetUint("ID")
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
@@ -92,13 +124,14 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 		}
 
 		var data map[string]interface{}
-		err1 := json.Unmarshal(msg, &data)
-		if err1 != nil {
+		err = json.Unmarshal(msg, &data)
+		if err != nil {
 			fmt.Println("Error parsing JSON:", err)
 			return nil, errors.New("连接失败")
 		}
-		fmt.Println(string(msg))
-		//解析数据
+		// fmt.Println(string(msg))
+
+		// 解析数据
 		payload := data["payload"].(map[string]interface{})
 		choices := payload["choices"].(map[string]interface{})
 		header := data["header"].(map[string]interface{})
@@ -109,26 +142,25 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 			return nil, errors.New("连接失败")
 		}
 		status := choices["status"].(float64)
-		fmt.Println(status)
+		// fmt.Println(status)
 		text := choices["text"].([]interface{})
 		content := text[0].(map[string]interface{})["content"].(string)
-		if status != 2 {
-			answer += content
+
+		if sseChanMap[id] != nil {
+			*sseChanMap[id] <- content
 		} else {
-			fmt.Println("收到最终结果")
-			answer += content
+			return nil, nil
+		}
+		if status == 2 {
 			usage := payload["usage"].(map[string]interface{})
 			temp := usage["text"].(map[string]interface{})
 			totalTokens := temp["total_tokens"].(float64)
 			fmt.Println("total_tokens:", totalTokens)
-			conn.Close()
 			break
 		}
-
 	}
-	//输出返回结果
-	fmt.Println(answer)
-	return answer, nil
+
+	return nil, nil
 }
 
 type SparkImageService struct {

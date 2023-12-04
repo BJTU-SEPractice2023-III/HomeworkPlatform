@@ -29,7 +29,8 @@ func CreateToken(id uint) (string, error) {
 func GetTokenStr(c *gin.Context) string {
 	tokenStr := ""
 	// log.Println(c.Request.Header.Get("Authorization"))
-	if c.Request.URL.Path == "/api/servers/console" && c.Request.Method == "GET" {
+	// log.Println(c.Request.URL)
+	if c.Request.URL.Path == "/api/v1/ai/spark" && c.Request.Method == "GET" {
 		tokenStr = c.Query("token")
 	} else {
 		tokenStr = strings.ReplaceAll(c.Request.Header.Get("Authorization"), "Bearer ", "")
