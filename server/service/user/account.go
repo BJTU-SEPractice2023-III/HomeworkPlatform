@@ -80,6 +80,18 @@ func (service *GetUserService) Handle(c *gin.Context) (any, error) {
 	return models.GetUserByID(service.ID)
 }
 
+type GetUserNameService struct {
+}
+
+func (service *GetUserNameService) Handle(c *gin.Context) (any, error) {
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return user.Username, nil
+}
+
 type Register struct {
 	Username string `form:"username"` // 用户名
 	Password string `form:"password"` // 密码
