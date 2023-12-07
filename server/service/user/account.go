@@ -42,6 +42,35 @@ func (service *Login) Handle(c *gin.Context) (any, error) {
 	return res, nil
 }
 
+type UserUpdatePasswordService struct {
+	OldPassword string `form:"oldPassword"` // 旧码
+	NewPassword string `form:"newPassword"` // 新密码
+}
+
+func (service *UserUpdatePasswordService) Handle(c *gin.Context) (any, error) {
+	if service.NewPassword == "" {
+		return nil, errors.New("密码不能为空")
+	}
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
+	if err != nil {
+		return nil, errors.New("该用户不存在")
+	}
+	// 验证密码
+	passwordCheck := user.CheckPassword(service.OldPassword)
+	if !passwordCheck {
+		return nil, errors.New("密码错误")
+	}
+	log.Printf("用户的新密码为%s", service.NewPassword)
+	// 修改密码
+	if err := user.ChangePassword(service.NewPassword); err != nil {
+		return nil, err
+	}
+	res := make(map[string]any)
+	res["msg"] = "修改成功"
+	return res, nil
+}
+
 // 自己修改密码
 type UserselfupdateService struct {
 	UserName    string `form:"userName"`
