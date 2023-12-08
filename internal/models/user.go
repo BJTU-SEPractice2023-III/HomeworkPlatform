@@ -22,12 +22,12 @@ type User struct {
 	// A user has many courses
 	// Also check course.go
 	// Check: https://gorm.io/docs/has_many.html
-	TeachingCourses []*Course `json:"-" gorm:"foreignKey:TeacherID;constraint:OnDelete:CASCADE"` //引用了Course这个字段作为外键
+	TeachingCourses []*Course `json:"teachingCourses" gorm:"foreignKey:TeacherID;constraint:OnDelete:CASCADE"` //引用了Course这个字段作为外键
 
 	// A student has many courses, a course has many students
 	// Also check course.go
 	// Check: https://gorm.io/docs/many_to_many.html
-	LearningCourses []*Course `json:"-" gorm:"many2many:user_courses;constraint:OnDelete:CASCADE"`
+	LearningCourses []*Course `json:"learningCourses" gorm:"many2many:user_courses;constraint:OnDelete:CASCADE"`
 
 	// A user has many homework submissions
 	// Also check homework_submissions.go
@@ -68,7 +68,7 @@ func GetUserByID(id uint) (user User, err error) {
 	logPrefix := fmt.Sprintf("[models/user]: GetUserByID(id: %d)", id)
 
 	log.Printf("%s: 正在查找...", logPrefix)
-	if err = DB.First(&user, id).Error; err != nil {
+	if err = DB.Preload("LearningCourses").Preload("TeachingCourses").First(&user, id).Error; err != nil {
 		log.Printf("%s: 查找失败(%s)", logPrefix, err)
 	} else {
 		log.Printf("%s: 查找成功(username = %s)", logPrefix, user.Username)
