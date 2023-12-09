@@ -1,53 +1,47 @@
 package service
 
-import (
-	"errors"
-	"homework_platform/internal/models"
+// import (
+// 	"errors"
+// 	"homework_platform/internal/models"
+// 	"log"
 
-	// "homework_platform/internal/utils"
+// 	// "homework_platform/internal/utils"
 
-	"github.com/gin-gonic/gin"
-)
+// 	"github.com/gin-gonic/gin"
+// )
 
-type GetUsersService struct{}
+// type GetUsersService struct{}
 
-func (service *GetUsersService) Handle(c *gin.Context) (any, error) {
-	return models.GetUserList()
-}
+// func (service *GetUsersService) Handle(c *gin.Context) (any, error) {
+// 	return models.GetUsers()
+// }
 
-type DeleteUserService struct {
-	ID uint `uri:"id" binding:"required"`
-}
+// // DeleteUserService deletes a `User` with `ID`
+// type DeleteUserService struct {
+// 	ID uint `uri:"id" binding:"required"`
+// }
 
-func (service *DeleteUserService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByID(service.ID)
-	if err != nil {
-		return nil, errors.New("用户不存在")
-	}
-	result := user.DeleteSelf()
-	if !result {
-		return nil, errors.New("删除失败")
-	}
-	res := make(map[string]any)
-	res["msg"] = "删除成功"
-	return res, nil
-}
+// func (service *DeleteUserService) Handle(c *gin.Context) (res any, err error) {
+// 	if err = models.DeleteUserById(service.ID); err != nil {
+// 		log.Printf("删除失败(%s)", err)
+// 	}
+// 	return
+// }
 
-type UserUpdateService struct { //管理员修改密码
-	Username string `form:"username"` // 用户名
-	Password string `form:"password"` //新密码
-}
+// type UserUpdateService struct { //管理员修改密码
+// 	Username string `form:"username"` // 用户名
+// 	Password string `form:"password"` //新密码
+// }
 
-func (service *UserUpdateService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByUsername(service.Username)
-	if err != nil {
-		return nil, errors.New("该用户不存在")
-	}
-	result := user.ChangePassword(service.Password)
-	if !result {
-		return nil, errors.New("修改失败")
-	}
-	res := make(map[string]any)
-	res["msg"] = "修改成功"
-	return res, nil
-}
+// func (service *UserUpdateService) Handle(c *gin.Context) (any, error) {
+// 	user, err := models.GetUserByUsername(service.Username)
+// 	if err != nil {
+// 		return nil, errors.New("该用户不存在")
+// 	}
+// 	if err := user.ChangePassword(service.Password); err != nil {
+// 		return nil, errors.New("修改失败")
+// 	}
+// 	res := make(map[string]any)
+// 	res["msg"] = "修改成功"
+// 	return res, nil
+// }

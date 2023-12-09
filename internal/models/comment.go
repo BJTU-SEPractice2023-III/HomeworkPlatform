@@ -1,8 +1,6 @@
 package models
 
 import (
-	// "errors"
-	"homework_platform/internal/bootstrap"
 	"log"
 	"math/rand"
 	"time"
@@ -68,40 +66,27 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 	return comments, nil
 }
 
-func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (any, error) {
-	var comment Comment
-	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return comment, nil
-}
+// func GetCommentByUserIDAndHomeworkSubmissionID(userid uint, homeworksubmissionid uint) (Comment, error) {
+// 	var comment Comment
+// 	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworksubmissionid, userid).First(&comment)
+// 	if res.Error != nil {
+// 		return comment, res.Error
+// 	}
+// 	return comment, nil
+// }
 
-func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
-	var comment []Comment
-	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
-	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
-	if res.Error != nil {
-		return nil, res.Error
-	}
-	return comment, nil
-}
+// func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
+// 	var comment []Comment
+// 	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
+// 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
+// 	if res.Error != nil {
+// 		return nil, res.Error
+// 	}
+// 	return comment, nil
+// }
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
 	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
-	if bootstrap.Sqlite {
-		_, err := GetUserByID(UserID)
-		if err != nil {
-			log.Printf("用户<user_id:%d>不存在", UserID)
-			return false
-		}
-		res := GetHomeWorkSubmissionByID(HomeworkSubmissionID)
-		if res == nil {
-			log.Printf("作业提交<submission:id:%d>不存在", HomeworkSubmissionID)
-			return false
-		}
-	}
-
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,
@@ -123,7 +108,7 @@ func AssignComment(HomeworkID uint) error {
 	}
 
 	// 分配作业
-	submissionLists, err := GetSubmissionListsByHomeworkID(HomeworkID)
+	submissionLists, err := homework.GetSubmissions()
 	if err != nil {
 		log.Println("no")
 		return err

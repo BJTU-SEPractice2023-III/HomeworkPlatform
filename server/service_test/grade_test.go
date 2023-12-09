@@ -20,23 +20,16 @@ func TestGetCommentListsService(t *testing.T) {
 		{"作业号不存在", 1999, 400},
 	}
 	//登录拿到json
-	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
 
-			data := map[string]interface{}{"username": "xeh", "password": "123"}
-			jsonData, _ := json.Marshal(data)
-			w := httptest.NewRecorder()
-			req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-			req.Header.Set("Content-Type", "application/json")
-			Router.ServeHTTP(w, req)
-			Authorization = GetAuthorziation(w)
+			authorization := GetAuthorziation("xeh", "123")
 
-			w = httptest.NewRecorder()
-			req, _ = http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.SubmissionId))+"/bysubmissionid", nil)
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.SubmissionId))+"/bysubmissionid", nil)
 			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
+			req.Header.Set("Authorization", authorization)
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得成绩:%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
@@ -60,28 +53,16 @@ func TestGetGradeListsByHomeworkIDService(t *testing.T) {
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			if testcase.Case == "学生正确获得" {
-				data := map[string]interface{}{"username": "xyh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			} else {
-				data := map[string]interface{}{"username": "xeh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			}
-
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.HomeworkId)), nil)
 			// req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("Authorization", Authorization)
+			if testcase.Case == "学生正确获得" {
+				req.Header.Set("Authorization", Authorization)
+			} else {
+				authorization := GetAuthorziation("xeh", "123")
+				req.Header.Set("Authorization", authorization)
+			}
+
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得成绩:%s,需要的code为%d,但是实际code为%d", testcase.Case, testcase.ExpextCode, w.Code)
@@ -107,29 +88,17 @@ func TestUpdateGradeService(t *testing.T) {
 	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
-			if testcase.Case == "无权限" {
-				data := map[string]interface{}{"username": "xyh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			} else {
-				data := map[string]interface{}{"username": "xeh", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			}
 			data := map[string]interface{}{"score": testcase.Score}
 			jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("PUT", "/api/v1/grade/"+strconv.Itoa(int(testcase.HomeworkSubmissionId)), bytes.NewBuffer(jsonData))
 			req.Header.Set("Content-Type", "application/json")
+			if testcase.Case == "无权限" {
+				req.Header.Set("Authorization", Authorization)
+			} else {
+				authorization := GetAuthorziation("xeh", "123")
+				req.Header.Set("Authorization", authorization)
+			}
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {

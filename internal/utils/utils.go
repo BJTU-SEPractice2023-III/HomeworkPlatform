@@ -21,7 +21,7 @@ import (
 
 // GetTimeStamp ...
 func GetTimeStamp() string { //获得时间戳
-	return time.Now().Format("2006-01-02 15-04-05")
+	return time.Now().Format("2006-01-02-15-04-05")
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

@@ -22,14 +22,6 @@ func TestCreateComplaint(t *testing.T) {
 		{"重复提交", 3, "原因", 400},
 		{"空原因", 3, "", 400},
 	}
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -56,14 +48,6 @@ func TestDeleteComplaint(t *testing.T) {
 		{"正确申诉", 1, 200},
 		{"不存在这个申诉", 1, 400},
 	}
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -90,14 +74,6 @@ func TestGetComplaint(t *testing.T) {
 		{"正确查找", 1, 200},
 		{"作业没有申诉", 4, 400},
 	}
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -126,14 +102,6 @@ func TestUpdateComplaint(t *testing.T) {
 		{"complaint不存在", 993, "原因", 400},
 		{"空原因", 3, "", 400},
 	}
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
@@ -160,14 +128,6 @@ func TestSolveComplaint(t *testing.T) {
 		{"正确解决", 2, 200},
 		{"complaint不存在", 993, 400},
 	}
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")

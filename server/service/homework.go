@@ -7,29 +7,19 @@ import (
 	"log"
 	"mime/multipart"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-type GetHomework struct {
+type GetHomeworkById struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetHomework) Handle(c *gin.Context) (any, error) {
-	homework, err2 := models.GetHomeworkByID(uint(service.ID))
-	if err2 != nil {
-		return nil, errors.New("没有找到该作业")
-	}
-	path := fmt.Sprintf("./data/homeworkassign/%d", service.ID)
-	files, err := os.ReadDir(path)
-	homework.FilePaths = make([]string, 0)
-	if err == nil {
-		for _, file := range files {
-			filePath := filepath.Join(path, file.Name())
-			homework.FilePaths = append(homework.FilePaths, filePath)
-		}
+func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
+	homework, err := models.GetHomeworkByID(uint(service.ID))
+	if err != nil {
+		return nil, err
 	}
 
 	course, err := models.GetCourseByID(homework.CourseID)
@@ -38,25 +28,26 @@ func (service *GetHomework) Handle(c *gin.Context) (any, error) {
 	}
 
 	id := c.GetUint("ID")
-	if id != course.TeacherID {
+	if id == course.TeacherID {
+		return *homework, nil
+	} else {
 		studentHomework := StudentHomework{
-			Homework:  homework,
+			Homework:  *homework,
 			Submitted: false,
 			Score:     -1,
 		}
 
-		homeworkSubmission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homework.ID, id)
-		if homeworkSubmission != nil {
+		homeworkSubmission, err := homework.GetSubmissionByUserId(id)
+		if err == nil {
 			studentHomework.Submitted = true
 			studentHomework.Score = homeworkSubmission.Score
 		}
 
 		return studentHomework, nil
 	}
-	return homework, nil
 }
 
-type AssignHomeworkService struct {
+type CreateHomework struct {
 	CourseID       uint                    `form:"courseId"`
 	Name           string                  `form:"name"`
 	Description    string                  `form:"description"`
@@ -66,35 +57,37 @@ type AssignHomeworkService struct {
 	Files          []*multipart.FileHeader `form:"files"`
 }
 
-func (service *AssignHomeworkService) Handle(c *gin.Context) (any, error) {
+func (service *CreateHomework) Handle(c *gin.Context) (any, error) {
 	course, err := models.GetCourseByID(service.CourseID)
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
+
+	id := c.GetUint("ID")
 	if course.TeacherID != id {
 		return nil, errors.New("不能发布不是您的课程的作业")
 	}
-	//CourseID
-	homework, err2 := models.CreateHomework(
-		service.CourseID,
+
+	homework, err := course.CreateHomework(
 		service.Name,
 		service.Description,
 		service.BeginDate,
 		service.EndDate,
 		service.CommentEndDate,
 	)
-	if err2 != nil {
-		return nil, errors.New("创建失败")
+	if err != nil {
+		return nil, err
 	}
 	for _, f := range service.Files {
-		log.Println(f.Filename)
-		dst := fmt.Sprintf("./data/homeworkassign/%d/%s", homework.(models.Homework).ID, f.Filename)
-		// 上传文件到指定的目录
-		c.SaveUploadedFile(f, dst)
+		file, err := models.CreateFileFromFileHeaderAndContext(f, c)
+		if err != nil {
+			// TODO: err handle
+		} else {
+			file.Attach(homework.ID, models.TargetTypeHomework)
+		}
 	}
 
-	return homework.(models.Homework).ID, nil
+	return homework.ID, nil
 }
 
 type HomeworkLists struct {
@@ -110,19 +103,19 @@ func (service *HomeworkLists) Handle(c *gin.Context) (any, error) {
 	// if course.TeacherID != id {
 	// 	return nil, errors.New("不能查看不是您的课程的作业")
 	// }
-	homeworks, err2 := course.GetHomeworkLists()
+	homeworks, err2 := course.GetHomeworks()
 	if err2 != nil {
 		return nil, err2
 	}
 	return homeworks, nil
 }
 
-type DeleteHomework struct {
-	HomeworkID uint `uri:"id" bind:"required"`
+type DeleteHomeworkById struct {
+	ID uint `uri:"id" bind:"required"`
 }
 
-func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
-	homework, err2 := models.GetHomeworkByID(uint(service.HomeworkID))
+func (service *DeleteHomeworkById) Handle(c *gin.Context) (any, error) {
+	homework, err2 := models.GetHomeworkByID(uint(service.ID))
 	if err2 != nil {
 		return nil, err2
 	}
@@ -134,10 +127,10 @@ func (service *DeleteHomework) Handle(c *gin.Context) (any, error) {
 	if course.TeacherID != id {
 		return nil, errors.New("不能删除不是您的课程的作业")
 	}
-	if err := homework.Deleteself(); err != nil {
+	if err := models.DeleteHomeworkById(homework.ID); err != nil {
 		return nil, err
 	}
-	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", course.ID, service.HomeworkID)
+	dirPath := fmt.Sprintf("./data/homeworkassign/%d/%d", course.ID, service.ID)
 	os.RemoveAll(dirPath)
 
 	return nil, nil
@@ -155,17 +148,6 @@ type UpdateHomework struct {
 
 func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 	var err error
-	// 从 Uri 获取 CourseID
-	err = c.ShouldBindUri(s)
-	if err != nil {
-		return nil, err
-	}
-	// 从 Form 获取其他数据
-	err = c.ShouldBind(s)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(s)
 	if s.Name == "" {
 		return nil, errors.New("名称不能为空")
 	}
@@ -201,7 +183,7 @@ func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			homework_submission := models.GetHomeWorkSubmissionListsByHomeworkID(homework.ID)
+			homework_submission := models.GetHomeWorkSubmissionsByHomeworkID(homework.ID)
 			for _, submission := range homework_submission {
 				submission.Score = -1
 				err := submission.UpdateSelf()

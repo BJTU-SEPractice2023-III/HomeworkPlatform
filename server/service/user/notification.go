@@ -1,123 +1,122 @@
-package service
+package user
 
 import (
-	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
+	"log"
 	"time"
 
-	"errors"
-	"log"
-
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type UserLoginService struct {
-	Username string `form:"username"`
-	Password string `form:"password"`
+const (
+	TeachingHomeworkInProgressNotification = iota
+	TeachingHomeworkCommentInProgressNotification
+	LearningHomeworkInProgressNotification
+	LearningHomeworkCommentInProgressNotification
+	ComplaintToBeSolvedNotification
+	ComplaintInProgressNotification
+)
+
+type Notification struct {
+	NotificationType uint `json:"notificationType"`
+	NotificationData any  `json:"notificationData"`
 }
 
-func (service *UserLoginService) Handle(c *gin.Context) (any, error) {
-	log.Printf("[UserLoginService]: %v, %v\n", service.Username, service.Password)
-	var user models.User
-	var err error
+type GetNotifications struct{}
 
-	if user, err = models.GetUserByUsername(service.Username); err == gorm.ErrRecordNotFound {
-		return nil, err
-	}
-
-	if !user.CheckPassword(service.Password) {
-		return nil, errors.New("incorrect password")
-	}
-
-	var jwtToken string
-	jwtToken, err = jwt.CreateToken(user.ID) //根据用id创建jwt
+func (service *GetNotifications) Handle(c *gin.Context) (any, error) {
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	res := make(map[string]any)
-	res["token"] = jwtToken //之后解码token验证和user是否一致
-	res["user"] = user
-	// res["user_name"] = user.Username
-	log.Printf("登陆成功")
-	return res, nil
-}
-
-// 自己修改密码
-type UserselfupdateService struct {
-	UserName    string `form:"userName"`
-	OldPassword string `form:"oldPassword"` // 旧码
-	NewPassword string `form:"newPassword"` //新密码
-}
-
-func (service *UserselfupdateService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByUsername(service.UserName)
-	if err != nil {
-		return nil, errors.New("该用户不存在")
-	}
-	//验证密码
-	passwordCheck := user.CheckPassword(service.OldPassword)
-	if !passwordCheck {
-		return nil, errors.New("密码错误")
-	}
-	//修改密码
-	result := user.ChangePassword(service.NewPassword)
-	if !result {
-		return nil, errors.New("修改失败")
-	}
-	res := make(map[string]any)
-	res["msg"] = "修改成功"
-	return res, nil
-}
-
-type GetUserService struct {
-	ID uint `uri:"id" binding:"required"`
-}
-
-func (service *GetUserService) Handle(c *gin.Context) (any, error) {
-	return models.GetUserByID(service.ID)
-}
-
-type UserRegisterService struct {
-	Username string `form:"username"` // 用户名
-	Password string `form:"password"` // 密码
-}
-
-func (service *UserRegisterService) Handle(c *gin.Context) (any, error) {
-	_, err := models.CreateUser(service.Username, service.Password)
-	return nil, err
-}
-
-type GetUserCoursesService struct {
-	ID uint `uri:"id" binding:"required"`
-}
-
-func (service *GetUserCoursesService) Handle(c *gin.Context) (any, error) {
-	user, err := models.GetUserByID(service.ID)
+	courses, err := user.GetCourses()
 	if err != nil {
 		return nil, err
 	}
-	return user.GetCourses()
-}
 
-type UpdateSignature struct {
-	Signature string `form:"signature"`
-}
+	var notifications []Notification
 
-func (Service *UpdateSignature) Handle(c *gin.Context) (any, error) {
-	id, exist := c.Get("ID")
-	if !exist {
-		return nil, errors.New("不存在id")
+	// Learning homework notifications
+	for _, learningCourse := range courses.LearningCourses {
+		homeworks, err := learningCourse.GetHomeworks()
+		if err != nil || len(homeworks) == 0 {
+			continue
+		}
+		for _, homework := range homeworks {
+			// 进行中
+			if homework.BeginDate.Before(time.Now()) && homework.EndDate.After(time.Now()) {
+				if _, err := homework.GetSubmissionByUserId(user.ID); err != nil {
+					notifications = append(notifications, Notification{
+						NotificationType: LearningHomeworkInProgressNotification,
+						NotificationData: homework,
+					})
+				}
+				// 互评进行中
+			} else if homework.EndDate.Before(time.Now()) && homework.CommentEndDate.After(time.Now()) {
+				if comments, err := homework.GetCommentsByUserId(user.ID); err != nil {
+					for _, comments := range comments {
+						if comments.Score == -1 {
+							notifications = append(notifications, Notification{
+								NotificationType: LearningHomeworkCommentInProgressNotification,
+								NotificationData: homework,
+							})
+						}
+					}
+				}
+			}
+		}
 	}
-	user, err := models.GetUserByID(id.(uint))
+
+	// Teaching homework notification
+	for _, teachingCourse := range courses.TeachingCourses {
+		homeworks, err := teachingCourse.GetHomeworks()
+		if err != nil || len(homeworks) == 0 {
+			continue
+		}
+
+		for _, homework := range homeworks {
+			// 进行中
+			if homework.BeginDate.Before(time.Now()) && homework.EndDate.After(time.Now()) {
+				notifications = append(notifications, Notification{
+					NotificationType: TeachingHomeworkInProgressNotification,
+					NotificationData: homework,
+				})
+				// 互评进行中
+			} else if homework.EndDate.Before(time.Now()) && homework.CommentEndDate.After(time.Now()) {
+				notifications = append(notifications, Notification{
+					NotificationType: TeachingHomeworkCommentInProgressNotification,
+					NotificationData: homework,
+				})
+			}
+		}
+	}
+
+	// 得到老师待审核的 complaint
+	compliants, err := models.GetComplaintByTeacherID(user.ID)
 	if err != nil {
 		return nil, err
 	}
-	if err := user.ChangeSignature(Service.Signature); err != nil {
+	for _, compliant := range compliants {
+		notifications = append(notifications, Notification{
+			NotificationType: ComplaintToBeSolvedNotification,
+			NotificationData: compliant,
+		})
+	}
+	//得到学生还未被处理的complaint
+	compliants, err = models.GetComplaintByUserID(user.ID)
+	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+	for _, compliant := range compliants {
+		notifications = append(notifications, Notification{
+			NotificationType: ComplaintToBeSolvedNotification,
+			NotificationData: compliant,
+		})
+	}
+
+	return notifications, nil
 }
 
 type GetUserNotifications struct {
@@ -153,7 +152,7 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 	//得到学的课中还没完成的作业和还没批阅的作业
 	for _, course := range courses.LearningCourses {
 		//每门课的作业
-		homeworks, err := course.GetHomeworkLists()
+		homeworks, err := course.GetHomeworks()
 		if homeworks == nil {
 			continue
 		}
@@ -167,15 +166,15 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 				if homeworks[j].BeginDate.Before(time.Now()) {
 					// 作业在提交时段内
 					if homeworks[j].EndDate.After(time.Now()) {
-						homework := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworks[j].ID, user.ID)
+						_, err := homeworks[j].GetSubmissionByUserId(user.ID)
 						// 没交作业
-						if homework == nil {
+						if err != nil {
 							notifications.LeaningHomeworkListsToFinish =
 								append(notifications.LeaningHomeworkListsToFinish, homeworks[j])
 						}
 					} else {
 						// 评论时段内,获取所有的comment
-						comments, err := models.GetCommentListsByUserIDAndHomeworkID(user.ID, homeworks[j].ID)
+						comments, err := homeworks[j].GetCommentsByUserId(user.ID)
 						if err != nil {
 							return nil, err
 						}
@@ -192,10 +191,11 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 			}
 		}
 	}
+
 	//得到老师的课正在进行的作业
 	for _, course := range courses.TeachingCourses {
 		// 教的课中的作业
-		homeworks, err := course.GetHomeworkLists()
+		homeworks, err := course.GetHomeworks()
 		if homeworks == nil {
 			continue
 		}

@@ -1,12 +1,9 @@
 package models
 
 import (
-	"fmt"
 	"homework_platform/internal/bootstrap"
-	"io/ioutil"
 	"log"
 	"math"
-	"path/filepath"
 	"time"
 
 	"gorm.io/gorm"
@@ -26,28 +23,48 @@ type HomeworkSubmission struct {
 	UserID    uint     `json:"userId"`
 	FilePaths []string `json:"file_paths" gorm:"-"`
 	// Regular fields
-	Content        string      `json:"content"`
-	Score          int         `json:"score" gorm:"default:-1"` //-1表示不是最终结果
-	Comments       []Comment   `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
-	Complaints []Complaint `josn:"-" gorm:"constraint:OnDelete:CASCADE"`
+	Content    string      `json:"content"`
+	Score      int         `json:"score" gorm:"default:-1"` // -1表示不是最终结果
+	Comments   []Comment   `josn:"comments" gorm:"constraint:OnDelete:CASCADE"`
+	Complaints []Complaint `josn:"complaints" gorm:"constraint:OnDelete:CASCADE"`
+	Files      []File      `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
-func (homeworksubmission *HomeworkSubmission) GetFiles() {
-	root := fmt.Sprintf("./data/homework_submission/%d/", homeworksubmission.ID)
-	log.Println(root)
-	files, err := ioutil.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			log.Printf("获得文件%s",file.Name())
-			homeworksubmission.FilePaths = append(homeworksubmission.FilePaths, filepath.Join(root, file.Name()))
-		}
+func GetHomeworkSubmissionById(homewroksubmissionid uint) (*HomeworkSubmission, error) {
+	var homewroksubmission HomeworkSubmission
+	if err := DB.Model(&homewroksubmission).Preload("Files").First(&homewroksubmission, homewroksubmissionid).Error; err != nil {
+		return nil, err
 	}
+	return &homewroksubmission, nil
 }
 
-func GetHomeWorkSubmissionListsByHomeworkID(homeworkID uint) []HomeworkSubmission {
+func (homeworkSubmission *HomeworkSubmission) GetCommentByUserId(userId uint) (Comment, error) {
+	var comment Comment
+	res := DB.Where("homework_submission_id = ? AND user_id = ?", homeworkSubmission.ID, userId).First(&comment)
+	if res.Error != nil {
+		return comment, res.Error
+	}
+	return comment, nil
+}
+
+func (homeworkSubmission *HomeworkSubmission) addAttachment(file *File) (*File, error) {
+	err := DB.Model(homeworkSubmission).Association("Files").Append(file)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (homeworkSubmission *HomeworkSubmission) GetAttachments() ([]File, error) {
+	var files []File
+	err := DB.Model(homeworkSubmission).Association("Files").Find(&files)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
+func GetHomeWorkSubmissionsByHomeworkID(homeworkID uint) []HomeworkSubmission {
 	var homework_submission []HomeworkSubmission
 	res := DB.Where("homework_id = ?", homeworkID).Find(&homework_submission)
 	if res.Error != nil {
@@ -56,7 +73,7 @@ func GetHomeWorkSubmissionListsByHomeworkID(homeworkID uint) []HomeworkSubmissio
 	return homework_submission
 }
 
-// TODO:后续测试,计算成绩
+// TODO: 后续测试, 计算成绩
 func (submission *HomeworkSubmission) CalculateGrade() {
 	//查询到所有的comment
 	homewrork, err := GetHomeworkByID(submission.HomeworkID)
@@ -140,36 +157,26 @@ func AddHomeworkSubmission(work *HomeworkSubmission) bool {
 	return res.Error == nil
 }
 
-func GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
-	var submission *HomeworkSubmission
-	if err := DB.Where("user_id = ? AND homework_id = ?", userID, homeworkID).First(&submission).Error; err != nil {
-		return nil
-	}
+// func GetHomeWorkSubmissionByHomeworkIDAndUserID(homeworkID uint, userID uint) *HomeworkSubmission {
+// 	var submission *HomeworkSubmission
+// 	if err := DB.Where("user_id = ? AND homework_id = ?", userID, homeworkID).First(&submission).Error; err != nil {
+// 		return nil
+// 	}
 
-	if submission.ID != 0 {
-		return submission
-	} else {
-		return nil
-	}
-}
+// 	if submission.ID != 0 {
+// 		return submission
+// 	} else {
+// 		return nil
+// 	}
+// }
 
-func GetHomeWorkSubmissionByID(homewroksubmissionid uint) *HomeworkSubmission {
-	var homewroksubmission HomeworkSubmission
-	res := DB.First(&homewroksubmission, homewroksubmissionid)
-	if res.Error != nil {
-		return nil
-	}
-	homewroksubmission.GetFiles()
-	return &homewroksubmission
-}
-
-func GetSubmissionListsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
-	var submission []HomeworkSubmission
-	if err := DB.Where("homework_id = ?", id).Find(&submission).Error; err != nil {
-		return nil, err
-	}
-	for i := 0; i < len(submission); i++ {
-		submission[i].GetFiles()
-	}
-	return submission, nil
-}
+// func GetSubmissionsByHomeworkID(id uint) ([]HomeworkSubmission, error) {
+// 	var submission []HomeworkSubmission
+// 	if err := DB.Where("homework_id = ?", id).Find(&submission).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	for i := 0; i < len(submission); i++ {
+// 		submission[i].GetFiles()
+// 	}
+// 	return submission, nil
+// }

@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	Bind = iota
+	None = 0
+	Bind = 1 << iota
 	BindUri
-	None
 )
 
 type Service interface {
@@ -19,21 +19,10 @@ type Service interface {
 }
 
 func HandlerNoBind(s Service) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var err error
-
-		res, err := s.Handle(c) //调用实现了接口s的结构体对代码进行处理
-		if err != nil {
-			log.Println(err.Error())
-			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
-		} else {
-			log.Println("StatusOK")
-			c.JSON(http.StatusOK, serializer.Response(res))
-		}
-	}
+	return HandlerWithBindType(s, None)
 }
 
-func Handler(s Service) gin.HandlerFunc {
+func HandlerBind(s Service) gin.HandlerFunc {
 	return HandlerWithBindType(s, Bind)
 }
 
@@ -44,25 +33,24 @@ func HandlerBindUri(s Service) gin.HandlerFunc {
 func HandlerWithBindType(s Service, bindType int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
-		
+
 		// Binding using an auto-selected binding engine
 		// "application/json" --> JSON binding
 		// "application/xml"  --> XML binding
-		switch bindType {
-		case Bind:
-			err = c.ShouldBind(s)
-		case BindUri:
-			err = c.ShouldBindUri(s)
-		case None:
-			err = nil
+		if bindType&BindUri != 0 {
+			if err = c.ShouldBindUri(s); err != nil {
+				log.Printf("[Handler]: Failed to bind: %v\n", err)
+				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
+			}
 		}
-		if err != nil /*&& err != io.EOF*/ {
-			log.Printf("[Handler]: Failed to bind: %v\n", err)
-			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
-			return
+		if bindType&Bind != 0 {
+			if err = c.ShouldBind(s); err != nil {
+				log.Printf("[Handler]: Failed to bind: %v\n", err)
+				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
+			}
 		}
 
-		res, err := s.Handle(c) //调用实现了接口s的结构体对代码进行处理
+		res, err := s.Handle(c)
 		if err != nil {
 			log.Println(err.Error())
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))

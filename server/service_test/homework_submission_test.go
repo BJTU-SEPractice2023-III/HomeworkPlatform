@@ -2,7 +2,6 @@ package service_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -27,28 +26,9 @@ func TestUpdateSubmission(t *testing.T) {
 		{"作业不存在", 555, "1123", 400},
 		{"未选课", 1, "1123", 400},
 	}
-	//登录拿到json
-	data := map[string]interface{}{"username": "xyh", "password": "123"}
-	jsonData, _ := json.Marshal(data)
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	Router.ServeHTTP(w, req)
-	Authorization := GetAuthorziation(w)
-	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
 			log.Printf("正在测试")
-			if testcase.Case == "未选课" {
-				log.Printf("正在切换用户")
-				data := map[string]interface{}{"username": "xbbb", "password": "123"}
-				jsonData, _ := json.Marshal(data)
-				w := httptest.NewRecorder()
-				req, _ := http.NewRequest("POST", "/api/v1/user/login", bytes.NewBuffer(jsonData))
-				req.Header.Set("Content-Type", "application/json")
-				Router.ServeHTTP(w, req)
-				Authorization = GetAuthorziation(w)
-			}
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
 			if testcase.Case != "空描述" {
@@ -72,7 +52,14 @@ func TestUpdateSubmission(t *testing.T) {
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("PUT", "/api/v1/submit/"+strconv.Itoa(int(testcase.HomeworkID)), payload)
 			req.Header.Set("Content-Type", writer.FormDataContentType())
-			req.Header.Set("Authorization", Authorization)
+			if testcase.Case == "未选课" {
+				old := Authorization
+				Authorization = GetAuthorziation("xbbb", "123")
+				req.Header.Set("Authorization", Authorization)
+				Authorization = old
+			} else {
+				req.Header.Set("Authorization", Authorization)
+			}
 			Router.ServeHTTP(w, req)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("提交作业%s,需要的code为%d,但实际为%d", testcase.Case, testcase.ExpextCode, w.Code)

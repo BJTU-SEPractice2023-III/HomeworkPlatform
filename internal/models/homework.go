@@ -1,20 +1,15 @@
 package models
 
 import (
-	"errors"
 	"fmt"
-	"homework_platform/internal/bootstrap"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"time"
-
 	"gorm.io/gorm"
+	"log"
+	"time"
 )
 
 type Homework struct {
 	gorm.Model
-	CourseID       uint      `json:"courseId" gorm:"type:int(20)"`
+	CourseID       uint      `json:"courseId"`
 	Name           string    `json:"name" gorm:"type:varchar(255)"`
 	Description    string    `json:"description"`
 	BeginDate      time.Time `json:"beginDate"`
@@ -22,23 +17,96 @@ type Homework struct {
 	CommentEndDate time.Time `json:"commentEndDate"`
 	Assigned       int       `json:"-" gorm:"default:-1"`
 	// A homework has many submissions
-	// Also check homeworkSubmission.go
+	// Also check homework_submission.go
 	// Check: https://gorm.io/docs/has_many.html
-	HomeworkSubmissions []HomeworkSubmission `json:"-" gorm:"constraint:OnDelete:CASCADE"`
-	FilePaths           []string             `json:"file_paths" gorm:"-"`
+	HomeworkSubmissions []HomeworkSubmission `json:"submissions" gorm:"constraint:OnDelete:CASCADE"`
+	// FilePaths           []string             `json:"file_paths" gorm:"-"`
+	Files []File `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
-func (homework *Homework) GetFiles() {
-	root := fmt.Sprintf("./data/homeworkassign/%d/", homework.ID)
-	files, err := ioutil.ReadDir(root)
-	if err == nil {
-		for _, file := range files {
-			if file.IsDir() {
-				continue
-			}
-			homework.FilePaths = append(homework.FilePaths, filepath.Join(root, file.Name()))
-		}
+// Tested
+func DeleteHomeworkById(id uint) error {
+	logPrefix := fmt.Sprintf("[models/homework]: DeleteHomeworkById<id: %d>", id)
+
+	log.Printf("%s: 正在删除...", logPrefix)
+	res := DB.Delete(&Homework{}, id)
+	if res.Error != nil {
+		log.Printf("%s: 删除失败(%s)\n", logPrefix, res.Error)
+		return res.Error
 	}
+	log.Printf("%s: 删除成功(id = %d)\n", logPrefix, id)
+	return nil
+}
+
+// Tested
+func GetHomeworkByID(id uint) (*Homework, error) {
+	logPrefix := fmt.Sprintf("[models/homework]: GetHomeworkById<id: %d>", id)
+
+	log.Printf("%s: 正在查找...", logPrefix)
+	var homework Homework
+	res := DB.Model(&homework).Preload("HomeworkSubmissions").Preload("Files").First(&homework, id)
+	if res.Error != nil {
+		log.Printf("%s: 查找失败: %s", logPrefix, res.Error)
+		return &homework, res.Error
+	}
+	// homework.GetFiles()
+	log.Printf("%s: 查找成功: <Homework>(name = %s)", logPrefix, homework.Name)
+	return &homework, nil
+}
+
+// Tested
+func (homework *Homework) addAttachment(file *File) (*File, error) {
+	err := DB.Model(homework).Association("Files").Append(file)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+// TODO: split the argument into each fields
+func (homework *Homework) AddSubmission(userId uint, content string) (*HomeworkSubmission, error) {
+	logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, userId)
+
+	submission := HomeworkSubmission{
+		HomeworkID: homework.ID,
+		UserID:     userId,
+		Content:    content,
+	}
+
+	log.Printf("%s: 正在创建...", logPrefix)
+	if err := DB.Create(&submission).Error; err != nil {
+		log.Printf("%s: 创建失败(%s)", logPrefix, err)
+		return nil, err
+	}
+	log.Printf("%s: 创建成功(id = %d)", logPrefix, submission.ID)
+	return &submission, nil
+}
+
+// GetSubmissionByUserId gets the submission from a user
+func (homework *Homework) GetSubmissionByUserId(userId uint) (*HomeworkSubmission, error) {
+	var submission HomeworkSubmission
+	if err := DB.Model(&submission).Preload("Files").Where("homework_id = ? AND user_id = ?", homework.ID, userId).First(&submission).Error; err != nil {
+		return nil, err
+	}
+	return &submission, nil
+}
+
+// GetSubmissions gets all submissions of a homework
+func (homework *Homework) GetSubmissions() ([]HomeworkSubmission, error) {
+	var submission []HomeworkSubmission
+	if err := DB.Model(homework).Preload("Files").Association("HomeworkSubmissions").Find(&submission); err != nil {
+		return nil, err
+	}
+	return submission, nil
+}
+
+// GetCommentByUserId gets the comment of a user
+func (homework *Homework) GetCommentsByUserId(userId uint) ([]Comment, error) {
+	var comments []Comment
+	if err := DB.Where("homework_id = ? AND user_id = ?", homework.ID, userId).Find(&comments).Error; err != nil {
+		return nil, err
+	}
+	return comments, nil
 }
 
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time, commentendate time.Time) bool {
@@ -65,84 +133,8 @@ func (homework *Homework) UpdateInformation(name string, desciption string, begi
 	return result.Error == nil
 }
 
-func (homeworkd Homework) Deleteself() error {
-	res := DB.Delete(&homeworkd)
-	if res.Error != nil {
-		return res.Error
-	}
-	return nil
-}
-
-func CreateHomework(id uint, name string, description string,
-	begindate time.Time, endtime time.Time, commentendate time.Time) (any, error) {
-	log.Printf("正在创建作业<id=%d>", id)
-	if begindate.After(endtime) {
-		return nil, errors.New("结束时间不可早于开始时间")
-	}
-	if endtime.After(commentendate) {
-		return nil, errors.New("评论开始时间不可早于结束时间")
-	}
-	log.Printf("homework<name:%s>:正在创建作业", name)
-	if name == "" {
-		log.Printf("homework<name:%s>:作业名字不可为空", name)
-		return nil, errors.New("名称不可为空")
-	}
-	if description == "" {
-		log.Printf("homework<name:%s>:作业内容不可为空", name)
-		return nil, errors.New("内容不可为空")
-	}
-	if bootstrap.Sqlite {
-		//TODO:这里好像sqlite不会生成外键约束
-		_, err := GetCourseByID(id)
-		if err != nil {
-			return nil, errors.New("课程不存在")
-		}
-	}
-	newhomework := Homework{
-		CourseID:       id,
-		Name:           name,
-		Description:    description,
-		BeginDate:      begindate,
-		EndDate:        endtime,
-		CommentEndDate: commentendate,
-	}
-	res := DB.Create(&newhomework)
-	if res.Error != nil {
-		log.Printf("homework<name:%s>:创建作业失败", name)
-		return nil, errors.New("创建失败")
-	}
-	log.Printf("homework<name:%s>:创建作业成功,作业id为%d", name, newhomework.ID)
-	return newhomework, nil
-}
-
-func GetHomeworkByID(id uint) (Homework, error) {
-	log.Printf("正在查找<Homework>(ID = %d)...", id)
-	var work Homework
-	res := DB.First(&work, id)
-	if res.Error != nil {
-		log.Printf("查找失败: %s", res.Error)
-		return work, res.Error
-	}
-	work.GetFiles()
-	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
-	return work, nil
-}
-
-func GetHomeworkByIDWithSubmissionLists(id uint) (Homework, error) {
-	log.Printf("正在查找<Homework>(ID = %d)...", id)
-	var work Homework
-
-	res := DB.Preload("HomeworkSubmissions").First(&work, id)
-	if res.Error != nil {
-		log.Printf("查找失败: %s", res.Error)
-		return work, res.Error
-	}
-	log.Printf("查找完成: <Homeworkd>(homeworkName = %s)", work.Name)
-	return work, nil
-}
-
 func GetSubmittedUsers(id uint) ([]User, error) {
-	homework, err := GetHomeworkByIDWithSubmissionLists(id)
+	homework, err := GetHomeworkByID(id)
 	if err != nil {
 		return nil, err
 	}

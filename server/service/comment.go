@@ -16,23 +16,13 @@ type CommentService struct {
 }
 
 func (service *CommentService) Handle(c *gin.Context) (any, error) {
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(service)
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效分数")
 	}
 	if service.Comment == "" {
 		return nil, errors.New("评论为空")
 	}
-	homewroksubmission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	homewroksubmission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	homework, res1 := models.GetHomeworkByID(homewroksubmission.HomeworkID)
 	if res1 != nil {
 		return nil, res1
@@ -45,9 +35,9 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	}
 	id, _ := c.Get("ID")
 	// comment是预先分配好的,所以不需要自我创建
-	comment, err := models.GetCommentByUserIDAndHomeworkSubmissionID(id.(uint), service.HomeworkSubmissionID)
+	comment, err := homewroksubmission.GetCommentByUserId(id.(uint))
 	if err == nil {
-		res := comment.(models.Comment).UpdateSelf(service.Comment, service.Score)
+		res := comment.UpdateSelf(service.Comment, service.Score)
 		num, len := models.GetCommentNum(service.HomeworkSubmissionID)
 		if num == len {
 			homewroksubmission.CalculateGrade()
@@ -79,7 +69,7 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("评阅未开始")
 	}
 
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
 	if id == course.TeacherID {
 		commentList, err := models.GetCommentsByHomeworkId(service.HomeworkID)
 		if err != nil {
@@ -88,16 +78,19 @@ func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
 		return commentList, nil
 	}
 
-	commentList, err := models.GetCommentListsByUserIDAndHomeworkID(id.(uint), service.HomeworkID)
+	commentList, err := homework.GetCommentsByUserId(id)
 	if err != nil {
 		return nil, err
 	}
-	var homework_submission []models.HomeworkSubmission
+	var homeworkSubmissions []models.HomeworkSubmission
 	for _, comment := range commentList {
-		homework_submission = append(homework_submission, *models.GetHomeWorkSubmissionByID(comment.HomeworkSubmissionID))
+		homeworkSubmission, err := models.GetHomeworkSubmissionById(comment.HomeworkSubmissionID)
+		if err == nil {
+			homeworkSubmissions = append(homeworkSubmissions, *homeworkSubmission)
+		}
 	}
 	m := make(map[string]any)
-	m["homework_submission"] = homework_submission
+	m["homework_submission"] = homeworkSubmissions
 	m["comment_lists"] = commentList
 	log.Printf("%x", len(commentList))
 	return m, nil
@@ -115,10 +108,10 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 	if homework.EndDate.After(time.Now()) {
 		return nil, errors.New("评阅未开始")
 	}
-	id, _ := c.Get("ID")
-	submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-	if submission == nil {
-		return nil, errors.New("作业未提交")
+	id := c.GetUint("ID")
+	submission, err := homework.GetSubmissionByUserId(id)
+	if err != nil {
+		return nil, err
 	}
 	comments, err := models.GetCommentBySubmissionID(submission.ID)
 	if err != nil {

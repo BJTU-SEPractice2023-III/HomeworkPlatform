@@ -14,34 +14,26 @@ type CreateComplaint struct {
 }
 
 func (service *CreateComplaint) Handle(c *gin.Context) (any, error) {
-	//绑定id
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("正在创建Complaint<homeworkId:%d,reason:%s>", service.HomeworkID, service.Reason)
-	id, _ := c.Get("ID")
-	if service.Reason == "" {
-		return nil, errors.New("原因不能为空")
-	}
-	homework_submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-	if homework_submission == nil {
-		return nil, errors.New("没有找到该提交")
-	}
-	log.Printf("作业的用户为id%d", homework_submission.UserID)
-	if homework_submission.UserID != id.(uint) {
-		return nil, errors.New("这不是您的作业")
-	}
 	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
 	}
-	complaint, _ := models.GetComplaintByHomeworkIdAndUserId(homework.ID, id.(uint))
+
+	log.Printf("正在创建Complaint<homeworkId:%d,reason:%s>", service.HomeworkID, service.Reason)
+	id := c.GetUint("ID")
+	if service.Reason == "" {
+		return nil, errors.New("原因不能为空")
+	}
+	homework_submission, err := homework.GetSubmissionByUserId(id)
+	if err != nil {
+		return nil, errors.New("没有找到该提交")
+	}
+	log.Printf("作业的用户为id%d", homework_submission.UserID)
+	if homework_submission.UserID != id {
+		return nil, errors.New("这不是您的作业")
+	}
+
+	complaint, _ := models.GetComplaintByHomeworkIdAndUserId(homework.ID, id)
 	if complaint != nil && complaint.ID != 0 {
 		return nil, errors.New("未查询")
 	}
@@ -72,20 +64,14 @@ type UpdateComplaint struct {
 }
 
 func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) {
-	//绑定id
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
 	if service.Reason == "" {
 		return nil, errors.New("原因不能为空")
 	}
 	complain, err := models.GetComplaintById(service.ComplaintId)
+	id, _ := c.Get("ID")
+	if complain.UserID != id.(uint) {
+		return nil, errors.New("这不是您的申诉")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +100,7 @@ type GetComplaint struct {
 }
 
 func (service *GetComplaint) Handle(c *gin.Context) (any, error) {
-	id, _ := c.Get("ID")
+	id := c.GetUint("ID")
 	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
@@ -130,8 +116,8 @@ func (service *GetComplaint) Handle(c *gin.Context) (any, error) {
 		}
 		return complaints, nil
 	} else {
-		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-		if submission == nil {
+		submission, err := homework.GetSubmissionByUserId(id)
+		if submission == nil || err != nil {
 			return nil, errors.New("未提交作业")
 		}
 		complaint, err := models.GetComplaintBySubmissionID(submission.ID)

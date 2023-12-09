@@ -13,7 +13,7 @@ type GetGradeBySubmissionIDService struct {
 }
 
 func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error) {
-	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
@@ -26,19 +26,10 @@ type UpdateGradeService struct {
 }
 
 func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
-	err := c.ShouldBindUri(service)
-	if err != nil {
-		return nil, err
-	}
-	//绑定reason
-	err = c.ShouldBind(service)
-	if err != nil {
-		return nil, err
-	}
 	if service.Score < 0 || service.Score > 100 {
 		return nil, errors.New("无效成绩")
 	}
-	submission := models.GetHomeWorkSubmissionByID(service.HomeworkSubmissionID)
+	submission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
 	}
@@ -80,21 +71,21 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 	if err != nil {
 		return nil, err
 	}
-	id, _ := c.Get("ID")
-	if id.(uint) != course.TeacherID {
+	id := c.GetUint("ID")
+	if id != course.TeacherID {
 		//学生自己查
-		submission := models.GetHomeWorkSubmissionByHomeworkIDAndUserID(service.HomeworkID, id.(uint))
-		if submission==nil{
-			return nil,errors.New("未提交作业")
+		submission, err := homework.GetSubmissionByUserId(id)
+		if submission == nil || err != nil {
+			return nil, errors.New("未提交作业")
 		}
 		var maps MyMap
-		maps.UserID = id.(uint)
+		maps.UserID = id
 		maps.Score = submission.Score
 		maps.UserName = "yourself"
 		log.Println(maps)
 		return maps, nil
 	} else {
-		submissions, err2 := models.GetSubmissionListsByHomeworkID(service.HomeworkID)
+		submissions, err2 := homework.GetSubmissions()
 		if err2 != nil {
 			return nil, err2
 		}
