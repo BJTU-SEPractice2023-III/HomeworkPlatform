@@ -6,8 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -232,66 +230,4 @@ func FileHeaderToBytes(fileHeader *multipart.FileHeader) ([]byte, error) {
 	}
 
 	return content, nil
-}
-
-// ImageHub图床服务
-const imageHubUrl = "https://www.imagehub.cc/api/1/upload"
-const imageHubToken = "chv_l1jd_6cb7ebb231e84f45d07f8643bdc1b1c47a3391a57d5b87ad2cd670ff0052d69561d13efb88832fda55dbbc9a872dbf3f60755286618e69fde0461a263aab0ba8"
-
-type Response struct {
-	Image struct {
-		URL string `json:"url"`
-	} `json:"image"`
-}
-
-// TODO:上传图床服务
-func UploadImageBed(avatar *multipart.FileHeader) (string, error) {
-	avatarByte, err := FileHeaderToBytes(avatar)
-	if err != nil {
-		return "", err
-	}
-	base64str := base64.StdEncoding.EncodeToString(avatarByte)
-	u, err := url.Parse(imageHubUrl)
-	if err != nil {
-		// 处理出错情况
-		panic(err)
-	}
-
-	// 创建一个空的查询参数 map
-	q := u.Query()
-
-	// 添加查询参数
-	q.Set("source", base64str)
-	q.Set("format", "json")
-	q.Set("key", imageHubToken)
-
-	// 更新 URL 对象的 RawQuery 字段
-	u.RawQuery = q.Encode()
-	client := &http.Client{}
-	// 创建一个 POST 请求
-	req, err := http.NewRequest("GET", u.String(), http.NoBody)
-	if err != nil {
-		return "", err
-	}
-
-	// 设置请求头
-	req.Header.Set("X-API-Key", imageHubToken)
-	// 发送请求
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	data, _ := io.ReadAll(resp.Body)
-	bodyString := string(data)
-	log.Println(bodyString)
-	var response Response
-	err = json.Unmarshal(data, &response)
-	if err != nil {
-		return "", errors.New("解析 JSON 失败")
-	}
-
-	// 输出 image.url 字段的值
-	fmt.Println("image.url:", response.Image.URL)
-	return response.Image.URL, nil
 }

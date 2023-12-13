@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/base64"
 	"errors"
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
@@ -151,23 +152,29 @@ func (s *ChangeAvatar) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	if s.Avatar.Size > 1100000 {
+		return nil, errors.New("上传图片不可超过1mb")
+	}
 	// 判断是不是图片
 	extension := filepath.Ext(s.Avatar.Filename)
 	println(extension)
 	if !strings.Contains(".jpg.jpeg.png.gif.bmp", extension) {
 		return nil, errors.New("unsupported file type")
 	}
-
 	id := c.GetUint("ID")
 	user, err := models.GetUserByID(id)
 	if err != nil {
 		return nil, errors.New("用户不存在")
 	}
-	url, err := utils.UploadImageBed(s.Avatar)
+	avatarByte, err := utils.FileHeaderToBytes(s.Avatar)
+	if err != nil {
+		return "", err
+	}
+	base64str := base64.StdEncoding.EncodeToString(avatarByte)
 	if err != nil {
 		return nil, err
 	}
-	err = user.ChangeAvatar(url)
+	err = user.ChangeAvatar(base64str)
 	return nil, err
 }
 
