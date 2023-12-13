@@ -88,14 +88,18 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/users/:id         		| 获取指定 id 用户的信息
 					users.GET(":id", service.HandlerBindUri(&user_service.GetUserService{}))
-					// GET api/v1/users/name				| 获得用户的姓名
-					users.GET("/name", service.HandlerBind(&user_service.GetUserNameService{}))
+					// // GET api/v1/users/name				| 获得用户的姓名
+					// users.GET("/name", service.HandlerBind(&user_service.GetUserNameService{}))
 					// PUT api/v1/users/password			| 登录后修改密码
 					users.PUT("/password", service.HandlerBind(&user_service.UserUpdatePasswordService{}))
 					// PUT api/v1/users/signature 			| 更新用户的签名
 					users.PUT("signature", service.HandlerBind(&user_service.UpdateSignature{}))
 					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerBindUri(&user_service.GetUserCourses{}))
+					// GET api/v1/users/:id/avatar 			| 获得指定id用户的头像链接
+					users.GET(":id/avatar", service.HandlerBindUri(&user_service.GetAvatar{}))
+					// PUT api/v1/users/avatar				| 更改头像
+					users.PUT("avatar", service.HandlerNoBind(&user_service.ChangeAvatar{}))
 					// GET api/v1/users/:id/notifications	| 获得指定 id 用户的提示信息
 					// ! deprecated: use GET api/v2/nitifications
 					users.GET(":id/notifications", service.HandlerBindUri(&user_service.GetUserNotifications{}))
@@ -205,6 +209,7 @@ func InitRouter() *gin.Engine {
 					// POST api/v1/ai/spark/image
 					ai.POST("spark/image", service.HandlerBind(&service.SparkImageService{}))
 				}
+
 			}
 		}
 	}

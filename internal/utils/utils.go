@@ -1,16 +1,20 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -138,7 +142,7 @@ func GenParams1(appid, question string) map[string]interface{} { // 根据实际
 		},
 		"parameter": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
 			"chat": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
-				"domain":      "generalv3",    // 根据实际情况修改返回的数据结构和字段名
+				"domain":      "generalv3",  // 根据实际情况修改返回的数据结构和字段名
 				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
 				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
 				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名
@@ -213,4 +217,76 @@ type ImageMessage struct {
 	Role        string `json:"role"`
 	Content     string `json:"content"`
 	ContentType string `json:"content_type"`
+}
+
+// 将multipart.FileHeader变成字节流
+func FileHeaderToBytes(fileHeader *multipart.FileHeader) ([]byte, error) {
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, nil
+}
+
+// ImageHub图床服务
+const imageHubUrl = "http://mysite.com/api/1/upload/"
+const imageHubToken = "chv_l1jd_6cb7ebb231e84f45d07f8643bdc1b1c47a3391a57d5b87ad2cd670ff0052d69561d13efb88832fda55dbbc9a872dbf3f60755286618e69fde0461a263aab0ba8"
+
+type Response struct {
+	Image struct {
+		URL string `json:"url"`
+	} `json:"image"`
+}
+
+type ImageRequest struct {
+	Source string `json:"source"`
+	Format string `json:"format"`
+}
+
+// TODO:上传图床服务
+func UploadImageBed(avatar *multipart.FileHeader) (string, error) {
+	avatarByte, err := FileHeaderToBytes(avatar)
+	if err != nil {
+		return "", err
+	}
+	base64str := base64.StdEncoding.EncodeToString(avatarByte)
+	body := ImageRequest{Source: base64str, Format: "json"}
+	jsonData, _ := json.Marshal(body)
+	println(jsonData)
+
+	// 创建一个客户端
+	client := &http.Client{}
+	// 创建一个 POST 请求
+	req, err := http.NewRequest("POST", imageHubUrl, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", err
+	}
+	// 设置请求头
+	req.Header.Set("X-API-Key", imageHubToken)
+
+	// 发送请求
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	data, _ := io.ReadAll(resp.Body)
+	bodyString := string(data)
+	log.Println(bodyString)
+	var response Response
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return "", errors.New("解析 JSON 失败")
+	}
+
+	// 输出 image.url 字段的值
+	fmt.Println("image.url:", response.Image.URL)
+	return response.Image.URL, nil
 }

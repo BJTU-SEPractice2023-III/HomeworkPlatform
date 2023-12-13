@@ -4,7 +4,11 @@ import (
 	"errors"
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
+	"homework_platform/internal/utils"
 	"log"
+	"mime/multipart"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -119,6 +123,52 @@ func (service *GetUserNameService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	return user.Username, nil
+}
+
+type GetAvatar struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
+func (service *GetAvatar) Handle(c *gin.Context) (any, error) {
+	user, err := models.GetUserByID(service.ID)
+	if err != nil {
+		return nil, err
+	}
+	return user.Avatar, err
+}
+
+type ChangeAvatar struct {
+	Avatar *multipart.FileHeader `form:"avatar"`
+}
+
+func (s *ChangeAvatar) Handle(c *gin.Context) (any, error) {
+	if c.ContentType() != "multipart/form-data" {
+		return nil, errors.New("not supported content-type")
+	}
+
+	// 从 Form 获取其他数据
+	err := c.ShouldBind(s) //获得图片
+	if err != nil {
+		return nil, err
+	}
+	// 判断是不是图片
+	extension := filepath.Ext(s.Avatar.Filename)
+	println(extension)
+	if !strings.Contains(".jpg.jpeg.png.gif.bmp", extension) {
+		return nil, errors.New("unsupported file type")
+	}
+
+	id := c.GetUint("ID")
+	user, err := models.GetUserByID(id)
+	if err != nil {
+		return nil, errors.New("用户不存在")
+	}
+	url, err := utils.UploadImageBed(s.Avatar)
+	if err != nil {
+		return nil, err
+	}
+	err = user.ChangeAvatar(url)
+	return nil, err
 }
 
 type Register struct {

@@ -13,11 +13,11 @@ import (
 type User struct {
 	// gorm.Model
 	ID        uint   `json:"id" gorm:"primaryKey"`
-	Username  string `json:"username" gorm:"unique; not null"` // 用户名
-	Password  string `json:"-" gorm:"not null"`                // 密码
-	IsAdmin   bool   `json:"isAdmin"`                          // 是否是管理员
-	Signature string `json:"signature"`                        // 用户个性签名
-
+	Username  string `json:"username" gorm:"unique; not null"`                                                                       // 用户名
+	Password  string `json:"-" gorm:"not null"`                                                                                      // 密码
+	IsAdmin   bool   `json:"isAdmin"`                                                                                                // 是否是管理员
+	Signature string `json:"signature"`                                                                                              // 用户个性签名
+	Avatar    string `json:"avatar" gorm:"default:'https://s1.imagehub.cc/images/2023/12/12/36100f1b1b03d8170712fc8a4dc49e4b.jpeg'"` // 用户头像
 	//// Associations ////
 	// A user has many courses
 	// Also check course.go
@@ -119,6 +119,16 @@ func (user *User) GetFiles() ([]File, error) {
 	}
 	log.Printf("%s: 获取成功(len = %d)", logPrefix, len(files))
 	return files, nil
+}
+
+func (user *User) ChangeAvatar(url string) error {
+	if url == "" {
+		return errors.New("图床传入错误")
+	}
+	if err := DB.Model(&user).Updates(User{Avatar: url}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 // CheckPassword checks whether the password is correct or not
