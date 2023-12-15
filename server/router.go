@@ -96,7 +96,7 @@ func InitRouter() *gin.Engine {
 					users.PUT("signature", service.HandlerBind(&user_service.UpdateSignature{}))
 					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerBindUri(&user_service.GetUserCourses{}))
-					// GET api/v1/users/:id/avatar 			| 获得指定id用户的头像链接
+					// GET api/v1/users/:id/avatar 			| 获得指定id用户的头像
 					users.GET(":id/avatar", service.HandlerBindUri(&user_service.GetAvatar{}))
 					// PUT api/v1/users/avatar				| 更改头像
 					users.PUT("avatar", service.HandlerNoBind(&user_service.ChangeAvatar{}))
