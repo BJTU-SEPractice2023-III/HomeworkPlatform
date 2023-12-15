@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"homework_platform/internal/utils"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 	"time"
@@ -71,14 +70,14 @@ func removeSSEChan(id uint) {
 type ConnectSpark struct{}
 
 func (s *ConnectSpark) Handle(c *gin.Context) (any, error) {
-	log.Println("ServerConsole")
+	// log.Println("ServerConsole")
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 
 	id := c.GetUint("ID")
 	messageChan := make(chan string)
 	addSSEChan(id, &messageChan)
-	log.Printf("[service/ai]: %d connected", id)
+	// log.Printf("[service/ai]: %d connected", id)
 	defer removeSSEChan(id)
 
 	c.Stream(func(w io.Writer) bool {
@@ -89,7 +88,7 @@ func (s *ConnectSpark) Handle(c *gin.Context) (any, error) {
 		return false
 	})
 
-	log.Printf("[service/ai]: %d disconnected", id)
+	// log.Printf("[service/ai]: %d disconnected", id)
 	return nil, nil
 }
 
@@ -199,7 +198,7 @@ func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
 	}
 	defer file.Close()
 	image, err := io.ReadAll(file)
-	log.Println("content为" + s.Content)
+	// log.Println("content为" + s.Content)
 	messages := []utils.ImageMessage{
 		{Role: "user", Content: base64.StdEncoding.EncodeToString(image), ContentType: "image"}, // 首条必须是图片
 		{Role: "user", Content: s.Content, ContentType: "text"},

@@ -22,7 +22,7 @@ package service_test
 
 // 	for _, testcase := range cases {
 // 		t.Run(testcase.Case, func(t *testing.T) {
-// 			log.Printf("正在测试")
+// 			// log.Printf("正在测试")
 // 			// data := map[string]interface{}{"signature": testcase.Signature}
 // 			// jsonData, _ := json.Marshal(data)
 // 			w := httptest.NewRecorder()
@@ -57,7 +57,7 @@ package service_test
 
 // 	for _, testcase := range cases {
 // 		t.Run(testcase.Case, func(t *testing.T) {
-// 			log.Printf("正在测试")
+// 			// log.Printf("正在测试")
 // 			data := map[string]interface{}{"username": testcase.Username, "password": testcase.Password}
 // 			jsonData, _ := json.Marshal(data)
 // 			w := httptest.NewRecorder()

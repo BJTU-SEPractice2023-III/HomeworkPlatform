@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"homework_platform/server/service"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -147,7 +146,7 @@ func TestAssignHomeworkService(t *testing.T) {
 // 	}
 // 	for _, testcase := range cases {
 // 		t.Run(testcase.name, func(t *testing.T) {
-// 			log.Printf("正在测试")
+// 			// log.Printf("正在测试")
 
 // 			payload := &bytes.Buffer{}
 // 			writer := multipart.NewWriter(payload)
@@ -217,7 +216,7 @@ func TestSubmitHomework(t *testing.T) {
 
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
 			if testcase.Case != "空描述" {
@@ -269,7 +268,7 @@ func TestGetHomeworkSubmission(t *testing.T) {
 
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkId))+"/submission", nil)
 			req.Header.Set("Authorization", Authorization)
