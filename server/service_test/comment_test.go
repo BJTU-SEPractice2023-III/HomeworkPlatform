@@ -3,7 +3,6 @@ package service_test
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -25,7 +24,7 @@ func TestGetGradeBySubmissionIDService(t *testing.T) {
 	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/homeworks/"+strconv.Itoa(int(testcase.HomeworkId))+"/comments", nil)
 			// req.Header.Set("Content-Type", "application/json")
@@ -63,7 +62,7 @@ func TestGetMyCommentService(t *testing.T) {
 	Router.ServeHTTP(w, req)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			// data := map[string]interface{}{"name": testcase.Name, "begindate": testcase.BeginDate, "enddate": testcase.EndDate, "description": testcase.Description}
 			// jsonData, _ := json.Marshal(data)
 
@@ -99,7 +98,7 @@ func TestCommentService(t *testing.T) {
 	Router.ServeHTTP(w, req)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			data := map[string]interface{}{"score": testcase.Score, "comment": testcase.Comment}
 			jsonData, _ := json.Marshal(data)
 

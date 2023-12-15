@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +18,7 @@ func TestGetFileService(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			log.Printf("正在测试")
+			// log.Printf("正在测试")
 			// data := map[string]interface{}{"name": testcase.Name, "begindate": testcase.BeginDate, "enddate": testcase.EndDate, "description": testcase.Description}
 			// jsonData, _ := json.Marshal(data)
 

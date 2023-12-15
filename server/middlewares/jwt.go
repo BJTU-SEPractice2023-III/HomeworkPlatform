@@ -10,14 +10,19 @@ import (
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenStr := jwt.GetTokenStr(c)
-		log.Printf("[middlewares/JWTAuth]: Token: %v\n", tokenStr)
+
+		tokenStr, err := c.Cookie("token")
+		log.Printf("[middlewares/JWTAuth]: Token from cookies: %v\n", tokenStr)
+		if err != nil {
+			tokenStr = jwt.GetTokenStr(c)
+			log.Printf("[middlewares/JWTAuth]: Token from headers: %v\n", tokenStr)
+		}
 
 		token, err := jwt.DecodeTokenStr(tokenStr)
-		// log.Println(token, err)
+		// // log.Println(token, err)
 
 		if err != nil || !token.Valid {
-			log.Printf("[middlewares/JWTAuth]: Token not valid: %v\n", err)
+			// log.Printf("[middlewares/JWTAuth]: Token not valid: %v\n", err)
 
 			c.Status(http.StatusForbidden)
 			c.Abort()

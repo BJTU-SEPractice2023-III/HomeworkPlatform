@@ -1,9 +1,8 @@
 package middlewares
 
 import (
-	"homework_platform/internal/models"
 	"homework_platform/internal/jwt"
-	"log"
+	"homework_platform/internal/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,9 +11,9 @@ import (
 func AdminCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		log.Println("[middleware/AdminCheck]")
+		// log.Println("[middleware/AdminCheck]")
 		claims := jwt.MustGetClaims(c)
-		log.Println(claims)
+		// log.Println(claims)
 
 		if user, err := models.GetUserByID(claims.ID); err == nil && user.IsAdmin {
 			// c.Set("isAdmin", true)

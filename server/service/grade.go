@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -82,7 +81,7 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 		maps.UserID = id
 		maps.Score = submission.Score
 		maps.UserName = "yourself"
-		log.Println(maps)
+		// log.Println(maps)
 		return maps, nil
 	} else {
 		submissions, err2 := homework.GetSubmissions()

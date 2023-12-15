@@ -2,7 +2,6 @@ package models
 
 import (
 	"homework_platform/internal/bootstrap"
-	"log"
 	"math"
 	"time"
 
@@ -135,21 +134,21 @@ func (submission *HomeworkSubmission) UpdateGrade(Score int) error {
 }
 
 func (homeworksubmission HomeworkSubmission) UpdateSelf() error {
-	log.Printf("正在修改homeoworksubmission<id:%d>", homeworksubmission.ID)
+	// log.Printf("正在修改homeoworksubmission<id:%d>", homeworksubmission.ID)
 	return DB.Save(&homeworksubmission).Error
 }
 
 func AddHomeworkSubmission(work *HomeworkSubmission) bool {
-	log.Printf("正在创建homeworksubmission<user_id:%d,homework_id:%d>", work.UserID, work.HomeworkID)
+	// log.Printf("正在创建homeworksubmission<user_id:%d,homework_id:%d>", work.UserID, work.HomeworkID)
 	if bootstrap.Sqlite {
 		_, err := GetUserByID(work.UserID)
 		if err != nil {
-			log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:user not exist!", work.UserID, work.HomeworkID)
+			// log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:user not exist!", work.UserID, work.HomeworkID)
 			return false
 		}
 		_, err = GetHomeworkByID(work.HomeworkID)
 		if err != nil {
-			log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:homework not exist!", work.UserID, work.HomeworkID)
+			// log.Printf("homeworksubmission<user_id:%d,homework_id:%d>:homework not exist!", work.UserID, work.HomeworkID)
 			return false
 		}
 	}

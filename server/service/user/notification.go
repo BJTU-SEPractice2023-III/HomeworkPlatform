@@ -2,7 +2,6 @@ package user
 
 import (
 	"homework_platform/internal/models"
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -148,7 +147,7 @@ func (service *GetUserNotifications) Handle(c *gin.Context) (any, error) {
 	}
 	var notifications Notifications
 	//得到教的课中进行中和批阅中的作业
-	log.Printf("len of homework%d\n", len(courses.LearningCourses))
+	// log.Printf("len of homework%d\n", len(courses.LearningCourses))
 	//得到学的课中还没完成的作业和还没批阅的作业
 	for _, course := range courses.LearningCourses {
 		//每门课的作业

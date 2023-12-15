@@ -2,7 +2,6 @@ package service
 
 import (
 	"homework_platform/internal/serializer"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,23 +38,23 @@ func HandlerWithBindType(s Service, bindType int) gin.HandlerFunc {
 		// "application/xml"  --> XML binding
 		if bindType&BindUri != 0 {
 			if err = c.ShouldBindUri(s); err != nil {
-				log.Printf("[Handler]: Failed to bind: %v\n", err)
+				// log.Printf("[Handler]: Failed to bind: %v\n", err)
 				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			}
 		}
 		if bindType&Bind != 0 {
 			if err = c.ShouldBind(s); err != nil {
-				log.Printf("[Handler]: Failed to bind: %v\n", err)
+				// log.Printf("[Handler]: Failed to bind: %v\n", err)
 				c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 			}
 		}
 
 		res, err := s.Handle(c)
 		if err != nil {
-			log.Println(err.Error())
+			// log.Println(err.Error())
 			c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
 		} else {
-			log.Println("StatusOK")
+			// log.Println("StatusOK")
 			c.JSON(http.StatusOK, serializer.Response(res))
 		}
 	}
