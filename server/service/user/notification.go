@@ -35,7 +35,7 @@ func (service *GetNotifications) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 
-	var notifications []Notification
+	var notifications []Notification = make([]Notification, 0)
 
 	// Learning homework notifications
 	for _, learningCourse := range courses.LearningCourses {
