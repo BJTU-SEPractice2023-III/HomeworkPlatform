@@ -141,12 +141,14 @@ func InitRouter() *gin.Engine {
 					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
 					homeworks.POST(":id/submits", service.HandlerWithBindType(&service.SubmitHomework{}, service.Bind|service.BindUri))
 
-					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
+					// GET 	  api/v1/homeworks/:id/comments	 | 得到id作业号的用户应该批阅的列表
 					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
 					// GET	  api/v1/homeworks/:id/mycomments 	| 得到id作业号的用户的被评论信息
 					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
 					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkUserSubmission{}))
+					// GET api/v1/homeworks/:id/grade           | 根据作业号获得指定作业的成绩,其中老师一次获得全部,学生获得自己的
+					homeworks.GET(":id/grade", service.HandlerBindUri(&service.GetGradeListsByHomeworkIDService{}))
 				}
 
 				notice := auth.Group("notice")

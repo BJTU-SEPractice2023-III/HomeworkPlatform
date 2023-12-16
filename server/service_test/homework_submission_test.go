@@ -2,7 +2,6 @@ package service_test
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -37,14 +36,14 @@ func TestUpdateSubmission(t *testing.T) {
 					errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
 				_, errFile1 = io.Copy(part1, file)
 				if errFile1 != nil {
-					fmt.Println(errFile1)
+					// fmt.Println(errFile1)
 					return
 				}
 			}
 			_ = writer.WriteField("content", testcase.Content)
 			err := writer.Close()
 			if err != nil {
-				fmt.Println(err)
+				// fmt.Println(err)
 				return
 			}
 

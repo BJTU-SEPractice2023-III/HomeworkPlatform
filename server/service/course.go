@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"homework_platform/internal/models"
 	"mime/multipart"
 
@@ -203,7 +202,7 @@ type GetCourse struct {
 }
 
 func (service *GetCourse) Handle(c *gin.Context) (any, error) {
-	fmt.Println(*service)
+	// fmt.Println(*service)
 	course, err := models.GetCourseByID(service.ID)
 	return course, err
 }

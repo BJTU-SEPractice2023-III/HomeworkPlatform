@@ -77,7 +77,7 @@ func TestAssignHomeworkService(t *testing.T) {
 			_ = writer.WriteField("commentEndDate", data.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
 			err := writer.Close()
 			if err != nil {
-				fmt.Println(err)
+				// fmt.Println(err)
 				return
 			}
 
@@ -157,7 +157,7 @@ func TestAssignHomeworkService(t *testing.T) {
 // 			// 		errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
 // 			// 	_, errFile1 = io.Copy(part1, file)
 // 			// 	if errFile1 != nil {
-// 			// 		fmt.Println(errFile1)
+// 			// 		// fmt.Println(errFile1)
 // 			// 		return
 // 			// 	}
 // 			// }
@@ -168,7 +168,7 @@ func TestAssignHomeworkService(t *testing.T) {
 // 			_ = writer.WriteField("commentEndDate", testcase.CommentEndDate.UTC().Format("2006-01-02T15:04:05Z"))
 // 			err := writer.Close()
 // 			if err != nil {
-// 				fmt.Println(err)
+// 				// fmt.Println(err)
 // 				return
 // 			}
 
@@ -226,14 +226,14 @@ func TestSubmitHomework(t *testing.T) {
 					errFile1 := writer.CreateFormFile("files", filepath.Base("/Users/blackcat/Pictures/1biey2uhu0g8uc3iioyrcfofo.png.png"))
 				_, errFile1 = io.Copy(part1, file)
 				if errFile1 != nil {
-					fmt.Println(errFile1)
+					// fmt.Println(errFile1)
 					return
 				}
 			}
 			_ = writer.WriteField("content", testcase.Content)
 			err := writer.Close()
 			if err != nil {
-				fmt.Println(err)
+				// fmt.Println(err)
 				return
 			}
 
