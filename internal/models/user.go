@@ -11,10 +11,10 @@ import (
 type User struct {
 	// gorm.Model
 	ID        uint   `json:"id" gorm:"primaryKey"`
-	Username  string `json:"username" gorm:"unique; not null"` // 用户名
-	Password  string `json:"-" gorm:"not null"`                // 密码
-	IsAdmin   bool   `json:"isAdmin"`                          // 是否是管理员
-	Signature string `json:"signature"`                        // 用户个性签名
+	Username  string `json:"username" gorm:"uniqueIndex; not null"` // 用户名
+	Password  string `json:"-" gorm:"not null"`                       // 密码
+	IsAdmin   bool   `json:"isAdmin"`                                 // 是否是管理员
+	Signature string `json:"signature"`                               // 用户个性签名
 	Avatar    string `json:"avatar"`
 	//// Associations ////
 	// A user has many courses
@@ -239,7 +239,8 @@ func GetUserByUsername(username string) (User, error) {
 	// log.Printf("正在查找<User>(Username = %s)...", username)
 	var user User
 
-	res := DB.Where("username = ?", username).First(&user)
+	// res := DB.Where(&user).Take(&user)
+	res := DB.First(&user, "username = ?", username)
 	if res.Error != nil {
 		// log.Printf("查找失败: %s", res.Error)
 		return user, res.Error

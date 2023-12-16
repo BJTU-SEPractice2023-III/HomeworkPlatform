@@ -54,6 +54,14 @@ func InitDB() {
 		})
 	} else {
 		db, err = gorm.Open(postgres.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+		sqlDB, err := db.DB()
+		if err == nil {
+			// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+			sqlDB.SetMaxIdleConns(100)
+
+			// SetMaxOpenConns sets the maximum number of open connections to the database.
+			sqlDB.SetMaxOpenConns(200)
+		}
 	}
 
 	if err != nil {
