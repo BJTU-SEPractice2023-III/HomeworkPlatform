@@ -239,7 +239,7 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 			}
 
 			homeworkSubmission, err := homework.GetSubmissionByUserId(id)
-			if homeworkSubmission != nil || err != nil {
+			if err == nil {
 				studentHomework.Submitted = true
 				studentHomework.Score = homeworkSubmission.Score
 			}
