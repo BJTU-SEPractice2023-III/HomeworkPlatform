@@ -108,13 +108,25 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("评阅未开始")
 	}
 	id := c.GetUint("ID")
-	submission, err := homework.GetSubmissionByUserId(id)
+	course, err := models.GetCourseByID(homework.CourseID)
 	if err != nil {
 		return nil, err
 	}
-	comments, err := models.GetCommentBySubmissionID(submission.ID)
-	if err != nil {
-		return nil, err
+	if id == course.TeacherID {
+		submissions, err := homework.GetSubmissionsWithComments()
+		if err != nil {
+			return nil, err
+		}
+		return submissions, nil
+	} else {
+		submission, err := homework.GetSubmissionByUserId(id)
+		if err != nil {
+			return nil, err
+		}
+		comments, err := models.GetCommentBySubmissionID(submission.ID)
+		if err != nil {
+			return nil, err
+		}
+		return comments, nil
 	}
-	return comments, nil
 }

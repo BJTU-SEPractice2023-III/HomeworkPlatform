@@ -99,6 +99,15 @@ func (homework *Homework) GetSubmissions() ([]HomeworkSubmission, error) {
 	return submission, nil
 }
 
+// GetSubmissionsWithComments
+func (homework *Homework) GetSubmissionsWithComments() ([]HomeworkSubmission, error) {
+	var submission []HomeworkSubmission
+	if err := DB.Model(homework).Preload("Comments").Association("HomeworkSubmissions").Find(&submission); err != nil {
+		return nil, err
+	}
+	return submission, nil
+}
+
 // GetCommentByUserId gets the comment of a user
 func (homework *Homework) GetCommentsByUserId(userId uint) ([]Comment, error) {
 	var comments []Comment
