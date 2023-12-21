@@ -152,7 +152,7 @@ func (s *ChangeAvatar) Handle(c *gin.Context) (any, error) {
 	err := c.ShouldBind(s) //获得图片
 	if err != nil {
 		return nil, err
-	}
+	}  
 	if s.Avatar.Size > 1100000 {
 		return nil, errors.New("上传图片不可超过1mb")
 	}
