@@ -3,6 +3,7 @@ package service_test
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -21,7 +22,7 @@ func TestGetCommentListsService(t *testing.T) {
 	//登录拿到json
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 
 			authorization := GetAuthorziation("xeh", "123")
 
@@ -51,7 +52,7 @@ func TestGetGradeListsByHomeworkIDService(t *testing.T) {
 	var Authorization string
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/grade/"+strconv.Itoa(int(testcase.HomeworkId)), nil)
 			// req.Header.Set("Content-Type", "application/json")

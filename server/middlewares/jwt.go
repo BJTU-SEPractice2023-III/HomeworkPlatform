@@ -18,10 +18,10 @@ func JWTAuth() gin.HandlerFunc {
 		}
 
 		token, err := jwt.DecodeTokenStr(tokenStr)
-		// // log.Println(token, err)
+		// log.Println(token, err)
 
 		if err != nil || !token.Valid {
-			// log.Printf("[middlewares/JWTAuth]: Token not valid: %v\n", err)
+			log.Printf("[middlewares/JWTAuth]: Token not valid: %v\n", err)
 
 			c.Status(http.StatusForbidden)
 			c.Abort()

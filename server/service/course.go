@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/models"
+	"log"
 	"mime/multipart"
 
 	// "net/http"
@@ -280,16 +281,16 @@ func (s *CreateCourseHomework) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	// log.Print(s)
+	log.Print(s)
 	if s.Name == "" {
 		return nil, errors.New("名称不能为空")
 	}
 	if len(s.Files) == 0 && s.Description == "" {
-		// log.Printf("作业没有内容")
+		log.Printf("作业没有内容")
 		return nil, errors.New("内容不能为空")
 	}
 	if s.BeginDate.After(s.EndDate) || s.EndDate.After(s.CommentEndDate) {
-		// log.Printf("时间混乱")
+		log.Printf("时间混乱")
 		return nil, errors.New("时间顺序错误")
 	}
 	// 获取课程

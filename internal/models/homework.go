@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -25,31 +27,31 @@ type Homework struct {
 
 // Tested
 func DeleteHomeworkById(id uint) error {
-	// logPrefix := fmt.Sprintf("[models/homework]: DeleteHomeworkById<id: %d>", id)
+	logPrefix := fmt.Sprintf("[models/homework]: DeleteHomeworkById<id: %d>", id)
 
-	// log.Printf("%s: 正在删除...", // logPrefix)
+	log.Printf("%s: 正在删除...", logPrefix)
 	res := DB.Delete(&Homework{}, id)
 	if res.Error != nil {
-		// log.Printf("%s: 删除失败(%s)\n", // logPrefix, res.Error)
+		log.Printf("%s: 删除失败(%s)\n", logPrefix, res.Error)
 		return res.Error
 	}
-	// log.Printf("%s: 删除成功(id = %d)\n", // logPrefix, id)
+	log.Printf("%s: 删除成功(id = %d)\n", logPrefix, id)
 	return nil
 }
 
 // Tested
 func GetHomeworkByID(id uint) (*Homework, error) {
-	// logPrefix := fmt.Sprintf("[models/homework]: GetHomeworkById<id: %d>", id)
+	logPrefix := fmt.Sprintf("[models/homework]: GetHomeworkById<id: %d>", id)
 
-	// log.Printf("%s: 正在查找...", // logPrefix)
+	log.Printf("%s: 正在查找...", logPrefix)
 	var homework Homework
 	res := DB.Model(&homework).Preload("HomeworkSubmissions").Preload("Files").First(&homework, id)
 	if res.Error != nil {
-		// log.Printf("%s: 查找失败: %s", // logPrefix, res.Error)
+		log.Printf("%s: 查找失败: %s", logPrefix, res.Error)
 		return &homework, res.Error
 	}
 	// homework.GetFiles()
-	// log.Printf("%s: 查找成功: <Homework>(name = %s)", // logPrefix, homework.Name)
+	log.Printf("%s: 查找成功: <Homework>(name = %s)", logPrefix, homework.Name)
 	return &homework, nil
 }
 
@@ -64,7 +66,7 @@ func (homework *Homework) addAttachment(file *File) (*File, error) {
 
 // TODO: split the argument into each fields
 func (homework *Homework) AddSubmission(userId uint, content string) (*HomeworkSubmission, error) {
-	// logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, userId)
+	logPrefix := fmt.Sprintf("[models/homework]: (*Homework<id: %d>).AddSubmission<userId: %d>", homework.ID, userId)
 
 	submission := HomeworkSubmission{
 		HomeworkID: homework.ID,
@@ -72,12 +74,12 @@ func (homework *Homework) AddSubmission(userId uint, content string) (*HomeworkS
 		Content:    content,
 	}
 
-	// log.Printf("%s: 正在创建...", // logPrefix)
+	log.Printf("%s: 正在创建...", logPrefix)
 	if err := DB.Create(&submission).Error; err != nil {
-		// log.Printf("%s: 创建失败(%s)", // logPrefix, err)
+		log.Printf("%s: 创建失败(%s)", logPrefix, err)
 		return nil, err
 	}
-	// log.Printf("%s: 创建成功(id = %d)", // logPrefix, submission.ID)
+	log.Printf("%s: 创建成功(id = %d)", logPrefix, submission.ID)
 	return &submission, nil
 }
 
@@ -118,21 +120,21 @@ func (homework *Homework) GetCommentsByUserId(userId uint) ([]Comment, error) {
 }
 
 func (homework *Homework) UpdateInformation(name string, desciption string, beginDate time.Time, endDate time.Time, commentendate time.Time) bool {
-	// log.Printf("正在修改homework<id:%d>的详细信息", homework.ID)
+	log.Printf("正在修改homework<id:%d>的详细信息", homework.ID)
 	if beginDate.After(endDate) {
-		// log.Printf("homework<id:%d>:开始时间不可晚于结束时间", homework.ID)
+		log.Printf("homework<id:%d>:开始时间不可晚于结束时间", homework.ID)
 		return false
 	}
 	if endDate.After(commentendate) {
-		// log.Printf("homework<id:%d>:结束时间不可晚于批阅时间", homework.ID)
+		log.Printf("homework<id:%d>:结束时间不可晚于批阅时间", homework.ID)
 		return false
 	}
 	if name == "" {
-		// log.Printf("homework<id:%d>:作业名字不可为空", homework.ID)
+		log.Printf("homework<id:%d>:作业名字不可为空", homework.ID)
 		return false
 	}
 	if desciption == "" {
-		// log.Printf("homework<name:%d>:作业内容不可为空", homework.ID)
+		log.Printf("homework<name:%d>:作业内容不可为空", homework.ID)
 		return false
 	}
 	result := DB.Model(&homework).Updates(Homework{

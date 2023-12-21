@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"homework_platform/internal/models"
+	"log"
 	"mime/multipart"
 	"os"
 	"time"
@@ -35,7 +36,7 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("正在检查该用户有没有选课%d", id)
+	log.Printf("正在检查该用户有没有选课%d", id)
 	if !course.FindStudents(id) {
 		return nil, errors.New("请先选择这门课")
 	}
@@ -64,8 +65,8 @@ type GetHomeworkUserSubmission struct {
 
 func (service *GetHomeworkUserSubmission) Handle(c *gin.Context) (any, error) {
 	userId := c.GetUint("ID")
-	// // log.Printf("用户id为%d", userId)
-	// // log.Printf("homeworkid为%d", service.HomeworkId)
+	// log.Printf("用户id为%d", userId)
+	// log.Printf("homeworkid为%d", service.HomeworkId)
 	homework, err := models.GetHomeworkByID(service.HomeworkId)
 	if err != nil {
 		return "该作业号不存在", nil
@@ -110,7 +111,7 @@ func (s *UpdateUserSubmission) Handle(c *gin.Context) (any, error) {
 		homworksubmission.UpdateSelf()
 		os.RemoveAll(fmt.Sprintf("./data/homework_submission/%d", homworksubmission.ID))
 		for _, f := range s.Files {
-			// log.Println(f.Filename)
+			log.Println(f.Filename)
 			dst := fmt.Sprintf("./data/homework_submission/%d/%s", homworksubmission.ID, f.Filename)
 			// 上传文件到指定的目录
 			c.SaveUploadedFile(f, dst)

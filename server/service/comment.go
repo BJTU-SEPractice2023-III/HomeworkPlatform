@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -91,7 +92,7 @@ func (service *GetCommentListService) Handle(c *gin.Context) (any, error) {
 	m := make(map[string]any)
 	m["homework_submission"] = homeworkSubmissions
 	m["comment_lists"] = commentList
-	// log.Printf("%x", len(commentList))
+	log.Printf("%x", len(commentList))
 	return m, nil
 }
 
