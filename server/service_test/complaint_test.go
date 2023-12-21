@@ -3,6 +3,7 @@ package service_test
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -23,7 +24,7 @@ func TestCreateComplaint(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			data := map[string]interface{}{"reason": testcase.Reason}
 			jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
@@ -49,7 +50,7 @@ func TestDeleteComplaint(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			// data := map[string]interface{}{"reason": testcase.Reason}
 			// jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
@@ -75,7 +76,7 @@ func TestGetComplaint(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			// data := map[string]interface{}{"reason": testcase.Reason}
 			// jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
@@ -103,7 +104,7 @@ func TestUpdateComplaint(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			data := map[string]interface{}{"reason": testcase.Reason}
 			jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()
@@ -129,7 +130,7 @@ func TestSolveComplaint(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			// data := map[string]interface{}{"reason": testcase.Reason}
 			// jsonData, _ := json.Marshal(data)
 			w := httptest.NewRecorder()

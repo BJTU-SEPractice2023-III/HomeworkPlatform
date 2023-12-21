@@ -66,7 +66,7 @@ func CopyDir(srcDir string, dstDir string) error {
 	// fmt.Print([]byte(dstDir))
 	err := os.Mkdir(dstDir, 0666)
 	if err != nil {
-		// log.Println(err)
+		log.Println(err)
 	}
 	fileInfoList, _ := ioutil.ReadDir(srcDir)
 	for i := 0; i < len(fileInfoList); i++ {
@@ -82,7 +82,7 @@ func CopyDir(srcDir string, dstDir string) error {
 
 func ForwardStd(f io.ReadCloser, c chan string) {
 	// for {
-	// 	// log.Print("1")
+	// 	log.Print("1")
 	// }
 	defer func() {
 		recover()

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +19,7 @@ func (service *CreateComplaint) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 
-	// log.Printf("正在创建Complaint<homeworkId:%d,reason:%s>", service.HomeworkID, service.Reason)
+	log.Printf("正在创建Complaint<homeworkId:%d,reason:%s>", service.HomeworkID, service.Reason)
 	id := c.GetUint("ID")
 	if service.Reason == "" {
 		return nil, errors.New("原因不能为空")
@@ -27,7 +28,7 @@ func (service *CreateComplaint) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, errors.New("没有找到该提交")
 	}
-	// log.Printf("作业的用户为id%d", homework_submission.UserID)
+	log.Printf("作业的用户为id%d", homework_submission.UserID)
 	if homework_submission.UserID != id {
 		return nil, errors.New("这不是您的作业")
 	}
@@ -74,7 +75,7 @@ func (service *UpdateComplaint) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("修改reason为:%s", service.Reason)
+	log.Printf("修改reason为:%s", service.Reason)
 	complain.Reason = service.Reason
 	err = complain.Save()
 	return nil, err

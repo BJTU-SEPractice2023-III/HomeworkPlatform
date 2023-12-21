@@ -43,7 +43,7 @@ func GetCommentNum(homeworksubmission_id uint) (int, int) {
 }
 
 func (comment Comment) UpdateSelf(comm string, score int) error {
-	// log.Printf("comm: %v, score: %v\n", comm, score)
+	log.Printf("comm: %v, score: %v\n", comm, score)
 	res := DB.Model(&comment).Updates((map[string]interface{}{"comment": comm, "score": score}))
 	return res.Error
 }
@@ -77,7 +77,7 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 
 // func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
 // 	var comment []Comment
-// 	// log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
+// 	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
 // 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
 // 	if res.Error != nil {
 // 		return nil, res.Error
@@ -86,7 +86,7 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 // }
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
-	// log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
+	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,
@@ -110,7 +110,7 @@ func AssignComment(HomeworkID uint) error {
 	// 分配作业
 	submissionLists, err := homework.GetSubmissions()
 	if err != nil {
-		// log.Println("no")
+		log.Println("no")
 		return err
 	}
 
@@ -119,11 +119,11 @@ func AssignComment(HomeworkID uint) error {
 	if err != nil {
 		return err
 	}
-	// log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
+	log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
 	userCommentCnt := make(map[uint]int)
 
 	nReviewers := min(3, len(submittedUsers)-1)
-	// log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
+	log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
 
 	for _, submission := range submissionLists {
 		for cnt := 0; cnt < nReviewers; cnt++ {

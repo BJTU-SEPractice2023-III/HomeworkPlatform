@@ -75,7 +75,7 @@ func InitDB() {
 }
 
 func deleteData() {
-	// log.Println("正在删库🥳...")
+	log.Println("正在删库🥳...")
 	DB.Where("1 = 1").Delete(&User{})
 	DB.Where("1 = 1").Delete(&File{})
 	DB.Where("1 = 1").Delete(&Course{})
@@ -99,6 +99,8 @@ func generateData() {
 	xyh, _ := CreateUser("xyh", "xyh")
 	tjw, _ := CreateUser("tjw", "tjw")
 	xb, _ := CreateUser("xb", "xb")
+	xeh, _ := CreateUser("xeh", "xyh")
+	xsh, _ := CreateUser("xsh", "xyh")
 
 	arknights, _ := tjw.CreateCourse(
 		"明日方舟",
@@ -120,6 +122,8 @@ func generateData() {
 
 	xyh.SelectCourse(arknights.ID)
 	xb.SelectCourse(arknights.ID)
+	xeh.SelectCourse(arknights.ID)
+	xsh.SelectCourse(arknights.ID)
 
 	contingency_contract_pyrolysis, _ := arknights.CreateHomework(
 		"危机合约#1 灼燃作战",
@@ -147,11 +151,11 @@ func generateData() {
 	filepath := fmt.Sprintf("./data/%d/%s-%s", tjw.ID, utils.GetTimeStamp(), "危机合约.txt")
 	err := os.MkdirAll(fmt.Sprintf("./data/%d", tjw.ID), 0777)
 	if err != nil {
-		// log.Println(err)
+		log.Println(err)
 	}
 	err = os.WriteFile(filepath, []byte("我超，好难"), 0666)
 	if err != nil {
-		// log.Println(err)
+		log.Println(err)
 	}
 	file, _ := createFile(tjw.ID, "危机合约.txt", 666, filepath)
 	file.Attach(contingency_contract_pyrolysis.ID, TargetTypeHomework)
@@ -187,6 +191,8 @@ func generateData() {
 
 	ending.AddSubmission(1, "xyh提交")
 	ending.AddSubmission(3, "xb提交")
+	ending.AddSubmission(4, "xeh提交")
+	// ending.AddSubmission(5, "xsh提交")
 
 	xyh_3, _ := commenting.AddSubmission(1, "xyh提交")
 	xb_3, _ := commenting.AddSubmission(3, "xb提交")
@@ -224,8 +230,8 @@ func generateData() {
 // 			log.Panicf("创建初始管理员账户失败: %s\n", err)
 // 		}
 
-// 		// log.Println("初始管理员账户创建完成")
-// 		// log.Printf("用户名: %s\n", "Admin")
-// 		// log.Printf("密码: %s\n", password)
+// 		log.Println("初始管理员账户创建完成")
+// 		log.Printf("用户名: %s\n", "Admin")
+// 		log.Printf("密码: %s\n", password)
 // 	}
 // }
