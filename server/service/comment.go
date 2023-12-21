@@ -47,12 +47,12 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	return nil, err
 }
 
-type GetCommentListsService struct {
+type GetCommentListService struct {
 	HomeworkID uint `uri:"id" binding:"required"`
 }
 
-func (service *GetCommentListsService) Handle(c *gin.Context) (any, error) {
-	log.Println("[GetCommentListsService]: Trying to assign comments")
+func (service *GetCommentListService) Handle(c *gin.Context) (any, error) {
+	// log.Println("[GetCommentListsService]: Trying to assign comments")
 	if err := models.AssignComment(service.HomeworkID); err != nil {
 		return nil, err
 	}

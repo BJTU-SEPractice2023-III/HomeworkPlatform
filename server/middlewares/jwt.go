@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"homework_platform/internal/jwt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,10 +11,10 @@ func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		tokenStr, err := c.Cookie("token")
-		log.Printf("[middlewares/JWTAuth]: Token from cookies: %v\n", tokenStr)
+		// log.Printf("[middlewares/JWTAuth]: Token from cookies: %v\n", tokenStr)
 		if err != nil {
 			tokenStr = jwt.GetTokenStr(c)
-			log.Printf("[middlewares/JWTAuth]: Token from headers: %v\n", tokenStr)
+			// log.Printf("[middlewares/JWTAuth]: Token from headers: %v\n", tokenStr)
 		}
 
 		token, err := jwt.DecodeTokenStr(tokenStr)

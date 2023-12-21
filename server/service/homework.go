@@ -147,6 +147,7 @@ type UpdateHomework struct {
 }
 
 func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
+	fmt.Println(s.BeginDate, s.EndDate, s.CommentEndDate)
 	var err error
 	if s.Name == "" {
 		return nil, errors.New("名称不能为空")
@@ -206,6 +207,31 @@ func (s *UpdateHomework) Handle(c *gin.Context) (any, error) {
 	}
 	return nil, nil
 }
+
+
+type GetHomeworkSubmissions struct {
+	HomeworkID uint `uri:"id" binding:"required"`
+}
+
+func (service *GetHomeworkSubmissions) Handle(c *gin.Context) (any, error) {
+	homework, err := models.GetHomeworkByID(service.HomeworkID)
+	if err != nil {
+		return nil, err
+	}
+	if homework.EndDate.After(time.Now()) {
+		return nil, errors.New("评阅未开始")
+	}
+	id := c.GetUint("ID")
+	course, err := models.GetCourseByID(homework.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	if id == course.TeacherID {
+		return homework.GetSubmissionsWithComments()
+	}
+	return nil, nil
+}
+
 
 // type SubmitListsService struct {
 // 	HomeworkID uint `uri:"id" binding:"required"`
