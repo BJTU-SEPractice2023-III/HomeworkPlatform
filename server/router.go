@@ -5,7 +5,6 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 	user_service "homework_platform/server/service/user"
-	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func InitRouter() *gin.Engine {
 
 	// FrontendFS
 	if bootstrap.Dev {
-		log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
+		// log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
 		r.Use(middlewares.FrontendReverseProxy())
 	} else {
 		r.Use(middlewares.Frontend())

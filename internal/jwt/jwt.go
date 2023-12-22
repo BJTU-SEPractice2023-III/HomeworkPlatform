@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"homework_platform/internal/bootstrap"
-	"log"
 	"strings"
 	"time"
 
@@ -28,8 +27,8 @@ func CreateToken(id uint) (string, error) {
 
 func GetTokenStr(c *gin.Context) string {
 	tokenStr := ""
-	// log.Println(c.Request.Header.Get("Authorization"))
-	// log.Println(c.Request.URL)
+	// // log.Println(c.Request.Header.Get("Authorization"))
+	// // log.Println(c.Request.URL)
 	if c.Request.URL.Path == "/api/v1/ai/spark" && c.Request.Method == "GET" {
 		tokenStr = c.Query("token")
 	} else {
@@ -50,7 +49,7 @@ func at(t time.Time, f func()) {
 func DecodeTokenStr(tokenStr string) (*jwt.Token, error) {
 	var token *jwt.Token
 	var err error
-	// log.Println("Decoding", tokenStr)
+	// // log.Println("Decoding", tokenStr)
 	at(time.Unix(0, 0), func() {
 		token, err = jwt.ParseWithClaims(tokenStr, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(bootstrap.Config.JWTSigningString), nil
@@ -63,9 +62,9 @@ func DecodeTokenStr(tokenStr string) (*jwt.Token, error) {
 }
 
 func MustGetClaims(c *gin.Context) *MyCustomClaims {
-	log.Println("[MustGetClaims]")
+	// log.Println("[MustGetClaims]")
 	tokenStr := GetTokenStr(c)
-	log.Printf("[MustGetClaims] tokenStr: %s\n", tokenStr)
+	// log.Printf("[MustGetClaims] tokenStr: %s\n", tokenStr)
 	token, _ := DecodeTokenStr(tokenStr)
 	return token.Claims.(*MyCustomClaims)
 }
