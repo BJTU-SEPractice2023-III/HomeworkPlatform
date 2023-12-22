@@ -5,7 +5,6 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 	user_service "homework_platform/server/service/user"
-	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func InitRouter() *gin.Engine {
 
 	// FrontendFS
 	if bootstrap.Dev {
-		log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
+		// log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
 		r.Use(middlewares.FrontendReverseProxy())
 	} else {
 		r.Use(middlewares.Frontend())
@@ -148,8 +147,6 @@ func InitRouter() *gin.Engine {
 					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
 					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkUserSubmission{}))
-					// GET 	  api/v1/homeworks/:id/submissions 	|	获取指定 id 作业的所有提交
-					homeworks.GET(":id/submissions", service.HandlerBindUri(&service.GetHomeworkSubmissions{}))
 				}
 
 				notice := auth.Group("notice")

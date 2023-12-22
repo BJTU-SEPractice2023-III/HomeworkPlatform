@@ -54,6 +54,14 @@ func InitDB() {
 		})
 	} else {
 		db, err = gorm.Open(postgres.Open(bootstrap.Config.SQLDSN), &gorm.Config{})
+		sqlDB, err := db.DB()
+		if err == nil {
+			// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+			sqlDB.SetMaxIdleConns(100)
+
+			// SetMaxOpenConns sets the maximum number of open connections to the database.
+			sqlDB.SetMaxOpenConns(200)
+		}
 	}
 
 	if err != nil {
@@ -75,7 +83,7 @@ func InitDB() {
 }
 
 func deleteData() {
-	log.Println("正在删库🥳...")
+	// log.Println("正在删库🥳...")
 	DB.Where("1 = 1").Delete(&User{})
 	DB.Where("1 = 1").Delete(&File{})
 	DB.Where("1 = 1").Delete(&Course{})
@@ -151,11 +159,11 @@ func generateData() {
 	filepath := fmt.Sprintf("./data/%d/%s-%s", tjw.ID, utils.GetTimeStamp(), "危机合约.txt")
 	err := os.MkdirAll(fmt.Sprintf("./data/%d", tjw.ID), 0777)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 	}
 	err = os.WriteFile(filepath, []byte("我超，好难"), 0666)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 	}
 	file, _ := createFile(tjw.ID, "危机合约.txt", 666, filepath)
 	file.Attach(contingency_contract_pyrolysis.ID, TargetTypeHomework)
@@ -230,8 +238,8 @@ func generateData() {
 // 			log.Panicf("创建初始管理员账户失败: %s\n", err)
 // 		}
 
-// 		log.Println("初始管理员账户创建完成")
-// 		log.Printf("用户名: %s\n", "Admin")
-// 		log.Printf("密码: %s\n", password)
+// 		// log.Println("初始管理员账户创建完成")
+// 		// log.Printf("用户名: %s\n", "Admin")
+// 		// log.Printf("密码: %s\n", password)
 // 	}
 // }

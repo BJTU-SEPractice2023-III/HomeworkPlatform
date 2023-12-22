@@ -5,10 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"homework_platform/internal/utils"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 	"time"
@@ -28,7 +26,7 @@ func (s *GPTService) Handle(c *gin.Context) (any, error) {
 	os.Setenv("HTTPS_PROXY", "http://127.0.0.1:7890")
 	os.Setenv("ALL_PROXY", "socks5://127.0.0.1:7890")
 	client := openai.NewClient("?") //TODO:有钱人买个再说
-	resp, err := client.CreateChatCompletion(
+	_, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model: openai.GPT3Dot5Turbo,
@@ -47,7 +45,7 @@ func (s *GPTService) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 
-	fmt.Println(resp.Choices[0].Message.Content)
+	// // fmt.Println(resp.Choices[0].Message.Content)
 	return nil, nil
 }
 
@@ -71,14 +69,14 @@ func removeSSEChan(id uint) {
 type ConnectSpark struct{}
 
 func (s *ConnectSpark) Handle(c *gin.Context) (any, error) {
-	log.Println("ServerConsole")
+	// log.Println("ServerConsole")
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 
 	id := c.GetUint("ID")
 	messageChan := make(chan string)
 	addSSEChan(id, &messageChan)
-	log.Printf("[service/ai]: %d connected", id)
+	// log.Printf("[service/ai]: %d connected", id)
 	defer removeSSEChan(id)
 
 	c.Stream(func(w io.Writer) bool {
@@ -89,7 +87,7 @@ func (s *ConnectSpark) Handle(c *gin.Context) (any, error) {
 		return false
 	})
 
-	log.Printf("[service/ai]: %d disconnected", id)
+	// log.Printf("[service/ai]: %d disconnected", id)
 	return nil, nil
 }
 
@@ -119,17 +117,17 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("read message error:", err)
+			// // fmt.Println("read message error:", err)
 			break
 		}
 
 		var data map[string]interface{}
 		err = json.Unmarshal(msg, &data)
 		if err != nil {
-			fmt.Println("Error parsing JSON:", err)
+			// // fmt.Println("Error parsing JSON:", err)
 			return nil, errors.New("连接失败")
 		}
-		// fmt.Println(string(msg))
+		// // // fmt.Println(string(msg))
 
 		// 解析数据
 		payload := data["payload"].(map[string]interface{})
@@ -138,11 +136,11 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 		code := header["code"].(float64)
 
 		if code != 0 {
-			fmt.Println(data["payload"])
+			// // fmt.Println(data["payload"])
 			return nil, errors.New("连接失败")
 		}
 		status := choices["status"].(float64)
-		// fmt.Println(status)
+		// // // fmt.Println(status)
 		text := choices["text"].([]interface{})
 		content := text[0].(map[string]interface{})["content"].(string)
 
@@ -155,7 +153,8 @@ func (s *SparkService) Handle(c *gin.Context) (any, error) {
 			usage := payload["usage"].(map[string]interface{})
 			temp := usage["text"].(map[string]interface{})
 			totalTokens := temp["total_tokens"].(float64)
-			fmt.Println("total_tokens:", totalTokens)
+			_ = totalTokens
+			// // fmt.Println("total_tokens:", totalTokens)
 			break
 		}
 	}
@@ -194,12 +193,12 @@ func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
 
 	file, err := s.Files.Open()
 	if err != nil {
-		fmt.Println("无法打开文件：", err)
+		// // fmt.Println("无法打开文件：", err)
 		return nil, err
 	}
 	defer file.Close()
 	image, err := io.ReadAll(file)
-	log.Println("content为" + s.Content)
+	// log.Println("content为" + s.Content)
 	messages := []utils.ImageMessage{
 		{Role: "user", Content: base64.StdEncoding.EncodeToString(image), ContentType: "image"}, // 首条必须是图片
 		{Role: "user", Content: s.Content, ContentType: "text"},
@@ -227,17 +226,17 @@ func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("read message error:", err)
+			// // fmt.Println("read message error:", err)
 			break
 		}
 
 		var data map[string]interface{}
 		err1 := json.Unmarshal(msg, &data)
 		if err1 != nil {
-			fmt.Println("Error parsing JSON:", err)
+			// // fmt.Println("Error parsing JSON:", err)
 			return nil, err
 		}
-		fmt.Println(string(msg))
+		// // fmt.Println(string(msg))
 		//解析数据
 		payload := data["payload"].(map[string]interface{})
 		choices := payload["choices"].(map[string]interface{})
@@ -245,28 +244,29 @@ func (s *SparkImageService) Handle(c *gin.Context) (any, error) {
 		code := header["code"].(float64)
 
 		if code != 0 {
-			fmt.Println(data["payload"])
+			// // fmt.Println(data["payload"])
 			return nil, errors.New(data["payload"].(string))
 		}
 		status := choices["status"].(float64)
-		fmt.Println(status)
+		// // fmt.Println(status)
 		text := choices["text"].([]interface{})
 		content := text[0].(map[string]interface{})["content"].(string)
 		if status != 2 {
 			answer += content
 		} else {
-			fmt.Println("收到最终结果")
+			// // fmt.Println("收到最终结果")
 			answer += content
 			usage := payload["usage"].(map[string]interface{})
 			temp := usage["text"].(map[string]interface{})
 			totalTokens := temp["total_tokens"].(float64)
-			fmt.Println("total_tokens:", totalTokens)
+			_ = totalTokens
+			// // fmt.Println("total_tokens:", totalTokens)
 			conn.Close()
 			break
 		}
 
 	}
 	//输出返回结果
-	fmt.Println(answer)
+	// // fmt.Println(answer)
 	return answer, nil
 }

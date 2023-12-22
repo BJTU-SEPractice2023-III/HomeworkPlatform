@@ -1,8 +1,8 @@
 package jwt
 
 import (
-	"homework_platform/internal/bootstrap"
 	"fmt"
+	"homework_platform/internal/bootstrap"
 	"testing"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -17,11 +17,11 @@ func TestJwtPlayground(t *testing.T) {
 	// jwt.New 使用指定签名方法创建 Payload（Claims）为空的 Token（签名方法置于 Header 部分）
 	// 创建得到的 Token 的 Valid 值为 false，此值只有在 Token 被 Parse/Verify 时才会更新
 	token := jwt.New(jwt.GetSigningMethod("HS256"))
-	fmt.Printf("%#v\n", token)
+	// fmt.Printf("%#v\n", token)
 
 	// jwt.RegisteredClaims 是对 JMT 的 7 个保留 Claim 的包装
 	// token.Claims = jwt.RegisteredClaims{}
-	// fmt.Printf("%#v\n", token)
+	// // fmt.Printf("%#v\n", token)
 
 	// jwt.NewWithClaims 是上面两步的合并
 	// token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), jwt.RegisteredClaims{})

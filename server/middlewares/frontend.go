@@ -3,7 +3,6 @@ package middlewares
 import (
 	"homework_platform/internal/bootstrap"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -25,13 +24,13 @@ func Frontend() gin.HandlerFunc {
 	// 读取index.html
 	file, err := bootstrap.StaticFS.Open("/index.html")
 	if err != nil {
-		log.Println("Static file \"index.html\" does not exist, it might affect the display of the homepage.")
+		// log.Println("Static file \"index.html\" does not exist, it might affect the display of the homepage.")
 		return ignoreFunc
 	}
 
 	fileContentBytes, err := io.ReadAll(file)
 	if err != nil {
-		log.Println("Cannot read static file \"index.html\", it might affect the display of the homepage.")
+		// log.Println("Cannot read static file \"index.html\", it might affect the display of the homepage.")
 		return ignoreFunc
 	}
 	fileContent := string(fileContentBytes)

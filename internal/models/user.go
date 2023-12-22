@@ -2,9 +2,7 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"homework_platform/internal/utils"
-	"log"
 	"math"
 	"strings"
 	"time"
@@ -13,10 +11,10 @@ import (
 type User struct {
 	// gorm.Model
 	ID        uint   `json:"id" gorm:"primaryKey"`
-	Username  string `json:"username" gorm:"unique; not null"` // 用户名
-	Password  string `json:"-" gorm:"not null"`                // 密码
-	IsAdmin   bool   `json:"isAdmin"`                          // 是否是管理员
-	Signature string `json:"signature"`                        // 用户个性签名
+	Username  string `json:"username" gorm:"uniqueIndex; not null"` // 用户名
+	Password  string `json:"-" gorm:"not null"`                     // 密码
+	IsAdmin   bool   `json:"isAdmin"`                               // 是否是管理员
+	Signature string `json:"signature"`                             // 用户个性签名
 	Avatar    string `json:"avatar"`
 	//// Associations ////
 	// A user has many courses
@@ -48,30 +46,30 @@ type User struct {
 // CreateUser creates a user with the given username and raw password
 // Tested
 func CreateUser(username string, password string) (*User, error) {
-	logPrefix := fmt.Sprintf("[models/user]: CreateUser(username: %s)", username)
+	// logPrefix := fmt.Sprintf("[models/user]: CreateUser(username: %s)", username)
 
-	log.Printf("%s: 正在创建...", logPrefix)
+	// log.Printf("%s: 正在创建...", // logPrefix)
 	password = utils.EncodePassword(password, utils.RandStringRunes(16))
 	user := User{Username: username, Password: password, IsAdmin: false} // 默认创建的用户权限为普通用户
 
 	if err := DB.Create(&user).Error; err != nil {
-		log.Printf("%s: 创建失败(%s)", logPrefix, err)
+		// log.Printf("%s: 创建失败(%s)", // logPrefix, err)
 		return nil, err
 	}
-	log.Printf("%s: 创建成功(id = %v)", logPrefix, user.ID)
+	// log.Printf("%s: 创建成功(id = %v)", // logPrefix, user.ID)
 	return &user, nil
 }
 
 // GetUserById gets the user corresponding to the given id
 // Tested
 func GetUserByID(id uint) (user User, err error) {
-	logPrefix := fmt.Sprintf("[models/user]: GetUserByID(id: %d)", id)
+	// logPrefix := fmt.Sprintf("[models/user]: GetUserByID(id: %d)", id)
 
-	log.Printf("%s: 正在查找...", logPrefix)
+	// log.Printf("%s: 正在查找...", // logPrefix)
 	if err = DB.Preload("LearningCourses").Preload("TeachingCourses").First(&user, id).Error; err != nil {
-		log.Printf("%s: 查找失败(%s)", logPrefix, err)
+		// log.Printf("%s: 查找失败(%s)", // logPrefix, err)
 	} else {
-		log.Printf("%s: 查找成功(username = %s)", logPrefix, user.Username)
+		// log.Printf("%s: 查找成功(username = %s)", // logPrefix, user.Username)
 	}
 	return
 }
@@ -79,13 +77,13 @@ func GetUserByID(id uint) (user User, err error) {
 // DeleteUserById deletes the user corresponding to the given id
 // Tested
 func DeleteUserById(id uint) (err error) {
-	logPrefix := fmt.Sprintf("[models/user]: DeleteUserByID(id: %d)", id)
+	// logPrefix := fmt.Sprintf("[models/user]: DeleteUserByID(id: %d)", id)
 
-	log.Printf("%s: 正在删除...", logPrefix)
+	// log.Printf("%s: 正在删除...", // logPrefix)
 	if err = DB.Delete(&User{}, id).Error; err != nil {
-		log.Printf("%s: 删除失败(%s)", logPrefix, err)
+		// log.Printf("%s: 删除失败(%s)", // logPrefix, err)
 	} else {
-		log.Printf("%s: 删除成功", logPrefix)
+		// log.Printf("%s: 删除成功", // logPrefix)
 	}
 	return
 }
@@ -93,13 +91,13 @@ func DeleteUserById(id uint) (err error) {
 // GetUsers gets all users
 // Tested
 func GetUsers() (users []User, err error) {
-	logPrefix := "[models/user]: GetUsers"
+	// logPrefix := "[models/user]: GetUsers"
 
-	log.Printf("%s: 正在获取...", logPrefix)
+	// log.Printf("%s: 正在获取...", // logPrefix)
 	if err = DB.Find(&users).Error; err != nil {
-		log.Printf("%s: 获取失败", logPrefix)
+		// log.Printf("%s: 获取失败", // logPrefix)
 	} else {
-		log.Printf("%s: 获取完成(len = %d)", logPrefix, len(users))
+		// log.Printf("%s: 获取完成(len = %d)", // logPrefix, len(users))
 	}
 
 	return users, nil
@@ -108,16 +106,16 @@ func GetUsers() (users []User, err error) {
 // GetFiles get files the user owned
 // Tested in file.go
 func (user *User) GetFiles() ([]File, error) {
-	logPrefix := fmt.Sprintf("[models/user]: (*User<id: %d>).GetFiles", user.ID)
+	// logPrefix := fmt.Sprintf("[models/user]: (*User<id: %d>).GetFiles", user.ID)
 
-	log.Printf("%s: 正在获取文件...", logPrefix)
+	// log.Printf("%s: 正在获取文件...", // logPrefix)
 	var files []File
 	err := DB.Model(user).Association("Files").Find(&files)
 	if err != nil {
-		log.Printf("%s: 获取失败(%s)", logPrefix, err)
+		// log.Printf("%s: 获取失败(%s)", // logPrefix, err)
 		return nil, err
 	}
-	log.Printf("%s: 获取成功(len = %d)", logPrefix, len(files))
+	// log.Printf("%s: 获取成功(len = %d)", // logPrefix, len(files))
 	return files, nil
 }
 
@@ -151,9 +149,9 @@ func (user *User) ChangePassword(password string) error {
 // CreateCourse creates a course
 // Tested in course_test.go
 func (user *User) CreateCourse(name string, begindate time.Time, enddate time.Time, description string) (*Course, error) {
-	logPrefix := fmt.Sprintf("[models/user]: (*User<id: %d>).CreateCourse(nam: %s)", user.ID, name)
+	// logPrefix := fmt.Sprintf("[models/user]: (*User<id: %d>).CreateCourse(nam: %s)", user.ID, name)
 
-	log.Printf("%s: 正在创建...", logPrefix)
+	// log.Printf("%s: 正在创建...", // logPrefix)
 	course := Course{
 		Name:        name,
 		BeginDate:   begindate,
@@ -216,7 +214,7 @@ func UpgradeToAdmin(userId uint) error {
 }
 
 func (user *User) ChangeSignature(signature string) error {
-	log.Printf("正在修改签名<User>(Username = %s, Signature = %s)...", user.Username, signature)
+	// log.Printf("正在修改签名<User>(Username = %s, Signature = %s)...", user.Username, signature)
 	result := DB.Model(&user).Updates(User{Signature: signature})
 	return result.Error
 }
@@ -238,14 +236,14 @@ func (user *User) GetLearningCourse() ([]*Course, error) {
 }
 
 func GetUserByUsername(username string) (User, error) {
-	log.Printf("正在查找<User>(Username = %s)...", username)
+	// log.Printf("正在查找<User>(Username = %s)...", username)
 	var user User
 	res := DB.Where("username = ?", username).First(&user)
 	if res.Error != nil {
-		log.Printf("查找失败: %s", res.Error)
+		// log.Printf("查找失败: %s", res.Error)
 		return user, res.Error
 	}
-	log.Printf("查找完成: <User>(Username = %s)", user.Username)
+	// log.Printf("查找完成: <User>(Username = %s)", user.Username)
 	return user, nil
 }
 

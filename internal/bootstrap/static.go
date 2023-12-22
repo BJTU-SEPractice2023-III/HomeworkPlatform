@@ -15,7 +15,7 @@ type FS struct {
 var StaticFS *FS
 
 func InitStatic(statics embed.FS) {
-	log.Println("[bootStrap/InitStaticFS]: Initializing...")
+	// log.Println("[bootStrap/InitStaticFS]: Initializing...")
 	var err error
 	embedFS, err := fs.Sub(statics, "assets/dist")
 	if err != nil {

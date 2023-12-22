@@ -63,14 +63,14 @@ func DeletePath(path string) error {
 
 // CopyDir ...
 func CopyDir(srcDir string, dstDir string) error {
-	// fmt.Print([]byte(dstDir))
+	// // // fmt.Print([]byte(dstDir))
 	err := os.Mkdir(dstDir, 0666)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 	}
 	fileInfoList, _ := ioutil.ReadDir(srcDir)
 	for i := 0; i < len(fileInfoList); i++ {
-		// fmt.Println("Copying: ", fileInfoList[i].Name(), fileInfoList[i].IsDir(), "...")
+		// // // fmt.Println("Copying: ", fileInfoList[i].Name(), fileInfoList[i].IsDir(), "...")
 		if fileInfoList[i].IsDir() {
 			CopyDir(path.Join(srcDir, fileInfoList[i].Name()), path.Join(dstDir, fileInfoList[i].Name()))
 		} else {
@@ -82,7 +82,7 @@ func CopyDir(srcDir string, dstDir string) error {
 
 func ForwardStd(f io.ReadCloser, c chan string) {
 	// for {
-	// 	log.Print("1")
+	// 	// log.Print("1")
 	// }
 	defer func() {
 		recover()
@@ -159,7 +159,7 @@ func GenParams1(appid, question string) map[string]interface{} { // 根据实际
 func AssembleAuthUrl(hosturl string, apiKey, apiSecret string) string {
 	ul, err := url.Parse(hosturl)
 	if err != nil {
-		fmt.Println(err)
+		// // fmt.Println(err)
 	}
 	//签名时间
 	date := time.Now().UTC().Format(time.RFC1123)
@@ -168,10 +168,10 @@ func AssembleAuthUrl(hosturl string, apiKey, apiSecret string) string {
 	signString := []string{"host: " + ul.Host, "date: " + date, "GET " + ul.Path + " HTTP/1.1"}
 	//拼接签名字符串
 	sgin := strings.Join(signString, "\n")
-	// fmt.Println(sgin)
+	// // // fmt.Println(sgin)
 	//签名结果
 	sha := HmacWithShaTobase64("hmac-sha256", sgin, apiSecret)
-	// fmt.Println(sha)
+	// // // fmt.Println(sha)
 	//构建请求参数 此时不需要urlencoding
 	authUrl := fmt.Sprintf("hmac username=\"%s\", algorithm=\"%s\", headers=\"%s\", signature=\"%s\"", apiKey,
 		"hmac-sha256", "host date request-line", sha)

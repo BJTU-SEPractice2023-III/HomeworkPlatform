@@ -6,7 +6,6 @@ import (
 	"homework_platform/internal/jwt"
 	"homework_platform/internal/models"
 	"homework_platform/internal/utils"
-	"log"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
@@ -21,14 +20,14 @@ type Login struct {
 }
 
 func (service *Login) Handle(c *gin.Context) (any, error) {
-	log.Printf("[UserLoginService]: %v, %v\n", service.Username, service.Password)
+	// log.Printf("[UserLoginService]: %v, %v\n", service.Username, service.Password)
 	var user models.User
 	var err error
-	if service.Username==""{
-		return nil,errors.New("名称不能为空")
+	if service.Username == "" {
+		return nil, errors.New("名称不能为空")
 	}
-	if service.Password==""{
-		return nil,errors.New("密码不能为空")
+	if service.Password == "" {
+		return nil, errors.New("密码不能为空")
 	}
 	if user, err = models.GetUserByUsername(service.Username); err == gorm.ErrRecordNotFound {
 		return nil, err
@@ -50,7 +49,7 @@ func (service *Login) Handle(c *gin.Context) (any, error) {
 	res["token"] = jwtToken //之后解码token验证和user是否一致
 	res["user"] = user
 	// res["user_name"] = user.Username
-	log.Printf("登陆成功")
+	// log.Printf("登陆成功")
 	return res, nil
 }
 
@@ -73,7 +72,7 @@ func (service *UserUpdatePasswordService) Handle(c *gin.Context) (any, error) {
 	if !passwordCheck {
 		return nil, errors.New("密码错误")
 	}
-	log.Printf("用户的新密码为%s", service.NewPassword)
+	// log.Printf("用户的新密码为%s", service.NewPassword)
 	// 修改密码
 	if err := user.ChangePassword(service.NewPassword); err != nil {
 		return nil, err
@@ -103,7 +102,7 @@ func (service *UserselfupdateService) Handle(c *gin.Context) (any, error) {
 	if !passwordCheck {
 		return nil, errors.New("密码错误")
 	}
-	log.Printf("用户的新密码为%s", service.NewPassword)
+	// log.Printf("用户的新密码为%s", service.NewPassword)
 	// 修改密码
 	if err := user.ChangePassword(service.NewPassword); err != nil {
 		return nil, err
@@ -158,7 +157,7 @@ func (s *ChangeAvatar) Handle(c *gin.Context) (any, error) {
 	err := c.ShouldBind(s) //获得图片
 	if err != nil {
 		return nil, err
-	}  
+	}
 	if s.Avatar.Size > 1100000 {
 		return nil, errors.New("上传图片不可超过1mb")
 	}
