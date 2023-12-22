@@ -134,6 +134,7 @@ func AssignComment(HomeworkID uint) error {
 	}
 	// log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
 	userCommentCnt := make(map[uint]int)
+	submissionCommenter := make(map[uint][]uint)
 
 	nReviewers := min(3, len(submittedUsers)-1)
 	// log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
@@ -142,11 +143,23 @@ func AssignComment(HomeworkID uint) error {
 		for cnt := 0; cnt < nReviewers; cnt++ {
 			// Find a user to comment this submission
 			targetUserId := submittedUsers[rand.Intn(len(submittedUsers))].ID
-			for targetUserId == submission.UserID || userCommentCnt[targetUserId] >= nReviewers {
+			for {
+				// 评的提交是自己的 或 计划指定评论的人评论数够了
+				flag := targetUserId == submission.UserID || userCommentCnt[targetUserId] >= nReviewers
+				// 或者已经被这个人评了
+				for _, userId := range submissionCommenter[submission.ID] {
+					if userId == targetUserId {
+						flag = true
+					}
+				}
+				if !flag {
+					break
+				}
 				targetUserId = submittedUsers[rand.Intn(len(submittedUsers))].ID
 			}
 			userCommentCnt[targetUserId]++
 
+			submissionCommenter[submission.ID] = append(submissionCommenter[submission.ID], targetUserId)
 			CreateComment(submission.ID, targetUserId, submission.HomeworkID)
 		}
 	}

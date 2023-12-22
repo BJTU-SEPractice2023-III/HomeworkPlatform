@@ -147,6 +147,8 @@ func InitRouter() *gin.Engine {
 					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
 					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkUserSubmission{}))
+					// GET 	  api/v1/homeworks/:id/submissions 	|	获取指定 id 作业的所有提交
+					homeworks.GET(":id/submissions", service.HandlerBindUri(&service.GetHomeworkSubmissions{}))
 				}
 
 				notice := auth.Group("notice")
