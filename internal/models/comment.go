@@ -43,7 +43,7 @@ func GetCommentNum(homeworksubmission_id uint) (int, int) {
 }
 
 func (comment Comment) UpdateSelf(comm string, score int) error {
-	log.Printf("comm: %v, score: %v\n", comm, score)
+	// log.Printf("comm: %v, score: %v\n", comm, score)
 	res := DB.Model(&comment).Updates((map[string]interface{}{"comment": comm, "score": score}))
 	return res.Error
 }
@@ -77,7 +77,7 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 
 // func GetCommentListsByUserIDAndHomeworkID(userId uint, homeworkId uint) ([]Comment, error) {
 // 	var comment []Comment
-// 	log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
+// 	// log.Printf("正在查找 comments<user_id:%d,homeworkId:%d>\n", userId, homeworkId)
 // 	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comment)
 // 	if res.Error != nil {
 // 		return nil, res.Error
@@ -86,7 +86,7 @@ func GetCommentsByHomeworkId(HomeworkID uint) ([]Comment, error) {
 // }
 
 func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool {
-	log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
+	// log.Printf("正在创建comment<user_id:%d,homework_submission_id:%d>", UserID, HomeworkSubmissionID)
 	comment := Comment{
 		HomeworkSubmissionID: HomeworkSubmissionID,
 		UserID:               UserID,
@@ -99,6 +99,7 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool
 func AssignComment(HomeworkID uint) error {
 	// 在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
 	homework, err := GetHomeworkByID(HomeworkID)
+	// log.Printf("%v\n", *homework)
 	if err != nil {
 		return err
 	}
@@ -106,24 +107,36 @@ func AssignComment(HomeworkID uint) error {
 	if homework.Assigned == 1 || homework.EndDate.After(time.Now()) {
 		return nil
 	}
+	// log.Println("assigned = 1")
+	// log.Println("DB Save")
+	homework.Assigned = 1 //标志位,表示是否已经被分配
+	DB.Save(&homework)
 
 	// 分配作业
 	submissionLists, err := homework.GetSubmissions()
 	if err != nil {
-		log.Println("no")
+		// log.Println("assigned = -1")
+		// log.Println("DB Save")
+		homework.Assigned = -1 //标志位,表示是否已经被分配
+		DB.Save(&homework)
+		// log.Println("no")
 		return err
 	}
 
 	// TODO: 算法部分,暂时采用每人批三份的方式
 	submittedUsers, err := GetSubmittedUsers(HomeworkID)
 	if err != nil {
+		// log.Println("assigned = -1")
+		// log.Println("DB Save")
+		homework.Assigned = -1 //标志位,表示是否已经被分配
+		DB.Save(&homework)
 		return err
 	}
-	log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
+	// log.Printf("[AssignComment]: Submitted users: %x", len(submittedUsers))
 	userCommentCnt := make(map[uint]int)
 
 	nReviewers := min(3, len(submittedUsers)-1)
-	log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
+	// log.Printf("[AssignComment]: nReviewers: %x", nReviewers)
 
 	for _, submission := range submissionLists {
 		for cnt := 0; cnt < nReviewers; cnt++ {
@@ -175,9 +188,6 @@ func AssignComment(HomeworkID uint) error {
 	// 		}
 	// 	}
 	// }
-
-	homework.Assigned = 1 //标志位,表示是否已经被分配
-	DB.Save(&homework)
 
 	return nil
 }
