@@ -23,7 +23,7 @@ package service
 
 // func (service *DeleteUserService) Handle(c *gin.Context) (res any, err error) {
 // 	if err = models.DeleteUserById(service.ID); err != nil {
-// 		// log.Printf("删除失败(%s)", err)
+// 		log.Printf("删除失败(%s)", err)
 // 	}
 // 	return
 // }

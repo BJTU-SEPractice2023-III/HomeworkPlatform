@@ -5,6 +5,7 @@ import (
 	"homework_platform/server/middlewares"
 	"homework_platform/server/service"
 	user_service "homework_platform/server/service/user"
+	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func InitRouter() *gin.Engine {
 
 	// FrontendFS
 	if bootstrap.Dev {
-		// log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
+		log.Println("Dev flag, using frontend reverse proxy to localhost:5173")
 		r.Use(middlewares.FrontendReverseProxy())
 	} else {
 		r.Use(middlewares.Frontend())
@@ -78,7 +79,7 @@ func InitRouter() *gin.Engine {
 			// 	}
 			// }
 
-			// Login required
+			// login required
 			auth := v1.Group("")
 			auth.Use(middlewares.JWTAuth())
 			{
@@ -95,7 +96,7 @@ func InitRouter() *gin.Engine {
 					users.PUT("signature", service.HandlerBind(&user_service.UpdateSignature{}))
 					// GET api/v1/users/:id/courses 		| 获取指定 id 用户的课程列表（教的课以及学的课）
 					users.GET(":id/courses", service.HandlerBindUri(&user_service.GetUserCourses{}))
-					// GET api/v1/users/:id/avatar 			| 获得指定id用户的头像链接
+					// GET api/v1/users/:id/avatar 			| 获得指定id用户的头像
 					users.GET(":id/avatar", service.HandlerBindUri(&user_service.GetAvatar{}))
 					// PUT api/v1/users/avatar				| 更改头像
 					users.PUT("avatar", service.HandlerNoBind(&user_service.ChangeAvatar{}))
@@ -141,14 +142,12 @@ func InitRouter() *gin.Engine {
 					// POST   api/v1/homeworks/:id/submits       | 上传指定 id 作业的提交
 					homeworks.POST(":id/submits", service.HandlerWithBindType(&service.SubmitHomework{}, service.Bind|service.BindUri))
 
-					// GET 	  api/v1/homeworks/:id/comments	 | 得到id作业号的用户应该批阅的列表
-					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListsService{}))
+					// GET 	  api/v1/homeworks/:id/comments		 | 得到id作业号的用户应该批阅的列表
+					homeworks.GET(":id/comments", service.HandlerBindUri(&service.GetCommentListService{}))
 					// GET	  api/v1/homeworks/:id/mycomments 	| 得到id作业号的用户的被评论信息
 					homeworks.GET(":id/mycomments", service.HandlerBindUri(&service.GetMyCommentService{}))
 					// GET 	  api/v1/homeworks/:id/submission 	|	根据作业id和用户id获取作业信息
 					homeworks.GET(":id/submission", service.HandlerBindUri(&service.GetHomeworkUserSubmission{}))
-					// GET api/v1/homeworks/:id/grade           | 根据作业号获得指定作业的成绩,其中老师一次获得全部,学生获得自己的
-					homeworks.GET(":id/grade", service.HandlerBindUri(&service.GetGradeListsByHomeworkIDService{}))
 				}
 
 				notice := auth.Group("notice")

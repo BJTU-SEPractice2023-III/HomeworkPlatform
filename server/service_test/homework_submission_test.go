@@ -3,6 +3,7 @@ package service_test
 import (
 	"bytes"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +27,7 @@ func TestUpdateSubmission(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
 			if testcase.Case != "空描述" {

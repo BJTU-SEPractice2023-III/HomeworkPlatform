@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +31,7 @@ func TestCreateCourse(t *testing.T) {
 	}
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			data := map[string]interface{}{"name": testcase.Name, "begindate": testcase.BeginDate, "enddate": testcase.EndDate, "description": testcase.Description}
 			jsonData, _ := json.Marshal(data)
 
@@ -70,7 +71,7 @@ func TestUpdateCourseDescription(t *testing.T) {
 
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			data := map[string]interface{}{"description": testcase.Description}
 			jsonData, _ := json.Marshal(data)
 
@@ -128,10 +129,10 @@ func TestGetCourse(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	// log.Printf("Authorization为:%s", Authorization)
+	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID)), nil)
 			// req.Header.Set("Content-Type", "application/json")
@@ -163,10 +164,10 @@ func TestCreateCourseHomework(t *testing.T) {
 		{"时间顺序混乱1", 1, "c++", "1", time.Now(), time.Now().AddDate(0, 1, 1), time.Now().AddDate(0, 0, 2), 400},
 		{"时间顺序混乱2", 1, "c--", "1", time.Now().AddDate(0, 1, 1), time.Now(), time.Now().AddDate(0, 0, 2), 400},
 	}
-	// log.Printf("Authorization为:%s", Authorization)
+	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
@@ -213,16 +214,16 @@ func TestGetCourseHomeworks(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	// log.Printf("Authorization为:%s", Authorization)
+	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID))+"/homeworks", nil)
 			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
-			// log.Print(w.Body)
+			log.Print(w.Body)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得课程:%d,需要的code为%d,但是实际code为%d", testcase.CourseID, testcase.ExpextCode, w.Code)
 			}
@@ -240,16 +241,16 @@ func TestGetCourseStudents(t *testing.T) {
 		{"课程不存在", 992, 400},
 	}
 
-	// log.Printf("Authorization为:%s", Authorization)
+	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("GET", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID))+"/students", nil)
 			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", Authorization)
 			Router.ServeHTTP(w, req)
-			// log.Print(w.Body)
+			log.Print(w.Body)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得课程:%d,需要的code为%d,但是实际code为%d", testcase.CourseID, testcase.ExpextCode, w.Code)
 			}
@@ -268,16 +269,16 @@ func TestAddCourseStudentService(t *testing.T) {
 	}
 
 	authorization := GetAuthorziation("tjw", "123")
-	// log.Printf("Authorization为:%s", Authorization)
+	log.Printf("Authorization为:%s", Authorization)
 	for _, testcase := range cases {
 		t.Run(testcase.Case, func(t *testing.T) {
-			// log.Printf("正在测试")
+			log.Printf("正在测试")
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest("POST", "/api/v1/courses/"+strconv.Itoa(int(testcase.CourseID))+"/students", nil)
 			// req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Authorization", authorization)
 			Router.ServeHTTP(w, req)
-			// log.Print(w.Body)
+			log.Print(w.Body)
 			if w.Code != testcase.ExpextCode {
 				t.Fatalf("获得课程:%d,需要的code为%d,但是实际code为%d", testcase.CourseID, testcase.ExpextCode, w.Code)
 			}
