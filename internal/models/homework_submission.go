@@ -22,11 +22,12 @@ type HomeworkSubmission struct {
 	UserID    uint     `json:"userId"`
 	FilePaths []string `json:"file_paths" gorm:"-"`
 	// Regular fields
-	Content    string      `json:"content"`
-	Score      int         `json:"score" gorm:"default:-1"` // -1表示不是最终结果
-	Comments   []Comment   `josn:"comments" gorm:"constraint:OnDelete:CASCADE"`
-	Complaints []Complaint `josn:"complaints" gorm:"constraint:OnDelete:CASCADE"`
-	Files      []File      `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
+	Content       string      `json:"content"`
+	Score         int         `json:"score" gorm:"default:-1"` // -1表示不是最终结果
+	TeacherChange int         `json:"_" gorm:"default:-1"`     // -1表示不是最终结果
+	Comments      []Comment   `josn:"comments" gorm:"constraint:OnDelete:CASCADE"`
+	Complaints    []Complaint `josn:"complaints" gorm:"constraint:OnDelete:CASCADE"`
+	Files         []File      `json:"files" gorm:"constraint:OnDelete:CASCADE; polymorphic:Attachment;"`
 }
 
 func GetHomeworkSubmissionById(homewroksubmissionid uint) (*HomeworkSubmission, error) {
