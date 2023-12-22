@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"homework_platform/internal/jwt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

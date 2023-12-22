@@ -138,46 +138,9 @@ func AssignComment(HomeworkID uint) error {
 		}
 	}
 
-	// var userLists []uint
-	// if len(submissionLists) <= nReviewers {
-	// 	//少于3人,那么直接分配其他的人就行
-	// 	for _, users := range submissionLists {
-	// 		for _, submission := range submissionLists {
-	// 			if users.ID != submission.ID {
-	// 				CreateComment(submission.ID, users.UserID, submission.HomeworkID)
-	// 			}
-	// 		}
-	// 	}
-	// } else {
-	// 	for _, submission := range submissionLists {
-	// 		m[submission.UserID] = nReviewers
-	// 		userLists = append(userLists, submission.UserID)
-	// 	}
-	// 	for _, submission := range submissionLists { //在这里获取提交用户的id
-	// 		var used []uint
-	// 		for i := 0; i < nReviewers; i++ {
-	// 			for {
-	// 				k := rand.Intn(int(len(userLists)))
-	// 				found := false
-	// 				for _, z := range used {
-	// 					if int(z) == k {
-	// 						found = true
-	// 						break
-	// 					}
-	// 				}
-	// 				if userLists[k] != submission.UserID && m[userLists[k]] > 0 && !found {
-	// 					CreateComment(submission.ID, userLists[k], submission.HomeworkID)
-	// 					used = append(used, uint(k))
-	// 					m[userLists[k]]--
-	// 					break
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 	homework.Assigned = 1 //标志位,表示是否已经被分配
 	DB.Save(&homework)
+	log.Println("作业分配完毕")
 
 	return nil
 }

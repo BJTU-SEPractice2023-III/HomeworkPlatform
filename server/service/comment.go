@@ -56,7 +56,6 @@ func (service *GetCommentListService) Handle(c *gin.Context) (any, error) {
 	if err := models.AssignComment(service.HomeworkID); err != nil {
 		return nil, err
 	}
-
 	homework, err := models.GetHomeworkByID(service.HomeworkID)
 	if err != nil {
 		return nil, err
@@ -105,6 +104,9 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	// if err := models.AssignComment(service.HomeworkID); err != nil {
+	// 	return nil, err
+	// }
 	if homework.EndDate.After(time.Now()) {
 		return nil, errors.New("评阅未开始")
 	}
