@@ -38,7 +38,7 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 	if err == nil {
 		res := comment.UpdateSelf(service.Comment, service.Score)
 		num, len := models.GetCommentNum(service.HomeworkSubmissionID)
-		if num == len {
+		if num == len && homewroksubmission.TeacherChange == -1 {
 			homewroksubmission.CalculateGrade()
 		}
 		return nil, res

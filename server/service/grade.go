@@ -45,7 +45,7 @@ func (service *UpdateGradeService) Handle(c *gin.Context) (any, error) {
 		return nil, errors.New("您无权限修改")
 	}
 	submission.Score = service.Score
-	// submission.Grade = service.Final
+	submission.TeacherChange = 1
 	err2 := submission.UpdateSelf()
 	//TODO:还需要更新那些人的置信度,但是我是懒B
 	return nil, err2
