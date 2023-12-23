@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,10 @@ func (service *GetGradeBySubmissionIDService) Handle(c *gin.Context) (any, error
 	submission, _ := models.GetHomeworkSubmissionById(service.HomeworkSubmissionID)
 	if submission == nil {
 		return nil, errors.New("作业没找到")
+	}
+	homework, _ := models.GetHomeworkByID(submission.HomeworkID)
+	if homework.CommentEndDate.After(time.Now()) {
+		submission.Score = -1
 	}
 	return submission.Score, nil
 }
@@ -79,7 +84,11 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 		}
 		var maps MyMap
 		maps.UserID = id
-		maps.Score = submission.Score
+		if homework.CommentEndDate.After(time.Now()) {
+			maps.Score = -1
+		} else {
+			maps.Score = submission.Score
+		}
 		maps.UserName = "yourself"
 		// log.Println(maps)
 		return maps, nil

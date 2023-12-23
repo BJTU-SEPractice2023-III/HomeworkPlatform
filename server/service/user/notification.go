@@ -114,7 +114,7 @@ func (service *GetNotifications) Handle(c *gin.Context) (any, error) {
 			NotificationData: compliant,
 		})
 	}
-
+	// TODO这里有个小bug,不知道是前端还是后端的
 	return notifications, nil
 }
 

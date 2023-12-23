@@ -41,7 +41,9 @@ func (service *GetHomeworkById) Handle(c *gin.Context) (any, error) {
 			studentHomework.Submitted = true
 			studentHomework.Score = homeworkSubmission.Score
 		}
-
+		if homework.CommentEndDate.After(time.Now()) {
+			studentHomework.Score = -1
+		}
 		return studentHomework, nil
 	}
 }

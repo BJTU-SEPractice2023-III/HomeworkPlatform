@@ -126,6 +126,12 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 			return nil, err
 		}
 		comments, err := models.GetCommentBySubmissionID(submission.ID)
+		// 防止提前看到成绩
+		if homework.CommentEndDate.After(time.Now()) {
+			for i := 0; i < len(comments); i++ {
+				comments[i].Score = -1
+			}
+		}
 		if err != nil {
 			return nil, err
 		}

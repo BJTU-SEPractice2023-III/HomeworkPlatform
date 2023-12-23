@@ -87,8 +87,6 @@ func InitRouter() *gin.Engine {
 				{
 					// GET api/v1/users/:id         		| 获取指定 id 用户的信息
 					users.GET(":id", service.HandlerBindUri(&user_service.GetUserService{}))
-					// // GET api/v1/users/name				| 获得用户的姓名
-					// users.GET("/name", service.HandlerBind(&user_service.GetUserNameService{}))
 					// PUT api/v1/users/password			| 登录后修改密码
 					users.PUT("/password", service.HandlerBind(&user_service.UserUpdatePasswordService{}))
 					// PUT api/v1/users/signature 			| 更新用户的签名

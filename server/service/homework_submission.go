@@ -64,8 +64,8 @@ type GetHomeworkUserSubmission struct {
 
 func (service *GetHomeworkUserSubmission) Handle(c *gin.Context) (any, error) {
 	userId := c.GetUint("ID")
-	// // log.Printf("用户id为%d", userId)
-	// // log.Printf("homeworkid为%d", service.HomeworkId)
+	// log.Printf("用户id为%d", userId)
+	// log.Printf("homeworkid为%d", service.HomeworkId)
 	homework, err := models.GetHomeworkByID(service.HomeworkId)
 	if err != nil {
 		return "该作业号不存在", nil
@@ -73,6 +73,9 @@ func (service *GetHomeworkUserSubmission) Handle(c *gin.Context) (any, error) {
 	submission, err := homework.GetSubmissionByUserId(userId)
 	if err != nil {
 		return nil, err
+	}
+	if homework.CommentEndDate.After(time.Now()) {
+		submission.Score = -1
 	}
 	return *submission, nil
 }
