@@ -227,7 +227,19 @@ func (service *GetHomeworkSubmissions) Handle(c *gin.Context) (any, error) {
 		return nil, err
 	}
 	if id == course.TeacherID {
-		return homework.GetSubmissionsWithComments()
+		submisisons, err := homework.GetSubmissionsWithComments()
+		if err != nil {
+			return nil, err
+		}
+		// 批阅完成后的老师查看成绩查看时给没完成批阅的-10分
+		if homework.CommentEndDate.Before(time.Now()) {
+			for i := 0; i < len(submisisons); i++ {
+				if submisisons[i].FinishComment == -1 && submisisons[i].Score != -1 {
+					submisisons[i].Score = min(0, submisisons[i].Score-10)
+				}
+			}
+		}
+		return submisisons, nil
 	}
 	return nil, nil
 }

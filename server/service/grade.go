@@ -88,12 +88,13 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 			maps.Score = -1
 		} else {
 			maps.Score = submission.Score
+			// 没有完成评论并且成绩不为-1(表示没被批阅玩)
+			if submission.FinishComment == -1 && maps.Score != -1 {
+				maps.Score -= 10
+				maps.Score = max(0, maps.Score)
+			}
 		}
 		maps.UserName = "yourself"
-		if submission.FinishComment == -1 {
-			maps.Score -= 10
-			maps.Score = max(0, maps.Score)
-		}
 		// log.Println(maps)
 		return maps, nil
 	} else {

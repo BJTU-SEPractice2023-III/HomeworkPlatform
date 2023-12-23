@@ -163,7 +163,6 @@ func (s *ChangeAvatar) Handle(c *gin.Context) (any, error) {
 	}
 	// 判断是不是图片
 	extension := filepath.Ext(s.Avatar.Filename)
-	println(extension)
 	if !strings.Contains(".jpg.jpeg.png.gif.bmp", extension) {
 		return nil, errors.New("unsupported file type")
 	}
