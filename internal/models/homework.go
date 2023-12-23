@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -79,6 +80,25 @@ func (homework *Homework) AddSubmission(userId uint, content string) (*HomeworkS
 	}
 	// log.Printf("%s: 创建成功(id = %d)", // logPrefix, submission.ID)
 	return &submission, nil
+}
+
+func (homework *Homework) UserCommentFinish(userId uint) (bool, error) {
+	_, err := homework.GetSubmissionByUserId(userId)
+	if err != nil {
+		return false, err
+	}
+	commens, err := GetCommentsByHomeworkIdAndUserId(homework.ID, userId)
+	if err != nil {
+		return false, err
+	}
+	for i := 0; i < len(commens); i++ {
+		if commens[i].Score == -1 {
+			log.Printf("用户未完成所有批阅")
+			return false, nil
+		}
+	}
+	log.Printf("用户完成所有批阅")
+	return true, nil
 }
 
 // GetSubmissionByUserId gets the submission from a user

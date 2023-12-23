@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	"gorm.io/gorm"
 )
 
@@ -44,7 +46,7 @@ func CreateTeacherComplaint(submissionId uint, homeworkId uint, CourseID uint, r
 	complaint.Solved = false
 	res := DB.Create(&complaint)
 	if res.Error == nil {
-		// log.Printf("创建完成<Complaint>(ID = %v)", complaint.ID)
+		log.Printf("创建完成<Complaint>(ID = %v)", complaint.ID)
 	}
 	return res.Error
 }

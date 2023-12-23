@@ -90,6 +90,10 @@ func (service *GetGradeListsByHomeworkIDService) Handle(c *gin.Context) (any, er
 			maps.Score = submission.Score
 		}
 		maps.UserName = "yourself"
+		if submission.FinishComment == -1 {
+			maps.Score -= 10
+			maps.Score = max(0, maps.Score)
+		}
 		// log.Println(maps)
 		return maps, nil
 	} else {
