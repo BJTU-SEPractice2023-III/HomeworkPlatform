@@ -243,7 +243,7 @@ func (service *GetCourseHomeworks) Handle(c *gin.Context) (any, error) {
 				if homework.CommentEndDate.Before(time.Now()) {
 					studentHomework.Score = homeworkSubmission.Score
 					if homeworkSubmission.FinishComment == -1 && homeworkSubmission.Score != -1 {
-						studentHomework.Score = min(0, studentHomework.Score-10)
+						studentHomework.Score = max(0, studentHomework.Score-10)
 					}
 				} else {
 					studentHomework.Score = -1

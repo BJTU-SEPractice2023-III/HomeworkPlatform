@@ -54,6 +54,10 @@ func (s *SubmitHomework) Handle(c *gin.Context) (any, error) {
 			}
 		}
 		return nil, nil
+	} else {
+		//TODO:这里有个bug,
+		homworksubmission.Content = s.Content
+		homworksubmission.UpdateSelf()
 	}
 	return nil, errors.New("不可重复提交")
 }

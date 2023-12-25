@@ -235,7 +235,7 @@ func (service *GetHomeworkSubmissions) Handle(c *gin.Context) (any, error) {
 		if homework.CommentEndDate.Before(time.Now()) {
 			for i := 0; i < len(submisisons); i++ {
 				if submisisons[i].FinishComment == -1 && submisisons[i].Score != -1 {
-					submisisons[i].Score = min(0, submisisons[i].Score-10)
+					submisisons[i].Score = max(0, submisisons[i].Score-10)
 				}
 			}
 		}
