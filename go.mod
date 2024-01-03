@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/gorilla/websocket v1.5.1
-	github.com/sashabaranov/go-openai v1.17.9
+	github.com/sashabaranov/go-openai v1.17.10
 	gorm.io/driver/mysql v1.5.2
 )
 
