@@ -109,12 +109,12 @@ func (submission *HomeworkSubmission) CalculateGrade() {
 		gradeList = append(gradeList, comment.Score)
 		grade += float64(comment.Score) * float64(user.DegreeOfConfidence) //TODO:在这里进行算法开发
 	}
-	if grade == 0 {
-		return
-	}
 	flag := false
 	if submission.Score == -1 {
 		flag = true
+	}
+	if totalDegree == 0 {
+		return
 	}
 	average := float64(grade) / totalDegree
 	average = math.Round(average)
