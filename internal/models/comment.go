@@ -96,6 +96,13 @@ func CreateComment(HomeworkSubmissionID uint, UserID uint, HomeworkID uint) bool
 	return res.Error == nil
 }
 
+func GetCommentsByHomeworkIdAndUserId(homeworkId uint, userId uint) ([]Comment, error) {
+	log.Printf("正在查找<Complaint>(homeworkId = %d,userId = %d)...", homeworkId, userId)
+	var comments []Comment
+	res := DB.Where("homework_id = ? AND user_id = ?", homeworkId, userId).Find(&comments)
+	return comments, res.Error
+}
+
 func AssignComment(HomeworkID uint) error {
 	// 在这里我们进行作业的分配,每次如果作业没有被分配并且时间到了那么我们就分配!
 	homework, err := GetHomeworkByID(HomeworkID)

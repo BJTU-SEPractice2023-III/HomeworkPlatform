@@ -67,9 +67,9 @@ func GetUserByID(id uint) (user User, err error) {
 
 	// log.Printf("%s: 正在查找...", // logPrefix)
 	if err = DB.Preload("LearningCourses").Preload("TeachingCourses").First(&user, id).Error; err != nil {
-		// log.Printf("%s: 查找失败(%s)", // logPrefix, err)
+		// log.Printf("%s: 查找失败(%s)", logPrefix, err)
 	} else {
-		// log.Printf("%s: 查找成功(username = %s)", // logPrefix, user.Username)
+		// log.Printf("%s: 查找成功(username = %s)", logPrefix, user.Username)
 	}
 	return
 }

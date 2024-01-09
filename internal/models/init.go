@@ -159,11 +159,11 @@ func generateData() {
 	filepath := fmt.Sprintf("./data/%d/%s-%s", tjw.ID, utils.GetTimeStamp(), "危机合约.txt")
 	err := os.MkdirAll(fmt.Sprintf("./data/%d", tjw.ID), 0777)
 	if err != nil {
-		// log.Println(err)
+		log.Println(err)
 	}
 	err = os.WriteFile(filepath, []byte("我超，好难"), 0666)
 	if err != nil {
-		// log.Println(err)
+		log.Println(err)
 	}
 	file, _ := createFile(tjw.ID, "危机合约.txt", 666, filepath)
 	file.Attach(contingency_contract_pyrolysis.ID, TargetTypeHomework)

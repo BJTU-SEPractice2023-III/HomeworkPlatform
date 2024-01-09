@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"homework_platform/internal/models"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -40,6 +41,21 @@ func (service *CommentService) Handle(c *gin.Context) (any, error) {
 		num, len := models.GetCommentNum(service.HomeworkSubmissionID)
 		if num == len && homewroksubmission.TeacherChange == -1 {
 			homewroksubmission.CalculateGrade()
+		}
+		if flag, err := homework.UserCommentFinish(id.(uint)); err == nil {
+			if flag {
+				log.Printf("查找完毕,用户成功批阅了所有作业")
+				//批阅作业完毕
+				submission, err := homework.GetSubmissionByUserId(id.(uint))
+				if err != nil {
+					return nil, err
+				}
+				submission.FinishComment = 1
+				submission.UpdateSelf()
+				return nil, submission.UpdateSelf()
+			}
+		} else {
+			return nil, err
 		}
 		return nil, res
 	}
@@ -126,6 +142,12 @@ func (service *GetMyCommentService) Handle(c *gin.Context) (any, error) {
 			return nil, err
 		}
 		comments, err := models.GetCommentBySubmissionID(submission.ID)
+		// 防止提前看到成绩
+		if homework.CommentEndDate.After(time.Now()) {
+			for i := 0; i < len(comments); i++ {
+				comments[i].Score = -1
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
